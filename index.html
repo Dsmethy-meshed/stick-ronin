@@ -8,6 +8,7 @@
 <style>
 /* VOICE: arcade feroz. IDEA: patio de templo al atardecer, tinta y sangre. PICTURE: el juego 3D a pantalla completa.
    COLOUR: polvo cálido, tinta negra, rojo bufanda. TYPE: system-ui heavy. LAYOUT: lienzo + mandos táctiles flotantes. */
+*{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 html,body{margin:0;height:100%;overflow:hidden;background:#1a1820;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none;font-family:system-ui,-apple-system,sans-serif}
 canvas{display:block;touch-action:none}
 #hud{position:fixed;inset:0;pointer-events:none;color:#fff}
@@ -676,6 +677,11 @@ function endPtr(e){
 }
 addEventListener('pointerup',endPtr);addEventListener('pointercancel',endPtr);
 cvs.addEventListener('contextmenu',e=>e.preventDefault());
+// evitar el menú de copiar/compartir al mantener pulsado (Android/iOS)
+{const ed=t=>t&&t.closest&&t.closest('input,textarea,[contenteditable]');
+ document.addEventListener('contextmenu',e=>{if(!ed(e.target))e.preventDefault()},{capture:true});
+ document.addEventListener('selectstart',e=>{if(!ed(e.target))e.preventDefault()},{capture:true});
+ document.addEventListener('selectionchange',()=>{const a=document.activeElement;if(ed(a))return;const sel=getSelection();if(sel&&sel.rangeCount&&!sel.isCollapsed)sel.removeAllRanges()});}
 /* ---- controles configurables (teclado + mando) ---- */
 const CTRL_KEY='stickronin_ctrl_v1';
 const ACTS=[['u','Mover adelante'],['d','Mover atrás'],['l','Mover izquierda'],['r','Mover derecha'],['jump','Saltar'],['atk','Atacar'],['dash','Especial / dash'],['hook','Gancho'],['swap','Cambiar arma'],['menu','Pausa / menú'],['cl','Cámara izquierda'],['cr','Cámara derecha'],['cu','Cámara arriba'],['cd','Cámara abajo']];
