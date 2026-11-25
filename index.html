@@ -21,7 +21,7 @@ canvas{display:block;touch-action:none}
 #wbtn{position:absolute;right:16px;top:44px;pointer-events:auto;min-height:44px;padding:0 16px;border:0;border-radius:12px;background:rgba(0,0,0,.45);color:#fff;font:800 14px system-ui,sans-serif;touch-action:none}
 #forge{position:fixed;inset:0;display:none;z-index:50;background:rgba(14,11,15,.94);color:#eadfd2;font:14px system-ui,sans-serif;overflow-y:auto;-webkit-overflow-scrolling:touch}
 #forge .fin{width:100%;max-width:520px;margin:0 auto;padding:10px 10px 40px;box-sizing:border-box}
-#forge .fh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;background:rgba(14,11,15,.97);padding:6px 0;z-index:2}
+#forge .fh{display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:0;background:#0e0b0f;box-shadow:0 6px 10px #0e0b0f;padding:6px 0;z-index:2}
 #forge .fh b{font-size:18px}#forge .fh span{flex:1;font-size:12px;opacity:.8}
 #forge button{min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #4a434f;background:#2c2832;color:#fff;font:700 13px system-ui,sans-serif}
 #forge button[disabled]{opacity:.4}#forge .fh button{background:#d1242c;border-color:#d1242c}
@@ -67,6 +67,7 @@ canvas{display:block;touch-action:none}
 #forge .can{border-color:#ffd04a!important;background:#231d12!important}
 #forge .hot{border-color:#fff!important;background:#3a2a14!important;transform:scale(1.03)}
 #forge .fc{isolation:isolate}
+#mpTags{position:fixed;inset:0;pointer-events:none;z-index:5}.mptag{position:absolute;transform:translate(-50%,-100%);font:800 12px system-ui;color:#fff;background:rgba(0,0,0,.55);border:2px solid #fff;border-radius:8px;padding:1px 6px;white-space:nowrap;text-shadow:0 1px 0 #000}
 #forge .fc.can{border-color:#ffd04a!important;box-shadow:0 0 18px rgba(255,208,74,.55)}
 #forge .fc.can::before{content:'';position:absolute;inset:-16px;border-radius:24px;z-index:-1;pointer-events:none;background:radial-gradient(closest-side,rgba(255,224,120,.75),rgba(255,170,40,.35) 55%,transparent);animation:halo 1.1s ease-in-out infinite alternate}
 #forge .fc.can::after{content:'✦';position:absolute;right:6px;top:4px;color:#fff6c8;font-size:14px;text-shadow:0 0 8px #ffd04a;pointer-events:none;animation:twk 1.2s ease-in-out infinite}
@@ -786,9 +787,9 @@ function pollPad(){const gp=pickPad();
  pad.prev=bs}
 function updPadDiag(){const d=document.getElementById('padDiag');if(!d)return;d.textContent=pad.on?`${pad.id}\nmapeo: ${pad.map} · ${pad.nb} botones · ${pad.na} ejes\npulsados: ${pad.live&&pad.live.length?pad.live.join(', '):'—'}\nejes: ${(pad.axes||[]).join('  ')}`:(padErr?'Error del navegador: '+padErr:'No se detecta ningún mando. Pulsa un botón del mando con esta ventana activa.')}
 function pauseGame(){if(state!=='play')return;state='pause';for(const k in held)held[k]=false;for(const k in keys)keys[k]=false;hudShow(false);const o=$('ov');o.style.display='flex';
- o.innerHTML=`<h1>PAUSA</h1><h2>${TRAIN?'Dojo de entrenamiento':'Oleada '+wave+' · '+kills+' bajas'}</h2><button class="edl" id="bResume" type="button" style="background:#d1242c;border-color:#d1242c">▶ Continuar</button><button class="edl" id="bKeys2" type="button">🎮 Controles</button><button class="edl" id="bToMenu" type="button">☰ Volver al menú principal</button><p style="opacity:.6;margin-top:14px">${TRAIN?'':'La partida se guarda al llegar a cada forja; si vuelves al menú perderás lo hecho desde la última.'}</p>`}
+ o.innerHTML=`<h1>PAUSA</h1><h2>${TRAIN&&TRAIN.mp?'Sala '+NET.code+(NET.host?' (eres el anfitrión)':''):TRAIN?'Dojo de entrenamiento':'Oleada '+wave+' · '+kills+' bajas'}</h2><button class="edl" id="bResume" type="button" style="background:#d1242c;border-color:#d1242c">▶ Continuar</button><button class="edl" id="bKeys2" type="button">🎮 Controles</button><button class="edl" id="bToMenu" type="button">☰ ${TRAIN&&TRAIN.mp?'Salir de la sala':'Volver al menú principal'}</button><p style="opacity:.6;margin-top:14px">${TRAIN&&TRAIN.mp?(NET.host?'Si sales, la sala se cierra para todos.':''):TRAIN?'':'La partida se guarda al llegar a cada forja; si vuelves al menú perderás lo hecho desde la última.'}</p>`}
 function resumeGame(){if(state!=='pause')return;$('ov').style.display='none';state='play';hudShow(true)}
-function goMenu(){closeKeys();state='title';TRAIN=null;$('dojo').style.display='none';$('forge').style.display='none';resetGame();showTitle();hudShow(false)}
+function goMenu(){if(NET.on)mpLeave();closeKeys();state='title';TRAIN=null;$('dojo').style.display='none';$('forge').style.display='none';resetGame();showTitle();hudShow(false)}
 function openKeys(){rebind=null;$('keys').style.display='block';renderKeys()}
 function closeKeys(){rebind=null;wiz=null;$('keys').style.display='none';if(state==='title')showTitle()}
 function renderKeys(){const k=$('keys');if(k.style.display!=='block')return;const w=(d,a,sl)=>rebind&&rebind.dev===d&&rebind.a===a&&rebind.slot===sl;
@@ -2669,16 +2670,21 @@ function fdStart(){if(!fdrag.it||fdrag.on)return;fdrag.on=true;const g=fdrag.el.
  document.querySelectorAll('#forge [data-drop]').forEach(z=>{if(dropOk(fdrag.it,z.dataset.drop))z.classList.add('can')})}
 function fdZone(x,y){const g=fdrag.ghost;if(g)g.style.display='none';const el=document.elementFromPoint(x,y);if(g)g.style.display='';let d=el&&el.closest&&el.closest('[data-drop]');if(d&&d.dataset.drop.startsWith('w:')&&!dropOk(fdrag.it,d.dataset.drop))d=d.parentElement&&d.parentElement.closest('[data-drop]');return d||null}
 function fdClear(){document.querySelectorAll('#forge .hot,#forge .can').forEach(e=>e.classList.remove('hot','can'))}
-$('forge').addEventListener('pointerdown',e=>{const el=e.target.closest('[data-drag]');if(!el||state!=='forge')return;const it=findItem(+el.dataset.drag);if(!it)return;Object.assign(fdrag,{it,uid:it.uid,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,on:false,el,ghost:null,zone:null,mouse:e.pointerType==='mouse'});clearTimeout(fdrag.tm);if(!fdrag.mouse)fdrag.tm=setTimeout(fdStart,220)});
-addEventListener('touchmove',e=>{if(fdrag.on)e.preventDefault()},{passive:false});
-addEventListener('pointermove',e=>{if(!fdrag.it)return;const dx=e.clientX-fdrag.x0,dy=e.clientY-fdrag.y0;
- fdrag.x=e.clientX;fdrag.y=e.clientY;
- if(!fdrag.on){if(Math.hypot(dx,dy)<9)return;if(fdrag.mouse)fdStart();else{clearTimeout(fdrag.tm);fdrag.it=null;return}}
- e.preventDefault();const g=fdrag.ghost;g.style.left=(e.clientX-g.offsetWidth/2)+'px';g.style.top=(e.clientY-g.offsetHeight*.7)+'px';
- const z=fdZone(e.clientX,e.clientY);document.querySelectorAll('#forge .hot').forEach(x=>x!==z&&x.classList.remove('hot'));if(z&&dropOk(fdrag.it,z.dataset.drop))z.classList.add('hot');fdrag.zone=z},{passive:false});
-addEventListener('pointerup',e=>{clearTimeout(fdrag.tm);if(!fdrag.it)return;const was=fdrag.on,it=fdrag.it,z=was?fdZone(e.clientX,e.clientY):null;if(fdrag.ghost)fdrag.ghost.remove();if(fdrag.el)fdrag.el.classList.remove('lift');fdClear();fdrag.it=null;
- if(was){fdrag.sup=true;setTimeout(()=>fdrag.sup=false,60);if(z&&dropOk(it,z.dataset.drop))forgeDrop(it,z.dataset.drop)}});
-addEventListener('pointercancel',()=>{clearTimeout(fdrag.tm);if(fdrag.on)return;if(fdrag.ghost)fdrag.ghost.remove();if(fdrag.el)fdrag.el.classList.remove('lift');fdClear();fdrag.it=null});
+$('forge').addEventListener('pointerdown',e=>{document.querySelectorAll('.fc.ghost').forEach(g=>g.remove());const el=e.target.closest('[data-drag]');if(!el||state!=='forge')return;const it=findItem(+el.dataset.drag);if(!it)return;Object.assign(fdrag,{it,uid:it.uid,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,on:false,el,ghost:null,zone:null,mouse:e.pointerType==='mouse'});clearTimeout(fdrag.tm);if(!fdrag.mouse)fdrag.tm=setTimeout(fdStart,220)});
+function fdMove(x,y){const dx=x-fdrag.x0,dy=y-fdrag.y0;fdrag.x=x;fdrag.y=y;
+ if(!fdrag.on){if(Math.hypot(dx,dy)<9)return false;if(fdrag.mouse)fdStart();else{clearTimeout(fdrag.tm);fdrag.it=null;return false}}
+ const g=fdrag.ghost;if(!g)return true;g.style.left=(x-g.offsetWidth/2)+'px';g.style.top=(y-g.offsetHeight*.7)+'px';
+ const z=fdZone(x,y);document.querySelectorAll('#forge .hot').forEach(q=>q!==z&&q.classList.remove('hot'));if(z&&dropOk(fdrag.it,z.dataset.drop))z.classList.add('hot');fdrag.zone=z;return true}
+function fdEnd(x,y,drop){clearTimeout(fdrag.tm);if(!fdrag.it){document.querySelectorAll('.fc.ghost').forEach(g=>g.remove());return}
+ const was=fdrag.on,it=fdrag.it,z=was&&drop?fdZone(x,y):null;if(fdrag.ghost)fdrag.ghost.remove();document.querySelectorAll('.fc.ghost').forEach(g=>g.remove());if(fdrag.el)fdrag.el.classList.remove('lift');fdClear();fdrag.it=null;fdrag.on=false;fdrag.ghost=null;
+ if(was){fdrag.sup=true;setTimeout(()=>fdrag.sup=false,60);if(z&&dropOk(it,z.dataset.drop))forgeDrop(it,z.dataset.drop)}}
+// el navegador puede cancelar el puntero (scroll, pulsación larga): seguimos el arrastre con eventos táctiles
+addEventListener('touchmove',e=>{if(!fdrag.it)return;if(fdrag.on){e.preventDefault();const t=e.touches[0];if(t)fdMove(t.clientX,t.clientY)}},{passive:false});
+addEventListener('touchend',e=>{if(!fdrag.it||!fdrag.on)return;const t=e.changedTouches[0];fdEnd(t?t.clientX:fdrag.x,t?t.clientY:fdrag.y,true)},{passive:true});
+addEventListener('touchcancel',()=>{if(fdrag.it&&fdrag.on)fdEnd(0,0,false)});
+addEventListener('pointermove',e=>{if(!fdrag.it)return;if(e.pointerType!=='mouse'&&fdrag.on)return;if(fdMove(e.clientX,e.clientY))e.preventDefault()},{passive:false});
+addEventListener('pointerup',e=>{if(!fdrag.it)return;if(e.pointerType!=='mouse'&&fdrag.on){/* lo cierra touchend */setTimeout(()=>{if(fdrag.it&&fdrag.on)fdEnd(e.clientX,e.clientY,true)},80);return}fdEnd(e.clientX,e.clientY,true)});
+addEventListener('pointercancel',()=>{clearTimeout(fdrag.tm);if(fdrag.on)return;fdEnd(0,0,false)});
 function openRadial(uid,anvil){const R=RUN,f=$('forge');const old=f.querySelector('.radial');if(old)old.remove();
  const it=anvil?findItem(R.anvil.base):findItem(uid);const src=anvil?f.querySelector('[data-drop="anvil"]'):f.querySelector('.fin [data-u="'+uid+'"]');if(!it||!src)return;
  const r=src.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,eqI=R.wpn.findIndex(w=>w.uid===it.uid),A=R.anvil,b=findItem(A.base),o=[];
@@ -3023,6 +3029,7 @@ function draw(){
   if(P.grap){const h0=J[5],h1=P.grap.tip,N=12;let prev=h0;for(let i=1;i<=N;i++){const t=i/N,sag=P.grap.sag*Math.sin(t*Math.PI)*Math.min(1,Math.hypot(h1[0]-h0[0],h1[2]-h0[2])/6+.2),wob=Math.sin(t*Math.PI*3+time*30)*P.grap.sagV*.004;const p=[lerp(h0[0],h1[0],t)+wob,lerp(h0[1],h1[1],t)-sag,lerp(h0[2],h1[2],t)-wob];limb(prev,p,.028,COL.rope);prev=p}
    red(h1,.07)}
  }
+ if(NET.on)mpDraw(NET.dt||1/60);
  // indicador del gancho
  if(state==='play'&&hookTarget&&!P.grap&&!P.dead){const g=hookTarget;hookInd.visible=true;hookInd.position.set(g.x,g.y+.45,g.z);hookInd.lookAt(camera.position);const s=1+Math.sin(time*6)*.1;hookInd.scale.setScalar(s*Math.max(.8,Math.hypot(g.x-camera.position.x,g.z-camera.position.z)/9))}else hookInd.visible=false;
  poolEnd();flushDecals();
@@ -3030,10 +3037,10 @@ function draw(){
 }
 /* HUD */
 const hpI=$('hp').firstElementChild,killsEl=$('kills'),comboEl=$('combo'),waveEl=$('wave'),banEl=$('banner'),hookB=$('bHook');
-function hudShow(on){$('bDojo').style.display=on&&TRAIN?'block':'none';for(const id of['bAtk','bJump','bDash','bHook'])$(id).style.display=on?'flex':'none';$('hint').style.display=on?'block':'none';$('hud').style.display=on?'block':'none'}
+function hudShow(on){$('bDojo').style.display=on&&TRAIN&&!TRAIN.mp?'block':'none';for(const id of['bAtk','bJump','bDash','bHook'])$(id).style.display=on?'flex':'none';$('hint').style.display=on?'block':'none';$('hud').style.display=on?'block':'none'}
 function hud(){
  if(!P)return;hpI.style.width=Math.max(0,P.hp)+'%';{const pe=$('post');pe.style.opacity=P.post>1?1:0;pe.firstElementChild.style.width=Math.min(100,P.post||0)+'%';pe.firstElementChild.style.background=P.post>75?'#ff4a2a':'#f0a020'}killsEl.textContent='BAJAS '+kills;
- const left=waveQueue+zs.length+miniQueue.length+delayedMinis.length+rags.filter(r=>r.convert&&!r.dead).length*2;waveEl.textContent=TRAIN?'DOJO · '+zs.filter(z=>z.alive).length+' enemigos':waveBreak>0?'OLEADA '+wave+' ✓':'OLEADA '+wave+' · quedan '+left;
+ const left=waveQueue+zs.length+miniQueue.length+delayedMinis.length+rags.filter(r=>r.convert&&!r.dead).length*2;waveEl.textContent=TRAIN&&TRAIN.mp?'SALA '+NET.code+' · '+(1+Object.keys(NET.peers).length)+' jugador'+(Object.keys(NET.peers).length?'es':''):TRAIN?'DOJO · '+zs.filter(z=>z.alive).length+' enemigos':waveBreak>0?'OLEADA '+wave+' ✓':'OLEADA '+wave+' · quedan '+left;
  if(combo>1){comboEl.textContent='x'+combo;comboEl.style.opacity=Math.min(1,comboT);comboEl.style.transform=`translateX(-50%) scale(${1+comboPop*.5})`}else comboEl.style.opacity=0;
  banEl.style.opacity=Math.min(1,bannerT*1.5);banEl.style.transform=`translate(-50%,-50%) scale(${1+Math.max(0,bannerT-1.8)*.6})`;
  hookB.classList.toggle('off',!hookTarget||!!P.grap);
@@ -3045,7 +3052,7 @@ function showTitle(){
  o.innerHTML=`<h1>STICK RŌNIN</h1>
  <div style="width:min(400px,92vw);margin:2px 0 8px"><div style="font:800 13px system-ui;letter-spacing:2px;opacity:.75;margin-bottom:4px">🏆 TOP 10</div><div id="rkList" style="text-align:left;font:14px system-ui;max-height:42vh;overflow-y:auto">Cargando…</div></div>
  ${savedRun()?`<button class="edl" id="bCont" type="button" style="font-size:16px;padding:12px 18px;background:#d1242c;border-color:#d1242c">▶ Continuar partida (oleada ${savedRun().wave})</button>`:''}<div class="go">${savedRun()?'Toca fuera para empezar una nueva':'Toca para empezar'}</div>
- <div><button class="edl" id="bName" type="button">👤 ${esc(playerName)} ✎</button> <button class="edl" id="bInfo" type="button">ℹ Info</button> <button class="edl" id="bKeys" type="button">🎮 Controles</button> <button class="edl" id="bTrain" type="button">⚙ Dojo</button></div>
+ <div><button class="edl" id="bName" type="button">👤 ${esc(playerName)} ✎</button> <button class="edl" id="bInfo" type="button">ℹ Info</button> <button class="edl" id="bKeys" type="button">🎮 Controles</button> <button class="edl" id="bTrain" type="button">⚙ Dojo</button> <button class="edl" data-mp="open" type="button">👥 Multijugador</button></div>
  <div><a class="edl" href="editor.html">Editor de animaciones${(n=>n?` · ${n} tuya${n>1?'s':''} en uso`:'')(loadKF())}</a></div>`;
  fillRank($('rkList'))}
 function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CTRL.kb[a][0]);
@@ -3056,9 +3063,106 @@ function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CT
  <p>En el aire, ⚔ = golpe en caída</p>
  <p>Salta sobre sus cabezas y vuelve a saltar para pisarlos</p>
  <p>Al cortarlos, sus trozos se vuelven mini zombis: acaba con todos</p>
+ <p>👥 Multijugador (hasta 4): uno crea la sala y los demás escriben el código de 4 letras. Cada uno tiene su cámara. De momento es una sala de pruebas para veros y moveros juntos; Cacería y Asedio llegarán después. Funciona en la versión de GitHub</p>
  <p>Tras cada oleada llegas a la forja: suelta un arma encima de otra igual para fusionarlas y mejorarla, funde las que sobren para conseguir acero, afila 🎲 o prueba la sangre 🩸 en el yunque, y equípate emblemas (kamon)</p>
  <p style="opacity:.75">Teclado: ${['u','l','d','r'].map(k).join('')} mover · ${k('jump')} saltar · ${k('atk')} atacar · ${k('dash')} especial · ${k('hook')} gancho · ${k('swap')} arma · ${k('menu')} pausa · también con mando</p>
  ${best?`<p style="opacity:.75">Tu récord: ${best} bajas</p>`:''}</div><button class="edl" id="bBack" type="button">← Volver</button>`}
+/* ================= MULTIJUGADOR (fase 1: sala compartida) =================
+   Conexión directa entre móviles (WebRTC vía PeerJS). Uno crea la sala (anfitrión) y los demás entran con el código.
+   Cada uno mueve a su personaje y tiene su propia cámara; se envía la pose 20 veces por segundo y el anfitrión la reparte.
+   Para pruebas en un mismo dispositivo: añade ?bc=1 a la dirección (usa BroadcastChannel entre pestañas). */
+const NET={on:false,host:false,code:'',id:'',slot:0,peers:{},conns:{},peer:null,bc:null,sendT:0,status:'',max:4};
+const MP_COL=['#f1ebe2','#4aa3ff','#ffb020','#4be36b'];
+const mpColor=s=>new THREE.Color(MP_COL[s%4]);
+function mpCode(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let c='';for(let i=0;i<4;i++)c+=A[(Math.random()*A.length)|0];return c}
+function loadPeerJS(){return new Promise((ok,ko)=>{if(window.Peer)return ok();const s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';s.onload=()=>ok();s.onerror=()=>ko(new Error('No se pudo cargar la conexión'));document.head.appendChild(s)})}
+const useBC=/[?&]bc=1/.test(location.search);
+function mpSend(to,m){m.from=NET.id;
+ if(NET.bc){m.to=to;NET.bc.postMessage(m);return}
+ if(to==='all'){for(const k in NET.conns){try{NET.conns[k].send(m)}catch(_){}}}
+ else{const c=NET.conns[to];if(c)try{c.send(m)}catch(_){}}}
+function mpRoster(){return[{id:NET.id,name:playerName,slot:NET.slot}].concat(Object.values(NET.peers).map(p=>({id:p.id,name:p.name,slot:p.slot})))}
+function mpOnMsg(m,conn){if(!m||m.from===NET.id)return;if(NET.bc&&m.to!=='all'&&m.to!==NET.id)return;
+ if(NET.host){
+  if(m.t==='hello'){const used=new Set([0].concat(Object.values(NET.peers).map(p=>p.slot)));
+   if(Object.keys(NET.peers).length>=NET.max-1){mpSend(m.from,{t:'full'});return}
+   let s=1;while(used.has(s))s++;NET.peers[m.from]={id:m.from,name:cleanName(m.name)||'Jugador',slot:s,st:null,J:null};if(conn)NET.conns[m.from]=conn;
+   mpSend(m.from,{t:'welcome',slot:s});mpSend('all',{t:'roster',list:mpRoster()});mpStatus();banner('👥 '+NET.peers[m.from].name+' ha entrado');sfx('ready');return}
+  if(m.t==='s'&&NET.peers[m.from]){mpApply(m.from,m.st);for(const k in NET.peers)if(k!==m.from)mpSend(k,{t:'s',id:m.from,st:m.st});return}
+  if(m.t==='bye')return mpDrop(m.from)}
+ else{
+  if(m.t==='welcome'){NET.hostIdGuess=m.from;NET.slot=m.slot;NET.joined=true;mpEnter();return}
+  if(m.t==='full'){mpFail('La sala está llena (máximo 4)');return}
+  if(m.t==='roster'){const keep={};for(const r of m.list){if(r.id===NET.id)continue;keep[r.id]=1;const p=NET.peers[r.id]||(NET.peers[r.id]={id:r.id,st:null,J:null});p.name=r.name;p.slot=r.slot}for(const k in NET.peers)if(!keep[k])mpRemove(k);mpStatus();return}
+  if(m.t==='s'){const id=m.id||m.from;if(!NET.peers[id])NET.peers[id]={id,name:'…',slot:1,st:null,J:null};mpApply(id,m.st);return}
+  if(m.t==='close'){mpFail('El anfitrión ha cerrado la sala');return}}}
+function mpApply(id,st){const p=NET.peers[id];if(!p||!st)return;p.st=st;p.seen=performance.now();if(!p.J||Math.hypot(st.J[3][0]-p.J[3][0],st.J[3][2]-p.J[3][2])>3)p.J=st.J.map(q=>q.slice())}
+function mpRemove(id){const p=NET.peers[id];if(!p)return;if(p.tag)p.tag.remove();if(p.meshes)for(const k in p.meshes)scene.remove(p.meshes[k]);delete NET.peers[id];delete NET.conns[id]}
+function mpDrop(id){const p=NET.peers[id];if(!p)return;banner('👥 '+p.name+' ha salido');mpRemove(id);if(NET.host)mpSend('all',{t:'roster',list:mpRoster()});mpStatus()}
+async function mpStart(host,code){mpLeave(true);NET.host=host;NET.code=(code||mpCode()).toUpperCase();NET.peers={};NET.conns={};NET.slot=host?0:-1;NET.joined=host;NET.on=true;
+ mpScreen(host?'Creando sala…':'Conectando a '+NET.code+'…');
+ if(useBC){NET.id=(host?'H':'C')+Math.random().toString(36).slice(2,8);NET.bc=new BroadcastChannel('stickronin-'+NET.code);NET.bc.onmessage=e=>mpOnMsg(e.data);
+  if(host){NET.hostId=NET.id;mpEnter()}else{mpSend('all',{t:'hello',name:playerName});NET.joinTO=setTimeout(()=>{if(!NET.joined)mpFail('No se encuentra la sala '+NET.code)},4000)}return}
+ try{await loadPeerJS()}catch(e){mpFail(/claude\.ai|claudeusercontent/.test(location.href)?'Desde el enlace de Claude no se puede conectar. Abre el juego en dsmethy-meshed.github.io/stick-ronin':'No hay conexión a internet para encontrar la sala');return}
+ const pid='stickronin-'+NET.code;
+ const peer=host?new Peer(pid):new Peer();NET.peer=peer;
+ peer.on('error',err=>{if(err&&err.type==='unavailable-id')mpFail('Ese código ya está en uso, vuelve a crear la sala');else if(err&&err.type==='peer-unavailable')mpFail('No existe la sala '+NET.code);else if(NET.on)mpFail('Error de conexión'+(err&&err.type?' ('+err.type+')':''))});
+ peer.on('open',id=>{NET.id=id;
+  if(host){NET.hostId=id;peer.on('connection',c=>{c.on('data',d=>mpOnMsg(d,c));c.on('close',()=>{for(const k in NET.conns)if(NET.conns[k]===c)mpDrop(k)})});mpEnter()}
+  else{const c=peer.connect(pid,{serialization:'json'});NET.conns.host=c;
+   c.on('open',()=>{c.send({t:'hello',name:playerName,from:NET.id})});c.on('data',d=>mpOnMsg(d,c));c.on('close',()=>{if(NET.on)mpFail('Se perdió la conexión con el anfitrión')});
+   NET.joinTO=setTimeout(()=>{if(!NET.joined)mpFail('No se puede conectar con la sala '+NET.code)},9000)}})}
+// cliente: todo lo que envía va al anfitrión
+function mpTo(){return NET.host?'all':(NET.bc?NET.hostIdGuess||'all':'host')}
+function mpEnter(){clearTimeout(NET.joinTO);initAudio();startGame();zs.length=0;miniQueue.length=0;TRAIN={god:true,freeze:false,km:{},rar:1,slot:0,mp:true};wave=1;waveQueue=0;waveBreak=0;
+ P.x=-3+NET.slot*2;P.z=-2;camTX=P.x;scarf.forEach(s=>{s.x=P.x;s.px=P.x});banner('SALA '+NET.code);hudShow(true);sfx('ready')}
+function mpFail(msg){mpLeave(true);goMenu();mpScreen(msg,true)}
+function mpLeave(silent){if(!NET.on)return;try{if(NET.host)mpSend('all',{t:'close'});else mpSend(mpTo(),{t:'bye'})}catch(_){}
+ for(const k in NET.peers)mpRemove(k);try{NET.peer&&NET.peer.destroy()}catch(_){}try{NET.bc&&NET.bc.close()}catch(_){}clearTimeout(NET.joinTO);
+ Object.assign(NET,{on:false,host:false,peer:null,bc:null,peers:{},conns:{},joined:false})}
+function mpStatus(){}
+// --- estado propio que se envía ---
+const r2=v=>Math.round(v*100)/100;
+function mpCapture(){if(!P||!P.Jdraw)return null;const W=weapon(),g=W.g,q=g.quaternion,p=g.position;
+ const st={J:P.Jdraw.map(l=>toW(P,P.ryaw,l).map(r2)),w:W.id,gv:g.visible?1:0,gp:[r2(p.x),r2(p.y),r2(p.z)],gq:[q.x,q.y,q.z,q.w].map(v=>Math.round(v*1000)/1000),dead:P.dead?1:0,hp:Math.round(P.hp)};
+ if(W.g2){const g2=W.g2;st.g2v=g2.visible?1:0;st.g2p=[r2(g2.position.x),r2(g2.position.y),r2(g2.position.z)];st.g2q=[g2.quaternion.x,g2.quaternion.y,g2.quaternion.z,g2.quaternion.w].map(v=>Math.round(v*1000)/1000)}
+ if(!NET.host)st.n=playerName;return st}
+function mpTick(rdt){if(!NET.on||!NET.joined)return;NET.sendT-=rdt;
+ if(NET.sendT<=0&&(state==='play'||state==='pause'||state==='dead')){NET.sendT=.05;const st=mpCapture();if(st)mpSend(NET.host?'all':mpTo(),{t:'s',id:NET.id,st})}
+ const now=performance.now();for(const k in NET.peers){const p=NET.peers[k];if(NET.host&&p.seen&&now-p.seen>8000)mpDrop(k)}
+ mpTags()}
+// --- dibujar a los demás ---
+function mpWeaponMesh(p,id,two){p.meshes=p.meshes||{};const key=id+(two?'2':'');let m=p.meshes[key];if(!m){const src=two?WT[id].g2:WT[id].g;if(!src)return null;m=src.clone(true);scene.add(m);p.meshes[key]=m}return m}
+function mpDraw(dt){if(!NET.on)return;const a=1-Math.exp(-dt*18);
+ for(const k in NET.peers){const p=NET.peers[k],st=p.st;if(p.meshes)for(const q in p.meshes)p.meshes[q].visible=false;if(!st||!p.J)continue;
+  for(let i=0;i<p.J.length;i++)for(let c=0;c<3;c++)p.J[i][c]+=(st.J[i][c]-p.J[i][c])*a;
+  if(st.dead)continue;
+  drawChar(p.J,p.col||(p.col=mpColor(p.slot)),.055,.15);
+  if(WT[st.w]){const m=mpWeaponMesh(p,st.w);if(m){m.visible=!!st.gv;m.position.lerp(vTmpA.set(...st.gp),a);m.quaternion.slerp(qTmp.set(...st.gq),a)}
+   if(st.g2p){const m2=mpWeaponMesh(p,st.w,true);if(m2){m2.visible=!!st.g2v;m2.position.lerp(vTmpA.set(...st.g2p),a);m2.quaternion.slerp(qTmp.set(...st.g2q),a)}}}}}
+const vTmpA=new THREE.Vector3(),qTmp=new THREE.Quaternion(),vTag=new THREE.Vector3();
+function mpTags(){let box=document.getElementById('mpTags');if(!box){box=document.createElement('div');box.id='mpTags';document.body.appendChild(box)}
+ for(const k in NET.peers){const p=NET.peers[k];if(!p.tag){p.tag=document.createElement('div');p.tag.className='mptag';box.appendChild(p.tag)}
+  if(!p.J||state==='title'){p.tag.style.display='none';continue}
+  p.tag.textContent=(p.st&&p.st.n)||p.name||'…';p.tag.style.borderColor=MP_COL[p.slot%4];
+  vTag.set(p.J[0][0],p.J[0][1]+.45,p.J[0][2]).project(camera);if(vTag.z>1||Math.abs(vTag.x)>1.2||Math.abs(vTag.y)>1.2){p.tag.style.display='none';continue}
+  p.tag.style.display='block';p.tag.style.left=((vTag.x+1)/2*innerWidth)+'px';p.tag.style.top=((1-vTag.y)/2*innerHeight)+'px'}}
+// --- pantallas ---
+function mpScreen(msg,err){const o=$('ov');o.style.display='flex';
+ o.innerHTML=`<h1 style="font-size:40px">👥 MULTIJUGADOR</h1>
+ <div style="width:min(420px,92vw);font:14px system-ui;line-height:1.45;text-align:left;opacity:.9">
+ <p>Hasta <b>4 jugadores</b>. Uno crea la sala y los demás escriben su código. Funciona en la misma wifi y también desde casas distintas (hace falta internet solo para encontrarse). Solo funciona en la versión de GitHub, no en el enlace de Claude.</p>
+ <p style="opacity:.75">Ahora mismo es la <b>sala de pruebas</b>: os veis moveros, correr por las paredes y atacar, cada uno con su cámara. Los modos <b>Cacería</b> (todos contra todos) y <b>Asedio</b> (oleadas de yokai en equipo) llegarán en las siguientes fases.</p></div>
+ ${msg?`<p style="font:700 15px system-ui;color:${err?'#ff6a5a':'#ffd04a'}">${esc(msg)}</p>`:''}
+ <button class="edl" data-mp="create" type="button" style="font-size:17px;padding:12px 20px;background:#d1242c;border-color:#d1242c">➕ Crear sala</button>
+ <div style="display:flex;gap:8px;align-items:center;margin:6px 0"><input id="mpIn" maxlength="4" placeholder="CÓDIGO" autocomplete="off" autocapitalize="characters" style="width:120px;font:800 22px system-ui;letter-spacing:4px;text-align:center;text-transform:uppercase;padding:8px;border-radius:10px;border:2px solid #555;background:#1e1a21;color:#fff"><button class="edl" data-mp="join" type="button" style="font-size:17px;padding:12px 18px">Unirse ▶</button></div>
+ <button class="edl" data-mp="back" type="button">← Volver</button>`;
+ const i=$('mpIn');if(i)i.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')mpAct('join')})}
+function mpAct(a){if(a==='open'){mpScreen();return}if(a==='back'){mpLeave(true);showTitle();return}
+ if(a==='create'){mpStart(true);return}
+ if(a==='join'){const v=(($('mpIn')||{}).value||'').trim().toUpperCase();if(v.length!==4){mpScreen('Escribe el código de 4 letras',true);return}mpStart(false,v);return}}
+addEventListener('beforeunload',()=>{try{mpLeave(true)}catch(_){}});
+
 /* ================= NOMBRE + RANKING ================= */
 const NAME_KEY='stickronin_name',LOC_RANK='stickronin_rank_local';
 let playerName='';try{playerName=localStorage.getItem(NAME_KEY)||''}catch(e){}
@@ -3099,7 +3203,7 @@ async function showRanking(){const o=$('ov');o.style.display='flex';
  o.innerHTML=`<h1 style="font-size:40px">🏆 TOP 10</h1><div id="rkList" style="width:min(420px,92vw);text-align:left;font:15px system-ui">Cargando…</div><button class="edl" id="bBack" type="button">← Volver</button>`;fillRank($('rkList'))}
 function showDead(){const o=$('ov');o.style.display='flex';o.innerHTML=`<h1 style="color:#e0404a">HAS MUERTO</h1><h2 style="color:#fff">Oleada ${wave} · ${kills} bajas · récord ${best}</h2><p id="rankMsg" style="opacity:.8">${esc(rankMsg)}</p><div class="go">Toca para reintentar</div><button class="edl" id="bRankD" type="button">🏆 Ranking</button> <button class="edl" id="bMenuD" type="button">☰ Menú principal</button>`}
 $('forge').addEventListener('click',forgeAct);$('dojo').addEventListener('click',dojoAct);$('bDojo').addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();openDojo()});
-$('ov').addEventListener('pointerdown',e=>{if(e.target.closest('a'))return;if(e.target.id==='bKeys'||e.target.id==='bKeys2'){e.preventDefault();openKeys();return}if(e.target.id==='bRank'||e.target.id==='bRankD'){e.preventDefault();showRanking();return}if(e.target.id==='bName'){e.preventDefault();showName();return}if(e.target.id==='bInfo'){e.preventDefault();showInfo();return}if(e.target.id==='bNmOk'){e.preventDefault();saveName();return}if(e.target.id==='bBack'){e.preventDefault();if(state==='dead'){showDead()}else showTitle();return}if(e.target.id==='nmIn'||document.getElementById('nmIn')||(document.getElementById('rkList')&&state!=='title')||document.getElementById('bInfo')&&e.target.closest('#rkList'))return;if(state==='title'&&!$('bName')&&!e.target.closest('.go,#bCont,#bHorde,#bYokai,#bTrain'))return;if(e.target.id==='bResume'){e.preventDefault();resumeGame();return}if(e.target.id==='bToMenu'){e.preventDefault();goMenu();return}if(e.target.id==='bMenuD'){e.preventDefault();goMenu();return}if(state==='pause')return;if(e.target.id==='bHorde'){e.preventDefault();initAudio();startGame(true);return}if(e.target.id==='bCont'){e.preventDefault();initAudio();continueRun();return}if(e.target.id==='bTrain'){e.preventDefault();initAudio();startDojo();return}if(e.target.id==='bYokai'){e.preventDefault();initAudio();startGame();YK_KINDS.forEach((k,i)=>setTimeout(()=>{if(state==='play')spawnYokai(k,i*1.256)},800+i*900));return}e.preventDefault();initAudio();if(state==='title'||(state==='dead'&&deadT>1.2))startGame()});
+$('ov').addEventListener('pointerdown',e=>{if(e.target.closest('a'))return;{const mb=e.target.closest('[data-mp]');if(mb){e.preventDefault();mpAct(mb.dataset.mp);return}if(e.target.id==='mpIn')return;}if(e.target.id==='bKeys'||e.target.id==='bKeys2'){e.preventDefault();openKeys();return}if(e.target.id==='bRank'||e.target.id==='bRankD'){e.preventDefault();showRanking();return}if(e.target.id==='bName'){e.preventDefault();showName();return}if(e.target.id==='bInfo'){e.preventDefault();showInfo();return}if(e.target.id==='bNmOk'){e.preventDefault();saveName();return}if(e.target.id==='bBack'){e.preventDefault();if(state==='dead'){showDead()}else showTitle();return}if(e.target.id==='nmIn'||document.getElementById('nmIn')||(document.getElementById('rkList')&&state!=='title')||document.getElementById('bInfo')&&e.target.closest('#rkList'))return;if(state==='title'&&!$('bName')&&!e.target.closest('.go,#bCont,#bHorde,#bYokai,#bTrain'))return;if(e.target.id==='bResume'){e.preventDefault();resumeGame();return}if(e.target.id==='bToMenu'){e.preventDefault();goMenu();return}if(e.target.id==='bMenuD'){e.preventDefault();goMenu();return}if(state==='pause')return;if(e.target.id==='bHorde'){e.preventDefault();initAudio();startGame(true);return}if(e.target.id==='bCont'){e.preventDefault();initAudio();continueRun();return}if(e.target.id==='bTrain'){e.preventDefault();initAudio();startDojo();return}if(e.target.id==='bYokai'){e.preventDefault();initAudio();startGame();YK_KINDS.forEach((k,i)=>setTimeout(()=>{if(state==='play')spawnYokai(k,i*1.256)},800+i*900));return}e.preventDefault();initAudio();if(state==='title'||(state==='dead'&&deadT>1.2))startGame()});
 function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()}
 addEventListener('resize',resize);
 resetGame();resize();showTitle();hudShow(false);
@@ -3121,7 +3225,7 @@ function frame(now){
  perfAcc+=rdt;perfN++;if(perfN>=45){const avg=perfAcc/perfN;if(avg>.024&&quality>0){quality--;applyQuality()}perfAcc=perfN=0}
  if(state==='dead'&&deadT>1&&!deadShown){deadShown=true;showDead();hudShow(false)}
  if(state==='play')deadShown=false;
- placeCamera();draw();hud();
+ NET.dt=rdt;placeCamera();draw();hud();if(NET.on)mpTick(rdt);
  pMat.uniforms.uScale.value=innerHeight*renderer.getPixelRatio()/(2*Math.tan(camera.fov*D2R/2));
  renderer.render(scene,camera);
  requestAnimationFrame(frame);
