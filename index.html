@@ -34,6 +34,27 @@ canvas{display:block;touch-action:none}
 #forge .radial .rb[disabled]{opacity:.35}#forge .radial .rb:active{background:#d1242c}
 @keyframes rpop{from{transform:translate(-50%,-50%) scale(.3);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}@keyframes rfade{from{opacity:0}}
 @media (prefers-reduced-motion:reduce){.radial,.radial .rb{animation:none}}
+#forge .coach{display:flex;gap:10px;align-items:center;background:linear-gradient(90deg,#3a1418,#1c1519);border:1px solid #d1242c;border-radius:12px;padding:9px 10px;margin:8px 0 2px;font:13px/1.35 system-ui}
+#forge .coach i{flex:0 0 26px;height:26px;border-radius:50%;background:#d1242c;color:#fff;font:900 14px system-ui;display:flex;align-items:center;justify-content:center;font-style:normal}
+#forge .gbtn{background:#2c2832!important}
+#forge .anvw{position:relative;display:flex;justify-content:center}#forge .anvw em{position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-30deg)}
+#forge .mbar{position:relative;width:86%;height:8px;border-radius:4px;background:#2c2631;overflow:hidden;margin:4px 0 2px}#forge .mbar i,#forge .mbar b{position:absolute;left:0;top:0;bottom:0}#forge .mbar i{background:#ffd04a;opacity:.55}#forge .mbar b{background:#ffd04a}
+#forge .tbtn{margin-top:4px;min-height:34px!important;padding:0 14px!important;background:#d1242c!important;border-color:#d1242c!important;border-radius:10px;font-weight:900}
+#forge .pulse{animation:zpulse 1.4s ease-in-out infinite}@keyframes zpulse{50%{border-color:#ffd04a;box-shadow:0 0 0 4px rgba(255,208,74,.18)}}
+#forge .sug{position:absolute;top:-6px;right:-4px;font-size:18px;animation:zbob 1s ease-in-out infinite}@keyframes zbob{50%{transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){#forge .pulse,#forge .sug{animation:none}}
+#forge .guide{position:fixed;inset:0;z-index:70;background:rgba(8,6,10,.82);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:14px 10px}
+#forge .gcard{width:min(460px,100%);background:#17131a;border:1px solid #3a333f;border-radius:16px;padding:10px 12px 12px}
+#forge .gh{display:flex;align-items:center;gap:8px;position:sticky;top:-14px;background:#17131a;padding:6px 0}#forge .gh b{flex:1;font:900 17px system-ui;color:#fff}
+#forge .gh button{background:#d1242c!important;border-color:#d1242c!important;min-height:40px}
+#forge .gstep{border-top:1px solid #2c2631;padding:10px 0}
+#forge .gill{display:flex;align-items:center;justify-content:center;gap:4px;min-height:58px;background:#0f0c11;border-radius:12px;padding:8px;flex-wrap:wrap}
+#forge .gtx b{display:block;color:#ffd04a;font:900 14px system-ui;margin:8px 0 2px}#forge .gtx span{font:13px/1.45 system-ui;color:#d8cfc4}
+#forge .gan{position:relative;display:flex;justify-content:center}#forge .gan em{position:absolute;top:-18px;left:50%;transform:translateX(-50%) rotate(-30deg)}
+#forge .gbar{position:relative;width:110px;height:16px;border-radius:8px;background:#2c2631;overflow:hidden}#forge .gbar i{position:absolute;inset:0 auto 0 0;background:#ffd04a}#forge .gbar span{position:relative;font:800 10px/16px system-ui;color:#111;padding-left:6px}
+#forge .gplus{font:900 26px system-ui;color:#ffd04a;text-shadow:0 0 10px rgba(255,208,74,.6)}
+#forge .gdice{font-size:28px}#forge .gab{display:flex;align-items:center;gap:6px}#forge .gab s{opacity:.5}#forge .gab b{color:#7dff9a}
+#forge .gdrop{display:flex;flex-direction:column;align-items:center;font-size:26px;line-height:1}#forge .gdrop small{font:800 11px system-ui;color:#ff6a6a}
 #forge .fhint{font-size:12px;opacity:.75;margin:6px 2px 8px;line-height:1.35}
 #forge .zones{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #forge .zone{position:relative;border-radius:14px;padding:4px;background:#17131a;border:2px solid #2c2631;transition:border-color .12s,background .12s}
@@ -44,6 +65,50 @@ canvas{display:block;touch-action:none}
 #forge .zone .big{font-size:26px;line-height:1}#forge .zone.tool .nm{font-weight:800;font-size:13px}
 #forge .can{border-color:#ffd04a!important;background:#231d12!important}
 #forge .hot{border-color:#fff!important;background:#3a2a14!important;transform:scale(1.03)}
+#forge .fc{isolation:isolate}
+#forge .fc.can{border-color:#ffd04a!important;box-shadow:0 0 18px rgba(255,208,74,.55)}
+#forge .fc.can::before{content:'';position:absolute;inset:-16px;border-radius:24px;z-index:-1;pointer-events:none;background:radial-gradient(closest-side,rgba(255,224,120,.75),rgba(255,170,40,.35) 55%,transparent);animation:halo 1.1s ease-in-out infinite alternate}
+#forge .fc.can::after{content:'✦';position:absolute;right:6px;top:4px;color:#fff6c8;font-size:14px;text-shadow:0 0 8px #ffd04a;pointer-events:none;animation:twk 1.2s ease-in-out infinite}
+#forge .fc.hot{transform:scale(1.12);box-shadow:0 0 0 3px #fff,0 0 30px #ffd04a}
+#forge .fc.hot::before{inset:-24px;animation-duration:.4s}
+@keyframes halo{0%{opacity:.55;transform:scale(.94)}100%{opacity:1;transform:scale(1.06)}}
+@keyframes twk{0%,100%{opacity:.2;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(90deg)}}
+#forge .zone.fire{overflow:visible}
+#forge .zone.fire .flames{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;border-radius:14px}
+#forge .zone.fire .flames i{position:absolute;bottom:-6px;width:18px;height:30px;border-radius:50% 50% 35% 35%/65% 65% 35% 35%;background:radial-gradient(ellipse at 50% 80%,#fff3b0 0,#ffb020 30%,#e2552b 60%,rgba(226,85,43,0) 75%);filter:blur(.6px);transform-origin:50% 100%;animation:flick .45s ease-in-out infinite alternate}
+#forge .zone.fire.can .flames,#forge .zone.fire.burning .flames{opacity:1}
+#forge .zone.fire.can{background:radial-gradient(ellipse at 50% 100%,rgba(226,85,43,.35),#17131a 70%)!important;box-shadow:0 0 20px rgba(226,85,43,.45)}
+#forge .zone.fire.hot{background:radial-gradient(ellipse at 50% 100%,rgba(255,150,40,.6),#2a1410 75%)!important;box-shadow:0 0 34px rgba(255,120,40,.8);transform:scale(1.04)}
+#forge .zone.fire.hot .flames i{height:44px;animation-duration:.25s}
+#forge .zone.fire.burning .flames{opacity:.6}#forge .zone.fire.burning .flames i{height:18px}
+#forge .zone.fire.burning{box-shadow:0 0 14px rgba(226,85,43,.4)}
+@keyframes flick{0%{transform:scaleY(.8) scaleX(1.05) rotate(-4deg)}100%{transform:scaleY(1.15) scaleX(.9) rotate(4deg)}}
+.burnfx{position:fixed;z-index:85;pointer-events:none;display:flex;flex-direction:column;align-items:center}
+.burnfx .bw{animation:bburn 1s ease-in forwards}
+.burnfx .emb{position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:#ffb020;box-shadow:0 0 6px #ff7a20;animation:bemb 1.2s var(--d) ease-out both}
+.burnfx .bi{position:absolute;top:10px;display:flex;align-items:center;gap:4px;font:900 20px system-ui;color:#dfe5ec;text-shadow:0 2px 0 #000;animation:bing .6s .8s cubic-bezier(.2,1.7,.4,1) both,fxout .4s 1.8s forwards}
+@keyframes bburn{0%{filter:none;transform:translateY(0) scale(1)}40%{filter:brightness(1.6) sepia(1) saturate(4) hue-rotate(-20deg)}100%{filter:brightness(0) ;transform:translateY(16px) scale(.5);opacity:0}}
+@keyframes bemb{0%{transform:translate(-50%,-50%);opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% - var(--y)));opacity:0}}
+@keyframes bing{0%{transform:scale(0) translateY(20px);opacity:0}100%{transform:scale(1) translateY(-20px);opacity:1}}
+#ffx .mg{position:relative;width:240px;height:110px}
+#ffx .ma,#ffx .mb{position:absolute;top:20px}
+#ffx .ma{left:0;animation:mga .5s cubic-bezier(.6,0,1,1) both}
+#ffx .mb{right:0;animation:mgb .5s cubic-bezier(.6,0,1,1) both,mgres .5s .5s both}
+#ffx .mflash{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px;border-radius:50%;background:#fff;opacity:0;animation:mfl .6s .45s ease-out both}
+#ffx.fx2 .mflash{background:#ffd04a;box-shadow:0 0 80px 40px #ffb020}
+#ffx.fx1 .mflash{box-shadow:0 0 50px 20px #fff}
+#ffx.fx0 .mflash{background:#666;box-shadow:0 0 30px 10px #555}
+#ffx.fx2{animation:shake .35s .5s 2}
+#ffx.fx0 .mb{animation:mgb .5s cubic-bezier(.6,0,1,1) both,mgdull .6s .5s both}
+#ffx .mbar2{position:relative;width:200px;height:14px;border-radius:7px;background:#2a2530;overflow:hidden;animation:fxpop .3s .6s both,fxout .3s 1.9s forwards}
+#ffx .mbar2 i{position:absolute;left:0;top:0;bottom:0;background:#c9a14a;animation:mbf .7s .8s ease-out forwards}
+@keyframes mga{0%{transform:translateX(-60px) rotate(-30deg)}100%{transform:translateX(85px) rotate(0);opacity:0}}
+@keyframes mgb{0%{transform:translateX(60px) rotate(30deg)}100%{transform:translateX(-85px) rotate(0)}}
+@keyframes mgres{0%{transform:translateX(-85px) scale(1)}50%{transform:translateX(-85px) scale(1.5)}100%{transform:translateX(-85px) scale(1.2)}}
+@keyframes mgdull{0%{transform:translateX(-85px)}100%{transform:translateX(-85px) scale(.9);filter:grayscale(.7) brightness(.7)}}
+@keyframes mfl{0%{opacity:1;transform:scale(.2)}100%{opacity:0;transform:scale(6)}}
+@keyframes mbf{to{width:var(--w)}}
+@keyframes shake{0%,100%{transform:translate(0)}25%{transform:translate(-8px,4px)}75%{transform:translate(8px,-4px)}}
 #forge .wc .wi{position:relative;display:flex;justify-content:center;height:46px}#forge .wc .wi sup{position:absolute;top:-2px;right:6px;font-size:13px;color:#ffd75a;font-weight:900;text-shadow:0 1px 2px #000}
 #forge .wc .nm{font-weight:800;font-size:12px}#forge .wc .rk{font-size:11px;opacity:.85}
 #forge .fc[data-drag]{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;cursor:grab}
@@ -60,8 +125,59 @@ canvas{display:block;touch-action:none}
 #forge .fanv{border-color:#a8763a}
 #forge .dt{font-weight:800;font-size:15px}#forge .dd{font-size:12px;opacity:.9;margin:6px 0}
 #forge .fb{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-#forge .fs{display:grid;grid-template-columns:96px 1fr auto;gap:6px;align-items:center;font-size:12px;padding:3px 4px;border-radius:6px}
-#forge .fs.tap{background:#2a2530}#forge .fs b{color:#ffd75a;letter-spacing:1px;font-weight:400}#forge .fs b i{color:#555;font-style:normal}#forge .fs em{font-style:normal;opacity:.7;font-size:11px}
+#forge .fs{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:4px 6px;border-radius:10px;position:relative}
+#forge .fs.tap{background:#2a2530;cursor:pointer}#forge .fs.tap:active{transform:scale(.98)}
+.sico{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--sc);box-shadow:0 0 0 2px rgba(255,255,255,.12) inset}
+.sico svg{width:20px;height:20px}
+.pips{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
+.pips i{width:14px;height:10px;border-radius:3px;background:#3a3440}
+.pips i.f{background:var(--sc)}
+.pips i.p{background:#fff;box-shadow:0 0 6px var(--sc),0 0 0 2px var(--sc) inset}
+.pips i.o{background:#e22;box-shadow:0 0 6px #f44}
+#forge .fs .dz{opacity:.75;font-size:16px}
+#forge .fs.hit{animation:shit 1.4s ease-out}
+#forge .fs.hit .sico{animation:sbump .6s cubic-bezier(.2,1.8,.4,1)}
+#forge .fs.rolling{background:#3a2f18;box-shadow:0 0 0 2px #ffd04a inset}
+#forge .fs .fl{position:absolute;left:40px;top:-4px;font:900 18px system-ui;color:#fff;text-shadow:0 0 8px var(--sc);animation:sfl 1.3s ease-out forwards;pointer-events:none}
+@keyframes shit{0%{background:var(--sc)}100%{background:transparent}}
+@keyframes sbump{0%{transform:scale(1)}40%{transform:scale(1.6)}100%{transform:scale(1)}}
+@keyframes sfl{0%{opacity:0;transform:translateY(8px)}20%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
+.gmg{display:flex;align-items:center;position:relative}.gmg .g1{transform:translate(14px,-8px) rotate(-12deg);opacity:.85}.gmg .ghand{position:absolute;left:30px;top:14px;font-size:18px}
+.gout{display:flex;gap:8px;align-items:stretch}.gout span{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:10px;padding:6px 9px;font:900 18px system-ui;min-width:62px}.gout small{font:600 10px system-ui;opacity:.8}
+.gout .o0{background:#2b2b2e;color:#999;font-size:10px}.gout .o0 .gbar{width:50px}.gout .o1{background:#3a3a44;color:#fff;box-shadow:0 0 12px rgba(255,255,255,.35)}.gout .o2{background:#4a3510;color:#ffd04a;box-shadow:0 0 16px rgba(255,208,74,.6)}
+.gbl{display:flex;flex-direction:column;align-items:center;font-size:11px}.gbl b{color:#ffd04a}
+.gleg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.gleg div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;opacity:.9}.gab{display:flex;align-items:center;gap:6px}
+.bbtn{display:flex!important;align-items:center;gap:8px;background:#3a0f14!important;border-color:#a50d1c!important}
+.bbtn .bdrop{display:flex;align-items:center;gap:2px;font-size:18px}.bbtn .bdrop b{font-size:14px}
+.bbtn .bgain{font:900 18px system-ui;color:#ffd04a}.bbtn .baff{display:flex;gap:2px}.bbtn .baff .sico{width:22px;height:22px}.bbtn .baff svg{width:14px;height:14px}.bbtn .bcost{opacity:.8;font-size:12px}
+.sharpc{display:flex;gap:10px;justify-content:center;margin:8px 0}
+#forge .sharpc button{flex:1;max-width:170px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:14px;min-height:0}
+#forge .sharpc button.up{box-shadow:0 0 0 3px #4be36b inset,0 0 18px rgba(75,227,107,.4)}
+#forge .sharpc button.dn{box-shadow:0 0 0 3px #e24b4b inset}
+.sharpc .big{font:900 26px system-ui}
+#ffx{position:fixed;inset:0;z-index:80;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#ffx .bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(0,0,0,.75),rgba(0,0,0,.25));animation:fxbg 1.9s forwards}
+#ffx .row{display:flex;gap:16px;position:relative;flex-wrap:wrap;justify-content:center}
+#ffx .fxi{width:78px;height:78px;border-radius:50%;background:var(--sc);display:flex;align-items:center;justify-content:center;box-shadow:0 0 34px var(--sc);position:relative;animation:fxpop .55s cubic-bezier(.2,1.7,.4,1) both,fxout .35s 1.5s forwards}
+#ffx .fxi svg{width:48px;height:48px}
+#ffx .fxi b{position:absolute;right:-14px;bottom:-8px;font:900 26px system-ui;color:#fff;text-shadow:0 2px 0 #000,0 0 10px var(--sc)}
+#ffx .ttl{position:relative;font:900 28px system-ui;color:#fff;text-shadow:0 3px 0 #000,0 0 18px var(--tc,#ffd04a);animation:fxpop .5s cubic-bezier(.2,1.7,.4,1) both,fxout .35s 1.5s forwards}
+#ffx .ham{position:relative;animation:fxham .5s ease-in both,fxout .3s 1.2s forwards}
+#ffx .spk{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#ffd04a;box-shadow:0 0 8px #ffb020;animation:fxspk .7s var(--d,0s) ease-out both}
+#ffx .drop{position:relative;font-size:70px;animation:fxdrop .5s cubic-bezier(.5,0,1,1) both,fxout .3s 1.4s forwards}
+#ffx .die{position:relative;width:96px;height:96px;border-radius:18px;background:#f3ece0;box-shadow:0 6px 0 #a89c8a,0 0 30px rgba(255,208,74,.6);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:12px;gap:4px}
+#ffx .die.roll{animation:fxroll .12s linear infinite}
+#ffx .die u{border-radius:50%;background:#1a1418;margin:3px}
+#ffx .die.num{display:flex;align-items:center;justify-content:center;font:900 52px system-ui;color:#1a1418}
+#ffx .die.land{animation:fxland .4s cubic-bezier(.2,1.8,.4,1),fxout .3s 1.2s forwards}
+@keyframes fxbg{0%{opacity:0}12%{opacity:1}80%{opacity:1}100%{opacity:0}}
+@keyframes fxpop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes fxout{to{transform:scale(.4) translateY(80px);opacity:0}}
+@keyframes fxham{0%{transform:rotate(-70deg) translate(-30px,-40px)}70%{transform:rotate(8deg)}100%{transform:rotate(0)}}
+@keyframes fxspk{0%{transform:translate(-50%,-50%);opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y)));opacity:0}}
+@keyframes fxdrop{0%{transform:translateY(-220px) scale(.6)}80%{transform:translateY(0) scale(1,1)}90%{transform:scale(1.4,.7)}100%{transform:scale(1)}}
+@keyframes fxroll{0%{transform:rotate(0) translateY(0)}50%{transform:rotate(20deg) translateY(-10px)}100%{transform:rotate(-15deg) translateY(0)}}
+@keyframes fxland{0%{transform:scale(1.5) rotate(30deg)}100%{transform:scale(1)}}
 #forge .bar{position:relative;height:22px;background:#2a2530;border-radius:8px;overflow:hidden;margin:8px 0}#forge .bar i{position:absolute;left:0;top:0;bottom:0;background:#a8763a}#forge .bar span{position:relative;font-size:11px;line-height:22px;padding-left:8px}
 #forge .fmsg{background:#3d2a2e;border-radius:10px;padding:8px;margin:6px 0;font-size:13px}#forge .fempty{grid-column:1/-1;opacity:.5;font-size:12px;padding:10px}
 #bDojo{position:absolute;left:16px;top:132px;pointer-events:auto;min-height:44px;padding:0 14px;border:0;border-radius:12px;background:rgba(168,118,58,.85);color:#fff;font:800 14px system-ui,sans-serif;display:none}
@@ -625,7 +741,7 @@ function autoProfile(gp){const pid=gp.id+'#v2';if(CTRL.customPad===gp.id||CTRL.p
 /* navegación de menús con mando */
 const gnav={el:null,rep:0,dir:''};
 function menuRoot(){if($('keys').style.display==='block')return $('keys');const vis=id=>{const e=$(id);return e&&getComputedStyle(e).display!=='none'};if(state==='forge'&&vis('forge'))return $('forge');if(state==='dojo'&&vis('dojo'))return $('dojo');if(state!=='play'&&vis('ov'))return $('ov');return null}
-function navItems(root){const rd=root.querySelector('.radial');if(rd)root=rd;return Array.from(root.querySelectorAll('button,a,.go,[data-k],[data-a],[data-act],[data-d],[data-u],[data-v],[data-n],select')).filter(e=>{if(e.disabled||e.classList.contains('radial'))return false;const r=e.getBoundingClientRect();return r.width>4&&r.height>4&&getComputedStyle(e).visibility!=='hidden'})}
+function navItems(root){const rd=root.querySelector('.radial,.guide .gcard');if(rd)root=rd;return Array.from(root.querySelectorAll('button,a,.go,[data-k],[data-a],[data-act],[data-d],[data-u],[data-v],[data-n],select')).filter(e=>{if(e.disabled||e.classList.contains('radial'))return false;const r=e.getBoundingClientRect();return r.width>4&&r.height>4&&getComputedStyle(e).visibility!=='hidden'})}
 function navSig(e){const d=e.dataset||{};return [e.tagName,e.id,d.act,d.u,d.s,d.v,d.d,d.n,d.k,d.a].join('|')}
 function navSet(e){if(gnav.el)gnav.el.classList.remove('gpf');gnav.el=e;if(e){const sg=navSig(e),r=gnav.root||document;gnav.sig=sg;gnav.sidx=navItems(r).filter(x=>navSig(x)===sg).indexOf(e);e.classList.add('gpf');try{e.scrollIntoView({block:'nearest'})}catch(_){}}}
 function navMove(root,d){const it=navItems(root);if(!it.length)return;if(!gnav.el||!it.includes(gnav.el)){navSet(it.find(e=>e.id==='bCont'||e.id==='bResume')||it.find(e=>e.classList.contains('go'))||it.find(e=>e.dataset.act&&e.dataset.act!=='go')||it[0]);return}
@@ -1822,20 +1938,24 @@ function loadKF(){
  try{let lib=null;try{lib=JSON.parse(localStorage.getItem('animeditor_v1'))}catch(e){}if(!lib||!Array.isArray(lib.anims))lib=JSON.parse(JSON.stringify(BUILTIN));if(lib&&Array.isArray(lib.anims))for(const a of lib.anims){
   if(!a||!a.live||!KF_SLOTS.includes(a.slot)||!Array.isArray(a.keys)||!a.keys.length)continue;
   if(!a.keys.every(k=>k&&k.p&&['head','neck','pel','hL','hR','fL','fR'].every(j=>Array.isArray(k.p[j])&&k.p[j].length===3)))continue;
-  a.keys.forEach(k=>{k.blade=k.blade||[.12,-.38,.92];k.root=k.root||[0,0,0];k.ry=k.ry||0});a.keys.sort((x,y)=>x.t-y.t);a.hits=Array.isArray(a.hits)?a.hits:[];a.dur=Math.max(.1,+a.dur||1);
+  a.keys.forEach(k=>{k.blade=k.blade||[.12,-.38,.92];k.root=k.root||[0,0,0];k.ry=k.ry||0;k.rx=k.rx||0;k.rz=k.rz||0});a.keys.sort((x,y)=>x.t-y.t);a.hits=Array.isArray(a.hits)?a.hits:[];a.dur=Math.max(.1,+a.dur||1);
   KF[a.slot]=a;}}catch(e){}
  return Object.keys(KF).length;
 }
 const KF_EASE={lin:t=>t,in:t=>t*t*t,out:t=>1-Math.pow(1-t,3),inout:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2,out4:t=>1-Math.pow(1-t,4),step:t=>t<1?0:1};
+function kfRotV(v,a,t){const c=Math.cos(t),s=Math.sin(t),d=v[0]*a[0]+v[1]*a[1]+v[2]*a[2],cx=[a[1]*v[2]-a[2]*v[1],a[2]*v[0]-a[0]*v[2],a[0]*v[1]-a[1]*v[0]];return[v[0]*c+cx[0]*s+a[0]*d*(1-c),v[1]*c+cx[1]*s+a[1]*d*(1-c),v[2]*c+cx[2]*s+a[2]*d*(1-c)]}
+function kfBody(fr,rx,rz){if(!rx&&!rz)return fr;const C=[0,.95,0],r=v=>{let w=[v[0]-C[0],v[1]-C[1],v[2]-C[2]];if(rx)w=kfRotV(w,[1,0,0],rx*D2R);if(rz)w=kfRotV(w,[0,0,1],rz*D2R);return[w[0]+C[0],w[1]+C[1],w[2]+C[2]]};
+ const d=kfExtDef(fr.p),p={};for(const j of['head','neck','pel','hL','hR','fL','fR'])p[j]=r(fr.p[j]);for(const j of['chest','eL','eR','kL','kR'])p[j]=r(fr.p[j]||d[j]);
+ let b=fr.blade;if(rx)b=kfRotV(b,[1,0,0],rx*D2R);if(rz)b=kfRotV(b,[0,0,1],rz*D2R);return{...fr,p,blade:b,rx,rz}}
 function kfSample(a,t){
- const ks=a.keys;if(ks.length===1){const k=ks[0];return{p:k.p,blade:k.blade,root:k.root,ry:k.ry}}
+ const ks=a.keys;if(ks.length===1){const k=ks[0];return kfBody({p:k.p,blade:k.blade,root:k.root,ry:k.ry},k.rx||0,k.rz||0)}
  let i=ks.findIndex(k=>k.t>t),k0,k1,u;
  if(i===-1){k0=ks[ks.length-1];k1=a.loop?ks[0]:k0;const span=a.loop?(a.dur-k0.t+ks[0].t):1;u=a.loop&&span>1e-4?(t-k0.t)/span:0}
  else if(i===0){k0=k1=ks[0];u=0}else{k0=ks[i-1];k1=ks[i];u=(t-k0.t)/Math.max(1e-4,k1.t-k0.t)}
  const e=(KF_EASE[k0.ease]||KF_EASE.inout)(clamp(u,0,1)),p={};
  for(const j of['head','neck','pel','hL','hR','fL','fR'])p[j]=lerp3(k0.p[j],k1.p[j],e);
  {const d0=kfExtDef(k0.p),d1=kfExtDef(k1.p);for(const j of['chest','eL','eR','kL','kR'])if(k0.p[j]||k1.p[j])p[j]=lerp3(k0.p[j]||d0[j],k1.p[j]||d1[j],e)}
- return{p,blade:nrm3(lerp3(k0.blade,k1.blade,e)),root:lerp3(k0.root,k1.root,e),ry:lerp(k0.ry,k1.ry,e)};
+ return kfBody({p,blade:nrm3(lerp3(k0.blade,k1.blade,e)),root:lerp3(k0.root,k1.root,e),ry:lerp(k0.ry,k1.ry,e)},lerp(k0.rx||0,k1.rx||0,e),lerp(k0.rz||0,k1.rz||0,e));
 }
 function kfExtDef(p){return{chest:lerp3(p.neck,p.pel,.42),eL:add3(lerp3(p.neck,p.hL,.5),[-.22,-.09,-.19]),eR:add3(lerp3(p.neck,p.hR,.5),[.22,-.09,-.19]),kL:add3(lerp3(p.pel,p.fL,.5),[0,0,.35]),kR:add3(lerp3(p.pel,p.fR,.5),[0,0,.35])}}
 function kfWorld(fr){const J=finishPose(fr.p.head,fr.p.neck,fr.p.pel,fr.p.hL,fr.p.hR,fr.p.fL,fr.p.fR,fr.p),yaw=P.yaw+fr.ry*D2R,base={x:P.x,y:P.y+fr.root[1],z:P.z};return{J:J.map(l=>toW(base,yaw,l)),bd:dirW(yaw,fr.blade)}}
@@ -2241,7 +2361,13 @@ const AR={
  ascendMul:2,                          // ascender de rareza cuesta el doble
  masterChance:.15,                     // golpe maestro: +1 extra
  sharpCost:(n)=>2+n,                   // acero por afilado (sube en la partida)
- blood:{base:.35,pity:.1,cost:(n)=>6+2*n,gain:2,over:2}, // forja de sangre
+ blood:{base:.35,pity:.1,cost:(n)=>6+2*n,gain:2,over:2}, // (valores por defecto)
+ // forja de sangre PROPIA de cada arma: prob. base, + que da, stats que prefiere (75 %), coste base
+ bloodT:{katana:{p:.35,g:2,st:['dmg','spd','spc'],c:5},maza:{p:.2,g:3,st:['dmg','chg','par'],c:6},nito:{p:.5,g:1,st:['spd','dmg','mov'],c:3},
+  odachi:{p:.22,g:3,st:['dmg','chg','rng'],c:6},naginata:{p:.35,g:2,st:['rng','spd','par'],c:5},yari:{p:.4,g:2,st:['rng','dmg','spd'],c:5},
+  kusarigama:{p:.35,g:2,st:['rng','spc','cd'],c:5},tessen:{p:.45,g:2,st:['par','mov','cd'],c:5},kama:{p:.4,g:2,st:['spd','mov','dmg'],c:5},
+  tanegashima:{p:.22,g:3,st:['dmg','chg','cd'],c:6},yumi:{p:.4,g:2,st:['spd','spc','mov'],c:5},shuriken:{p:.5,g:1,st:['spd','cd','spc'],c:3}},
+ bloodAff:.75,
  meltMul:2,                            // acero al fundir = sacri*2 (+ los +)
  bag:10,
  drop:{zombie:.012,mini:.004,spider:.25,yokai:.4,oni:1,kamonShare:.2,kamonShareYokai:.5},
@@ -2372,9 +2498,9 @@ function drawArsenal(){
 // ---- forja ----
 const meltValue=it=>it.kind==='kamon'?2*it.rk:AR.sacri[it.rar]*AR.meltMul+it.plus;
 const findItem=u=>RUN.bag.find(x=>x.uid===u)||Object.values(RUN.wpn).find(x=>x.uid===u);
-function addPlus(b,n,over){const out=[];for(let i=0;i<n;i++){if(b.plus>=AR.tope[b.rar]+(over||0))break;b.plus++;const s=pick(AR.stats)[0];b.lv[s]++;b.plusS[s]=(b.plusS[s]||0)+1;out.push(s)}return out}
+function addPlus(b,n,over,aff){const out=[];for(let i=0;i<n;i++){if(b.plus>=AR.tope[b.rar]+(over||0))break;b.plus++;const s=aff&&Math.random()<AR.bloodAff?pick(aff):pick(AR.stats)[0];b.lv[s]++;b.plusS[s]=(b.plusS[s]||0)+1;out.push(s)}return out}
 function ascend(b){b.rar++;const[a]=AR.rarRange[b.rar];for(const[k]of AR.stats)if(b.lv[k]<a)b.lv[k]=a;if(b.eff)b.eff.rk=Math.min(3,b.eff.rk+1);else b.eff={id:pick(EFF_IDS),rk:Math.min(3,b.rar)};if(b.rar===3)b.legend=true}
-function temper(){
+function temper(o){o=o||{};
  const A=RUN.anvil,b=findItem(A.base);if(!b||!A.sac.length)return;
  let pts=0;for(const u of A.sac){const s=RUN.bag.find(x=>x.uid===u);if(s){pts+=AR.sacri[s.rar]+s.plus}}
  RUN.bag=RUN.bag.filter(x=>!A.sac.includes(x.uid));RUN.slots=RUN.slots.filter(u=>RUN.bag.some(x=>x.uid===u));A.sac=[];
@@ -2383,21 +2509,26 @@ function temper(){
   if(b.plus<AR.tope[b.rar]){if(b.tp<c)break;b.tp-=c;log.push(...addPlus(b,1));if(Math.random()<AR.masterChance&&b.plus<AR.tope[b.rar]){master=true;log.push(...addPlus(b,1))}}
   else if(b.rar<3){if(b.tp<c*AR.ascendMul)break;b.tp-=c*AR.ascendMul;ascend(b);log.push('▲'+AR.rarName[b.rar])}
   else{b.tp=Math.min(b.tp,c);break}}
- sfx(master?'parry':'blunt');RUN.msg=(master?'¡GOLPE MAESTRO! ':'')+(log.length?'Templado: '+log.map(x=>x[0]==='▲'?x:'+1 '+statName(x)).join(', '):'+'+pts+' puntos de temple');
- refreshSM();renderForge();
+ sfx(master?'parry':'blunt');RUN.msg='';const ks=log.filter(x=>x[0]!=='▲'),asc=log.some(x=>x[0]==='▲')?b.rar:null;
+ RUN.hit={u:b.uid,k:{}};for(const k of ks)RUN.hit.k[k]=(RUN.hit.k[k]||0)+1;
+ const c2=AR.cost(b),top2=b.plus>=AR.tope[b.rar],need2=top2&&b.rar<3?c2*AR.ascendMul:c2;
+ refreshSM();renderForge();forgeFX(o.merge?'merge':'temper',{ks,master,asc,pts,tp:b.tp,need:need2,a:o.a,b:b,tier:(master||asc!=null)?2:ks.length?1:0});
 }
 const statName=k=>(AR.stats.find(s=>s[0]===k)||[k,k])[1];
 function sharpen(k){const b=findItem(RUN.anvil.base);if(!b||k===b.oni)return;const c=AR.sharpCost(RUN.sharpN);if(RUN.tama<c){RUN.msg='Necesitas '+c+' acero';renderForge();return}
- RUN.tama-=c;RUN.sharpN++;const[a,m]=AR.rarRange[b.rar],nv=ri(a,m)+(b.plusS[k]||0);RUN.sharp={k,old:b.lv[k],nv};sfx('swish');renderForge()}
-function sharpChoose(keepNew){const b=findItem(RUN.anvil.base),S=RUN.sharp;if(b&&S&&keepNew)b.lv[S.k]=S.nv;RUN.sharp=null;refreshSM();renderForge()}
-function bloodForge(){const b=findItem(RUN.anvil.base);if(!b)return;const B=AR.blood,c=B.cost(RUN.bloodN);if(RUN.tama<c){RUN.msg='Necesitas '+c+' acero';renderForge();return}
- RUN.tama-=c;RUN.bloodN++;const p=Math.min(.95,B.base+RUN.pity*B.pity);
- if(Math.random()<p){const g=addPlus(b,B.gain,B.over);RUN.pity=0;RUN.msg='🩸 ¡FORJA DE SANGRE! '+(g.length?g.map(x=>'+1 '+statName(x)).join(', '):'(ya en el máximo)');sfx('parry')}
- else{RUN.pity++;RUN.msg='🩸 Falló: pierdes el acero. Próxima: '+Math.round(Math.min(.95,B.base+RUN.pity*B.pity)*100)+' %';sfx('hurt')}
- refreshSM();renderForge()}
+ RUN.tama-=c;RUN.sharpN++;const[a,m]=AR.rarRange[b.rar],nv=ri(a,m)+(b.plusS[k]||0);RUN.sharp={k,old:b.lv[k],nv};RUN.hit=null;sfx('swish');renderForge();forgeFX('dice',{k,v:nv})}
+function sharpChoose(keepNew){const b=findItem(RUN.anvil.base),S=RUN.sharp;if(b&&S&&keepNew){const d=S.nv-S.old;b.lv[S.k]=S.nv;if(d>0)RUN.hit={u:b.uid,k:{[S.k]:d}}}RUN.sharp=null;refreshSM();renderForge()}
+const bT=b=>AR.bloodT[b.type]||{p:AR.blood.base,g:AR.blood.gain,st:AR.stats.map(x=>x[0]),c:5};
+const bCost=b=>bT(b).c+2*b.rar+2*(b.bloodN||0);
+const bProb=b=>Math.min(.95,bT(b).p+(b.pity||0)*AR.blood.pity);
+function bloodForge(){const b=findItem(RUN.anvil.base);if(!b)return;const T=bT(b),c=bCost(b);if(RUN.tama<c){RUN.msg='Necesitas '+c+' acero';renderForge();return}
+ RUN.tama-=c;const p=bProb(b);b.bloodN=(b.bloodN||0)+1;
+ let ok=false,g=[];if(Math.random()<p){g=addPlus(b,T.g,AR.blood.over,T.st);ok=true;b.pity=0;RUN.msg=g.length?'':'🩸 Ya está en el máximo';RUN.hit={u:b.uid,k:{}};for(const k of g)RUN.hit.k[k]=(RUN.hit.k[k]||0)+1;sfx('parry')}
+ else{b.pity=(b.pity||0)+1;RUN.msg='';sfx('hurt')}
+ refreshSM();renderForge();forgeFX('blood',{ok:ok&&g.length>0,ks:g})}
 function fuseKamon(it){const same=RUN.bag.filter(x=>x.kind==='kamon'&&x.eff===it.eff&&x.rk===it.rk);if(same.length<3||it.rk>=4)return;const rm=same.slice(0,3).map(x=>x.uid);
  RUN.bag=RUN.bag.filter(x=>!rm.includes(x.uid));const wasOn=rm.some(u=>RUN.slots.includes(u));RUN.slots=RUN.slots.filter(u=>!rm.includes(u));const n={uid:UID++,kind:'kamon',eff:it.eff,rk:it.rk+1};RUN.bag.push(n);if(wasOn)RUN.slots.push(n.uid);RUN.sel=n.uid;RUN.msg='Kamon fusionado: rango '+n.rk;sfx('ready');refreshSM();renderForge()}
-function openForge(){try{submitScore(true)}catch(e){}
+function openForge(){try{submitScore(true)}catch(e){}setTimeout(()=>{try{if(state==='forge'&&!localStorage.getItem('stickronin_guide')&&!$('forge').querySelector('.guide'))$('forge').insertAdjacentHTML('beforeend',guideHTML())}catch(_){}},60);
  state='forge';RUN.anvil={base:RUN.wpn[wIdx].uid,sac:[]};RUN.sel=RUN.anvil.base;RUN.sharp=null;RUN.msg='';
  if(wave%AR.chest.every===0&&RUN.chestW!==wave){RUN.chestW=wave;const t=weapon().id,r=Math.random(),rar=r<AR.chest.leg(wave)?3:r<AR.chest.leg(wave)+AR.chest.epic?2:1,w=genWeapon(t,rar);RUN.bag.push(w);RUN.bag.push(genKamon(wave>=10?2:1));RUN.msg='🎁 Cofre del jefe: '+AR.rarName[rar]+' '+w.name+' y un kamon'}
  RUN.slots=RUN.slots.slice(0,AR.kamonSlots(wave+1));
@@ -2406,23 +2537,79 @@ function openForge(){try{submitScore(true)}catch(e){}
 function closeForge(){$('forge').style.display='none';hudShow(true);refreshSM();state='play';if(TRAIN){updWUI();return}wave++;waveQueue=waveCount(wave);waveSpawnT=.5;banner('OLEADA '+wave);
  updWUI()}
 function updWUI(){const b=$('wbtn');b.textContent='⇄ '+weapon().name;$('bDash').textContent=SPN[weapon().special]||'DASH';if(RUN)b.style.boxShadow='inset 0 0 0 2px '+AR.rarCol[RUN.wpn[wIdx].rar]}
-function statBars(w,tap){return AR.stats.map(([k,n])=>{const v=w.lv[k],p=w.plusS[k]||0,oni=k===w.oni,m=Math.max(1+(v-3)*AR.lvStep,.4);
-  return`<div class="fs${tap&&!oni?' tap':''}" ${tap&&!oni?`data-act="sharp" data-k="${k}"`:''}><span>${n}${oni?' 👹':''}</span><b>${'■'.repeat(Math.min(v,9))}<i>${'□'.repeat(Math.max(0,5-v))}</i></b><em>${v}${p?` (+${p})`:''} · ×${m.toFixed(2)}</em></div>`}).join('')}
+const SV={
+ dmg:{c:'#e8453c',p:'<path d="M4 20 L16 8 L20 4 L19 9 L8 20 Z" fill="#fff"/><path d="M3 15 L9 21" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>'},
+ spd:{c:'#2fb8e0',p:'<path d="M3 7 H11 M1 12 H9 M3 17 H11" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M13 5 L21 12 L13 19 Z" fill="#fff"/>'},
+ rng:{c:'#3fbf5a',p:'<path d="M5 12 H19" stroke="#fff" stroke-width="2.6"/><path d="M2 12 L8 7 V17 Z M22 12 L16 7 V17 Z" fill="#fff"/>'},
+ chg:{c:'#e6a817',p:'<path d="M13 2 L5 13 H11 L9 22 L19 10 H13 Z" fill="#fff"/>'},
+ cd:{c:'#8a5cf0',p:'<path d="M6 3 H18 M6 21 H18 M7 3 C7 9 17 9 17 12 C17 15 7 15 7 21 M17 3 C17 9 7 9 7 12 C7 15 17 15 17 21" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/>'},
+ spc:{c:'#e04ab4',p:'<path d="M12 1 L14.5 9.5 L23 12 L14.5 14.5 L12 23 L9.5 14.5 L1 12 L9.5 9.5 Z" fill="#fff"/>'},
+ par:{c:'#5d86d8',p:'<path d="M12 2 L20 5 V11 C20 17 16 20 12 22 C8 20 4 17 4 11 V5 Z" fill="#fff"/>'},
+ mov:{c:'#e07a2a',p:'<ellipse cx="8" cy="9" rx="3.2" ry="5" fill="#fff"/><ellipse cx="16" cy="15" rx="3.2" ry="5" fill="#fff"/>'}};
+const sIco=(k,cls)=>`<div class="${cls||'sico'}" style="--sc:${SV[k].c}"><svg viewBox="0 0 24 24">${SV[k].p}</svg></div>`;
+function pipsHTML(k,v,p,oni){const base=Math.max(0,v-p),n=Math.max(5,v);let h='';for(let i=0;i<n;i++)h+=`<i class="${i<base?(oni&&i>=5?'o':'f'):i<v?'p':''}"></i>`;return`<div class="pips" style="--sc:${SV[k].c}">${h}</div>`}
+function statBars(w,tap){const H=RUN&&RUN.hit&&RUN.hit.u===w.uid?RUN.hit:null,S=RUN&&RUN.sharp;
+ return AR.stats.map(([k,n])=>{const v=w.lv[k],p=w.plusS[k]||0,oni=k===w.oni,hc=H&&H.k[k],can=tap&&!oni;
+  return`<div class="fs${can?' tap':''}${hc?' hit':''}${S&&S.k===k&&RUN.anvil.base===w.uid?' rolling':''}" style="--sc:${SV[k].c}" title="${n}" ${can?`data-act="sharp" data-k="${k}"`:''}>${sIco(k)}${pipsHTML(k,v,p,oni)}<span class="dz">${oni?'👹':can?'🎲':''}</span>${hc?`<span class="fl">+${hc}</span>`:''}</div>`}).join('')}
+// efectos visuales de forja (capa encima de todo, no se borra al redibujar)
+function forgeFX(kind,o){o=o||{};let fx=document.getElementById('ffx');if(fx)fx.remove();fx=document.createElement('div');fx.id='ffx';
+ const spk=(n)=>Array.from({length:n},()=>{const a=Math.random()*6.28,r=60+Math.random()*90;return`<span class="spk" style="--x:${Math.cos(a)*r}px;--y:${Math.sin(a)*r}px;--d:${(.25+Math.random()*.15).toFixed(2)}s"></span>`}).join('');
+ const icons=(ks,d0)=>`<div class="row">${ks.map((k,i)=>`<div class="fxi" style="--sc:${SV[k].c};animation-delay:${d0+i*.12}s,1.5s"><svg viewBox="0 0 24 24">${SV[k].p}</svg><b>+1</b></div>`).join('')}</div>`;
+ let h='<div class="bg"></div>';
+ if(kind==='temper'){h+=`<div class="ham">${ANVIL_SVG(110)}${spk(14)}</div>`;
+  if(o.master)h+=`<div class="ttl" style="--tc:#ffd04a">¡GOLPE MAESTRO!</div>`;
+  if(o.asc!=null)h+=`<div class="ttl" style="color:${AR.rarCol[o.asc]};--tc:${AR.rarCol[o.asc]}">▲ ${AR.rarName[o.asc]}</div>`;
+  if(o.ks&&o.ks.length)h+=icons(o.ks,.35)}
+ else if(kind==='merge'){const T=o.tier,col=AR.rarCol[o.b.rar];fx.className='fx'+T;
+  h+=`<div class="mg"><div class="ma">${wIcon(o.a.type,AR.rarCol[o.a.rar],70)}</div><div class="mb">${wIcon(o.b.type,col,70)}</div><div class="mflash"></div>${spk(T===2?26:T===1?14:5)}</div>`;
+  if(T===2)h+=`<div class="ttl" style="color:${col};--tc:${col};animation-delay:.55s,1.9s">${o.asc!=null?'▲ '+AR.rarName[o.asc]:'¡GOLPE MAESTRO!'}</div>`;
+  if(o.ks.length)h+=icons(o.ks,.65);
+  else h+=`<div class="mbar2"><i style="width:${Math.min(100,(o.tp-o.pts)/o.need*100)}%;--w:${Math.min(100,o.tp/o.need*100)}%"></i></div><div class="ttl" style="color:#aaa;--tc:#444;font-size:22px;animation-delay:.6s,1.9s">+${o.pts} temple</div>`}
+ else if(kind==='blood'){h+=`<div class="drop">${o.ok?'🩸':'💧'}</div>`;
+  h+=o.ok?icons(o.ks,.45):`<div class="ttl" style="color:#bbb;--tc:#555">✖</div>`}
+ else if(kind==='dice'){h+=`<div class="row">${sIco(o.k,'fxi')}<div class="die roll"></div></div>`}
+ fx.innerHTML=h;document.body.appendChild(fx);
+ if(kind==='dice'){const d=fx.querySelector('.die'),face=n=>{const P={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+   if(n>6){d.className='die num';d.innerHTML=n;return}d.className='die';d.innerHTML=Array.from({length:9},(_,i)=>P[n].includes(i)?'<u></u>':'<span></span>').join('')};
+  const fxi=fx.querySelector('.fxi');fxi.style.animation='fxpop .4s cubic-bezier(.2,1.7,.4,1) both,fxout .3s 1.4s forwards';fxi.style.width=fxi.style.height='78px';
+  let t=0;face(1);d.classList.add('roll');const iv=setInterval(()=>{t++;face(1+Math.floor(Math.random()*6));d.classList.add('roll');if(t>8){clearInterval(iv);face(o.v);d.classList.remove('roll');d.classList.add('land');sfx('blunt')}},70);
+  setTimeout(()=>fx.remove(),1700)}
+ else setTimeout(()=>fx.remove(),kind==='merge'?2400:2000)}
 function card(it,extra){if(!it)return'<div class="fc empty">vacío</div>';const sel=RUN.sel===it.uid?' sel':'';
  if(it.kind==='kamon'){const E=AR.eff[it.eff];return`<div class="fc${sel}${RUN.slots.includes(it.uid)?' on':''}" data-act="sel" data-u="${it.uid}" data-drag="${it.uid}" style="border-color:${AR.rarCol[Math.min(3,it.rk-1)]}"><div class="ic">${E.ico}</div><div class="nm">${E.name}</div><div class="rk">Rango ${'I II III IV'.split(' ')[it.rk-1]}</div>${extra||''}</div>`}
- return`<div class="fc wc${sel}" data-act="sel" data-u="${it.uid}" data-drag="${it.uid}" style="border-color:${AR.rarCol[it.rar]};--rc:${AR.rarCol[it.rar]}"><div class="wi">${wIcon(it.type,AR.rarCol[it.rar])}${it.plus?`<sup>+${it.plus}</sup>`:''}</div><div class="nm">${TYPE_N[it.type]}</div><div class="rk"><span style="color:${AR.rarCol[it.rar]}">${AR.rarName[it.rar]}</span> ${power(it)}</div>${extra||''}</div>`}
+ return`<div class="fc wc${sel}" data-act="sel" data-u="${it.uid}" data-drag="${it.uid}" data-drop="w:${it.uid}" style="border-color:${AR.rarCol[it.rar]};--rc:${AR.rarCol[it.rar]}"><div class="wi">${wIcon(it.type,AR.rarCol[it.rar])}${it.plus?`<sup>+${it.plus}</sup>`:''}</div><div class="nm">${TYPE_N[it.type]}</div><div class="rk"><span style="color:${AR.rarCol[it.rar]}">${AR.rarName[it.rar]}</span> ${power(it)}</div>${extra||''}</div>`}
+const ANVIL_SVG=(w)=>`<svg viewBox="0 0 64 40" width="${w}" height="${w*40/64}"><path d="M6 8 H50 Q60 8 62 14 Q52 14 48 18 V22 H40 L44 30 H50 V36 H14 V30 H20 L24 22 H16 Q8 22 6 14 Z" fill="#4a4550" stroke="#8d8794" stroke-width="1.5"/><path d="M8 9 H48" stroke="#b9b3c0" stroke-width="1.5"/></svg>`;
+const FIRE_SVG=(w)=>`<svg viewBox="0 0 40 48" width="${w}" height="${w*1.2}"><path d="M20 2 C24 14 36 18 34 32 C33 42 26 46 20 46 C12 46 6 40 6 31 C6 22 14 20 14 10 C18 14 18 18 20 20 C22 14 20 8 20 2 Z" fill="#e2552b"/><path d="M20 20 C24 28 28 30 27 37 C26 42 23 44 20 44 C16 44 13 41 13 36 C13 31 18 30 20 20 Z" fill="#ffb23a"/></svg>`;
+const INGOT_SVG=(w)=>`<svg viewBox="0 0 48 28" width="${w}" height="${w*28/48}"><path d="M4 22 L12 6 H38 L44 22 Z" fill="#9aa4ae" stroke="#dfe5ec" stroke-width="1.5"/><path d="M12 6 L16 12 H34 L38 6" fill="none" stroke="#dfe5ec" stroke-width="1.2"/></svg>`;
+const ARROW_SVG=`<svg viewBox="0 0 40 20" width="34" height="17"><path d="M2 10 H30 M24 4 L32 10 L24 16" stroke="#ffd04a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function guideHTML(){const k=(t,c)=>wIcon(t,AR.rarCol[c],38);
+ const step=(ill,t,d)=>`<div class="gstep"><div class="gill">${ill}</div><div class="gtx"><b>${t}</b><span>${d}</span></div></div>`;
+ return`<div class="guide" data-act="gclose"><div class="gcard"><div class="gh"><b>Cómo se mejora un arma</b><button data-act="gclose">Entendido</button></div>
+ ${step(`<div class="gmg"><span class="g1">${k('katana',0)}</span><span class="ghand">👆</span><span class="g2">${k('katana',1)}</span></div>${ARROW_SVG}<div class="gplus">${k('katana',1)}<sup>+1</sup></div>`,'1 · Fusionar','Mantén pulsada un arma y suéltala <u>encima de otra del mismo tipo</u> (también sobre la equipada o en el yunque). Al arrastrar, brillan ✦ las que se pueden juntar. La de abajo se queda y absorbe a la otra. Desde el menú del arma: ⚒ Fusionar.')}
+ ${step(`<div class="gout"><span class="o0"><div class="gbar"><i style="width:60%"></i></div>mal</span><span class="o1">+1<small>bien</small></span><span class="o2">★▲<small>muy bien</small></span></div>`,'Cómo sale la fusión','Cada fusión llena la barra de temple (común 1 · rara 2 · épica 3 · legendaria 6). Gris: solo llena la barra. Blanco: +1 en una estadística. Dorado: golpe maestro (+1 extra) o sube de rareza. Nunca pierdes nada.')}
+ ${step(`${k('yari',0)}${ARROW_SVG}${FIRE_SVG(30)}${ARROW_SVG}${INGOT_SVG(40)}`,'2 · Fundir','Arrastra al fuego las armas que no quieras (al arrastrar, el fuego se aviva): se queman y te dan acero 🔩.')}
+ ${step(`${INGOT_SVG(34)}${ARROW_SVG}<div class="gdice">🎲</div><div class="gab">${sIco('dmg')}${pipsHTML('dmg',2,0)}${ARROW_SVG}${pipsHTML('dmg',4,0)}</div>`,'3 · Afilar (acero)','Pon el arma en el yunque, toca una estadística con 🎲 y tira el dado. Eliges: ↩ la vieja o la nueva (▲ mejor, ▼ peor).')}
+ ${step(`<div class="gbl">${k('odachi',0)}<span>🩸 22% <b>+3</b></span></div><div class="gbl">${k('katana',0)}<span>🩸 35% <b>+2</b></span></div><div class="gbl">${k('nito',0)}<span>🩸 50% <b>+1</b></span></div>`,'4 · Forja de sangre (acero)','Con el arma en el yunque, pulsa 🩸. Cada arma tiene la suya: probabilidad, cuántos + da y qué estadísticas suele subir (iconos del botón). Si falla pierdes el acero, pero la próxima de esa arma tiene más probabilidad.')}
+ <div class="gleg">${AR.stats.map(([k,n])=>`<div>${sIco(k)}<span>${n}</span></div>`).join('')}</div>
+ </div></div>`}
+function forgeCoach(){const R=RUN,A=R.anvil,b=findItem(A.base);const bagW=R.bag.filter(x=>x.kind!=='kamon');
+ const groups={};for(const w of bagW.concat(R.wpn))groups[w.type]=(groups[w.type]||0)+1;
+ const dup=Object.keys(groups).find(t=>groups[t]>=2&&bagW.some(x=>x.type===t));
+ if(dup){const all=R.wpn.filter(w=>w.type===dup).concat(bagW.filter(x=>x.type===dup)),best=R.wpn.find(w=>w.type===dup)||all.slice().sort((a,c)=>power(c)-power(a))[0];return{n:1,t:`${wIcon(dup,'#ffd04a',22)} Suelta una ${TYPE_N[dup]} encima de otra para fusionarlas.`,hl:all.filter(x=>x!==best&&!R.wpn.includes(x)).map(x=>x.uid)}}
+ if(R.tama>=AR.sharpCost(R.sharpN)&&b)return{n:2,t:`Tienes ${R.tama} 🔩: en el yunque toca una estadística para afilarla 🎲 o prueba la 🩸 sangre.`,hl:[]};
+ return{n:1,t:bagW.length?`${FIRE_SVG(18)} Funde lo que no uses para conseguir acero 🔩.`:`Mata enemigos para encontrar armas.`,hl:[]}}
 function renderForge(){
  const R=RUN,A=R.anvil,b=findItem(A.base),sel=findItem(R.sel),eq=R.wpn.map(x=>x.uid);
  const slotsN=AR.kamonSlots(wave+1),kam=R.slots.map(u=>R.bag.find(x=>x.uid===u)).filter(Boolean);
  let pts=0;for(const u of A.sac){const s=R.bag.find(x=>x.uid===u);if(s)pts+=AR.sacri[s.rar]+s.plus}
- let h=`<div class="fh"><b>⚒ FORJA</b><span>Oleada ${wave} superada · 🔩 ${R.tama} acero</span><button data-act="go">Continuar ▶</button></div>`;
+ let h=`<div class="fh"><b>⚒ FORJA</b><span>Oleada ${wave} superada · 🔩 ${R.tama} acero</span><button data-act="guide" class="gbtn">❓ Cómo mejorar</button><button data-act="go">Continuar ▶</button></div>`;const CO=forgeCoach();
  if(R.msg)h+=`<div class="fmsg">${R.msg}</div>`;
- h+=`<div class="fhint">Toca un arma para ver qué puedes hacer con ella, o mantenla pulsada y arrástrala a ①, ②, el yunque o el fuego.</div>`;
+ h+=`<div class="coach"><i>${CO.n}</i><span>${CO.t}</span></div><div class="fhint">Toca un arma: menú · Mantén y arrastra: ⚒ sobre otra igual = fusionar · 🔥 fundir · ①② equipar · yunque = 🎲 afilar / 🩸 sangre</div>`;
  h+=`<div class="zones"><div class="zone" data-drop="eq0"><i>①</i>${card(R.wpn[0])}</div><div class="zone" data-drop="eq1"><i>②</i>${card(R.wpn[1])}</div>
- <div class="zone tool${b?'':' idle'}" data-drop="anvil" data-act="anvilmenu">${b?`<div class="wi">${wIcon(b.type,AR.rarCol[b.rar],34)}</div><div class="nm">Yunque</div><div class="rk">${A.sac.length?A.sac.length+' sacrificio'+(A.sac.length>1?'s':''):'base: '+TYPE_N[b.type]}</div>`:'<div class="big">⚒</div><div class="nm">Yunque</div><div class="rk">suelta aquí</div>'}</div>
- <div class="zone tool fire" data-drop="melt"><div class="big">🔥</div><div class="nm">Fundir</div><div class="rk">🔩 ${R.tama}</div></div></div>`;
+ <div class="zone tool anvz${b?'':' idle'}${CO.n===1&&!b?' pulse':''}" data-drop="anvil" data-act="anvilmenu">${b?(()=>{const c=AR.cost(b),top=b.plus>=AR.tope[b.rar],need=top&&b.rar<3?c*AR.ascendMul:c;return`<div class="anvw">${ANVIL_SVG(52)}<em>${wIcon(b.type,AR.rarCol[b.rar],30)}</em></div><div class="mbar"><i style="width:${Math.min(100,(b.tp+pts)/need*100)}%"></i><b style="width:${Math.min(100,b.tp/need*100)}%"></b></div><div class="rk">${b.tp}${pts?'<span style="color:#ffd04a"> +'+pts+'</span>':''}/${need} ${top?(b.rar<3?'▲':'máx'):'→ +1'}</div>`})():`<div class="anvw">${ANVIL_SVG(52)}</div><div class="nm">Yunque</div><div class="rk">🎲 afilar · 🩸 sangre</div>`}</div>
+ <div class="zone tool fire${performance.now()<(R.burnUntil||0)?' burning':''}" data-drop="melt"><div class="flames">${[3,12,21,30,39,48,57,66,75,84,93].map((x,i)=>`<i style="left:calc(${x}% - 9px);animation-delay:${((i*.13)%.45).toFixed(2)}s;height:${[26,34,22,30,38,24,32,36,22,30,26][i]}px"></i>`).join('')}</div>${FIRE_SVG(26)}<div class="nm">Fundir</div><div class="rk">${INGOT_SVG(22)} ${R.tama} acero</div></div></div>`;
  h+=`<div class="fsec">Kamon ${kam.length}/${slotsN}</div><div class="frow" data-drop="kamon">${Array.from({length:slotsN},(_,i)=>kam[i]?card(kam[i]):'<div class="fc empty">hueco libre</div>').join('')}</div>`;
- h+=`<div class="fsec">Bolsa ${R.bag.length}/${AR.bag}</div><div class="fgrid" data-drop="bag">${R.bag.filter(x=>!R.slots.includes(x.uid)).map(x=>card(x,A.sac.includes(x.uid)?'<div class="tag">sacrificio</div>':'')).join('')||'<div class="fempty">Mata enemigos para encontrar armas y kamon</div>'}</div>`;
+ const HL=CO.hl;h+=`<div class="fsec">Bolsa ${R.bag.length}/${AR.bag}</div><div class="fgrid" data-drop="bag">${R.bag.filter(x=>!R.slots.includes(x.uid)).map(x=>card(x,(A.sac.includes(x.uid)?'<div class="tag">sacrificio</div>':'')+(HL.includes(x.uid)?'<div class="sug">👆</div>':''))).join('')||'<div class="fempty">Mata enemigos para encontrar armas y kamon</div>'}</div>`;
  // detalle
  if(sel){h+=`<div class="fdet">`;
   if(sel.kind==='kamon'){const E=AR.eff[sel.eff],on=R.slots.includes(sel.uid),same=R.bag.filter(x=>x.kind==='kamon'&&x.eff===sel.eff&&x.rk===sel.rk).length;
@@ -2432,38 +2619,49 @@ function renderForge(){
    h+=statBars(sel,sel.uid===A.base&&!R.sharp);
    if(sel.eff)h+=`<div class="dd">${AR.eff[sel.eff.id].ico} <b>${AR.eff[sel.eff.id].name} ${sel.eff.rk}</b>: ${AR.eff[sel.eff.id].desc(sel.eff.rk)}</div>`;
    if(sel.legend)h+=`<div class="dd" style="color:#ffb020">★ Legendaria: ${legendText(sel.type)}</div>`;
-   h+=`<div class="dd">${WDESC[sel.type]}</div><div class="fb">${isEq?'':`<button data-act="equip" data-s="0">Equipar en ① (en vez de ${TYPE_N[R.wpn[0].type]})</button><button data-act="equip" data-s="1">Equipar en ② (en vez de ${TYPE_N[R.wpn[1].type]})</button>`}${A.base===sel.uid?'':'<button data-act="base">Poner de base</button>'}${!isEq&&A.base!==sel.uid&&b&&b.type===sel.type?`<button data-act="sac">${A.sac.includes(sel.uid)?'Quitar sacrificio':'Sacrificar'}</button>`:''}${isEq?'':`<button data-act="melt">Fundir (+${meltValue(sel)} 🔩)</button>`}</div>`}
+   h+=`<div class="dd">${WDESC[sel.type]}</div><div class="fb">${isEq?'':`<button data-act="equip" data-s="0">Equipar en ① (en vez de ${TYPE_N[R.wpn[0].type]})</button><button data-act="equip" data-s="1">Equipar en ② (en vez de ${TYPE_N[R.wpn[1].type]})</button>`}${fuseTarget(sel)?'<button data-act="fuse">⚒ Fusionar con '+(R.wpn.includes(fuseTarget(sel))?'la equipada':'otra '+TYPE_N[sel.type])+'</button>':''}${A.base===sel.uid?'':'<button data-act="base">🎲 Al yunque</button>'}${isEq?'':`<button data-act="melt">Fundir (+${meltValue(sel)} 🔩)</button>`}</div>`}
   h+=`</div>`}
  // yunque
- if(b){const c=AR.cost(b),atTop=b.plus>=AR.tope[b.rar],need=atTop&&b.rar<3?c*AR.ascendMul:c,after=b.tp+pts,bp=Math.min(.95,AR.blood.base+R.pity*AR.blood.pity);
+ if(b){const c=AR.cost(b),atTop=b.plus>=AR.tope[b.rar],need=atTop&&b.rar<3?c*AR.ascendMul:c,after=b.tp+pts,bp=bProb(b),BT=bT(b);
   h+=`<div class="fanv"><div class="dt">🔨 Yunque: ${b.name}${b.plus?' +'+b.plus:''} <small>(tope +${AR.tope[b.rar]})</small></div>
   <div class="bar"><i style="width:${Math.min(100,after/need*100)}%"></i><span>Temple ${b.tp}${pts?' + '+pts:''} / ${need} ${atTop?(b.rar<3?'→ ascender a '+AR.rarName[b.rar+1]:'(máximo)'):'→ +1'}</span></div>
   ${sel&&sel.uid===A.base?'':statBars(b,!R.sharp)}
-  <div class="dd">Sacrificios: ${A.sac.length||'ninguno (elige armas del mismo tipo en la bolsa)'} · 15 % de golpe maestro (+1 extra)</div>`;
-  if(R.sharp){const S=R.sharp;h+=`<div class="dd">Afilado de <b>${statName(S.k)}</b>: ${S.old} → <b>${S.nv}</b></div><div class="fb"><button data-act="snew">Quedarme ${S.nv}</button><button data-act="sold">Mantener ${S.old}</button></div>`}
-  else h+=`<div class="fb"><button data-act="temper" ${A.sac.length?'':'disabled'}>Templar</button><button data-act="blood">🩸 Sangre ${Math.round(bp*100)} % (${AR.blood.cost(R.bloodN)} 🔩)</button></div><div class="dd">Afilar: toca una estadística del arma base (${AR.sharpCost(R.sharpN)} 🔩). Eliges quedarte el valor nuevo o el viejo.</div>`;
+  <div class="dd">⚒ Suelta otra ${TYPE_N[b.type]} encima para fusionar · 🎲 toca una estadística para afilar · 🩸 sangre</div>`;
+  if(R.sharp){const S=R.sharp,p=b.plusS[S.k]||0,d=S.nv-S.old;h+=`<div class="sharpc"><button data-act="sold" class="${d<0?'up':''}">${sIco(S.k)}${pipsHTML(S.k,S.old,Math.min(p,S.old))}<span class="big">↩</span></button><button data-act="snew" class="${d>0?'up':d<0?'dn':''}">${sIco(S.k)}${pipsHTML(S.k,S.nv,Math.min(p,S.nv))}<span class="big">${d>0?'▲':d<0?'▼':'='}</span></button></div>`}
+  else h+=`<div class="fb"><button data-act="blood" class="bbtn" ${R.tama<bCost(b)?'disabled':''}><span class="bdrop">🩸<b>${Math.round(bp*100)}%</b></span><span class="bgain">+${BT.g}</span><span class="baff">${BT.st.map(k=>sIco(k)).join('')}</span><span class="bcost">${bCost(b)} 🔩</span></button></div><div class="dd">🎲 ${AR.sharpCost(R.sharpN)} 🔩</div>`;
   h+=`</div>`}
  $('forge').innerHTML=`<div class="fin">${h}</div>`;
+ if(R.hit){clearTimeout(R.hitT);R.hitT=setTimeout(()=>{R.hit=null},1500)}
 }
 const fdrag={it:null,uid:0,x0:0,y0:0,ghost:null,on:false,zone:null,el:null,sup:false};
 function dropOk(it,z){if(!it||!z)return false;const R=RUN,eqI=R.wpn.findIndex(w=>w.uid===it.uid);
+ if(z.startsWith('w:')){const t=findItem(+z.slice(2));return!!t&&t.uid!==it.uid&&it.kind!=='kamon'&&t.kind!=='kamon'&&t.type===it.type&&!(eqI>=0&&R.wpn.includes(t))}
  if(it.kind==='kamon')return z==='kamon'||z==='bag'||z==='melt';
  if(z==='eq0'||z==='eq1')return eqI!==+z[2];if(z==='anvil')return true;if(z==='melt')return eqI<0;return false}
+function fuseTarget(it){const R=RUN;if(!it||it.kind==='kamon'||R.wpn.includes(it))return null;
+ const eq=R.wpn.find(w=>w.type===it.type);if(eq)return eq;const b=findItem(R.anvil.base);if(b&&b.type===it.type&&b!==it)return b;
+ return R.bag.filter(x=>x.kind!=='kamon'&&x.type===it.type&&x!==it).sort((a,c)=>power(c)-power(a))[0]||null}
+function fuseInto(base,sac){const R=RUN;R.anvil={base:base.uid,sac:[sac.uid]};R.sharp=null;R.sel=base.uid;sfx('swish');temper({merge:true,a:sac})}
 function forgeDrop(it,z){const R=RUN;R.msg='';const eqI=R.wpn.findIndex(w=>w.uid===it.uid);
+ if(z.startsWith('w:')){const t=findItem(+z.slice(2));let base=t,sac=it;if(eqI>=0){base=it;sac=t}
+  fuseInto(base,sac);return}
  if(it.kind==='kamon'){if(z==='kamon'&&!R.slots.includes(it.uid)){if(R.slots.length<AR.kamonSlots(wave+1)){R.slots.push(it.uid);R.msg='Kamon puesto: '+AR.eff[it.eff].name}else R.msg='No quedan huecos de kamon'}
   else if(z==='bag'&&R.slots.includes(it.uid)){R.slots=R.slots.filter(u=>u!==it.uid);R.msg='Kamon quitado'}
   else if(z==='melt'){fMelt(it);return}}
  else if(z==='eq0'||z==='eq1'){const sl=+z[2];if(eqI>=0){const t=R.wpn[0];R.wpn[0]=R.wpn[1];R.wpn[1]=t;R.msg='Armas intercambiadas'}else{const old=R.wpn[sl];R.wpn[sl]=it;R.bag=R.bag.filter(x=>x.uid!==it.uid);R.bag.push(old);R.anvil.sac=R.anvil.sac.filter(u=>u!==it.uid);R.msg='Equipada en '+(sl?'②':'①')+': '+TYPE_N[it.type]}sfx('swish')}
  else if(z==='anvil'){const A=R.anvil,b=findItem(A.base);
-  if(!b||b.type!==it.type||A.base===it.uid){if(A.base!==it.uid){R.anvil={base:it.uid,sac:[]};R.sharp=null;R.msg='En el yunque: '+TYPE_N[it.type]+'. Arrastra otras del mismo tipo para sacrificarlas.'}}
-  else if(eqI>=0)R.msg='No puedes sacrificar un arma equipada';
-  else{A.sac=A.sac.includes(it.uid)?A.sac.filter(u=>u!==it.uid):A.sac.concat(it.uid);R.msg=A.sac.includes(it.uid)?'Sacrificio añadido':'Sacrificio quitado'}sfx('blunt')}
+  if(b&&b.type===it.type&&A.base!==it.uid&&eqI<0){fuseInto(b,it);return}
+  if(A.base!==it.uid){R.anvil={base:it.uid,sac:[]};R.sharp=null}sfx('blunt')}
  else if(z==='melt'){if(eqI>=0){R.msg='No puedes fundir un arma equipada'}else{fMelt(it);return}}
  R.sel=it.uid;refreshSM();renderForge()}
-function fMelt(it){const R=RUN,v=meltValue(it);R.tama+=v;R.bag=R.bag.filter(x=>x.uid!==it.uid);R.slots=R.slots.filter(u=>u!==it.uid);R.anvil.sac=R.anvil.sac.filter(u=>u!==it.uid);if(R.anvil.base===it.uid)R.anvil.base=R.wpn[0].uid;R.msg='Fundida: +'+v+' acero';R.sel=null;sfx('blunt');refreshSM();renderForge()}
+function burnFX(it,v){try{const z=$('forge').querySelector('[data-drop="melt"]');if(!z)return;const r=z.getBoundingClientRect();const d=document.createElement('div');d.className='burnfx';d.style.left=(r.left+r.width/2-40)+'px';d.style.top=(r.top+r.height/2-50)+'px';d.style.width='80px';d.style.height='100px';
+ const ic=it.kind==='kamon'?`<div style="font-size:40px">${AR.eff[it.eff].ico}</div>`:wIcon(it.type,AR.rarCol[it.rar],60);
+ d.innerHTML=`<div class="bw">${ic}</div>`+Array.from({length:16},()=>`<span class="emb" style="--x:${(Math.random()*70-35).toFixed(0)}px;--y:${(40+Math.random()*70).toFixed(0)}px;--d:${(Math.random()*.6).toFixed(2)}s"></span>`).join('')+`<div class="bi">${INGOT_SVG(26)}+${v}</div>`;
+ document.body.appendChild(d);setTimeout(()=>d.remove(),2300)}catch(_){}}
+function fMelt(it){const R=RUN,v=meltValue(it);R.burnUntil=performance.now()+2600;setTimeout(()=>{if(state==='forge'&&performance.now()>=R.burnUntil){const z=$('forge').querySelector('[data-drop="melt"]');if(z)z.classList.remove('burning')}},2700);R.tama+=v;R.bag=R.bag.filter(x=>x.uid!==it.uid);R.slots=R.slots.filter(u=>u!==it.uid);R.anvil.sac=R.anvil.sac.filter(u=>u!==it.uid);if(R.anvil.base===it.uid)R.anvil.base=R.wpn[0].uid;R.msg='';R.sel=null;sfx('blunt');refreshSM();renderForge();burnFX(it,v)}
 function fdStart(){if(!fdrag.it||fdrag.on)return;fdrag.on=true;const g=fdrag.el.cloneNode(true);g.className+=' ghost';g.style.width=fdrag.el.offsetWidth+'px';document.body.appendChild(g);fdrag.ghost=g;fdrag.el.classList.add('lift');g.style.left=(fdrag.x-g.offsetWidth/2)+'px';g.style.top=(fdrag.y-g.offsetHeight*.7)+'px';try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
  document.querySelectorAll('#forge [data-drop]').forEach(z=>{if(dropOk(fdrag.it,z.dataset.drop))z.classList.add('can')})}
-function fdZone(x,y){const g=fdrag.ghost;if(g)g.style.display='none';const el=document.elementFromPoint(x,y);if(g)g.style.display='';const d=el&&el.closest&&el.closest('[data-drop]');return d?d:null}
+function fdZone(x,y){const g=fdrag.ghost;if(g)g.style.display='none';const el=document.elementFromPoint(x,y);if(g)g.style.display='';let d=el&&el.closest&&el.closest('[data-drop]');if(d&&d.dataset.drop.startsWith('w:')&&!dropOk(fdrag.it,d.dataset.drop))d=d.parentElement&&d.parentElement.closest('[data-drop]');return d||null}
 function fdClear(){document.querySelectorAll('#forge .hot,#forge .can').forEach(e=>e.classList.remove('hot','can'))}
 $('forge').addEventListener('pointerdown',e=>{const el=e.target.closest('[data-drag]');if(!el||state!=='forge')return;const it=findItem(+el.dataset.drag);if(!it)return;Object.assign(fdrag,{it,uid:it.uid,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,on:false,el,ghost:null,zone:null,mouse:e.pointerType==='mouse'});clearTimeout(fdrag.tm);if(!fdrag.mouse)fdrag.tm=setTimeout(fdStart,220)});
 addEventListener('touchmove',e=>{if(fdrag.on)e.preventDefault()},{passive:false});
@@ -2478,13 +2676,13 @@ addEventListener('pointercancel',()=>{clearTimeout(fdrag.tm);if(fdrag.on)return;
 function openRadial(uid,anvil){const R=RUN,f=$('forge');const old=f.querySelector('.radial');if(old)old.remove();
  const it=anvil?findItem(R.anvil.base):findItem(uid);const src=anvil?f.querySelector('[data-drop="anvil"]'):f.querySelector('.fin [data-u="'+uid+'"]');if(!it||!src)return;
  const r=src.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,eqI=R.wpn.findIndex(w=>w.uid===it.uid),A=R.anvil,b=findItem(A.base),o=[];
- if(anvil){const pts=A.sac.length;o.push(['temper','⚒','Templar',!pts]);o.push(['blood','🩸','Sangre '+AR.blood.cost(R.bloodN)+'🔩',R.tama<AR.blood.cost(R.bloodN)]);o.push(['info','ℹ','Detalles'])}
+ if(anvil){o.push(['sharp','🎲','Afilar']);o.push(['blood','🩸',Math.round(bProb(b)*100)+'% +'+bT(b).g+' · '+bCost(b)+'🔩',R.tama<bCost(b)]);o.push(['info','ℹ','Detalles'])}
  else if(it.kind==='kamon'){const on=R.slots.includes(it.uid),same=R.bag.filter(x=>x.kind==='kamon'&&x.eff===it.eff&&x.rk===it.rk).length;
   o.push(on?['koff','✖','Quitarse']:['kon','✚','Ponerse',R.slots.length>=AR.kamonSlots(wave+1)]);if(same>=3&&it.rk<4)o.push(['kfuse','⬆','Fusionar']);o.push(['melt','🔥','Fundir +'+meltValue(it)]);o.push(['info','ℹ','Detalles'])}
  else{if(eqI<0){o.push(['equip0','①','Equipar ①']);o.push(['equip1','②','Equipar ②'])}else o.push(['swap','⇄','Cambiar a '+(eqI?'①':'②')]);
   const same=b&&b.type===it.type&&A.base!==it.uid;
-  if(A.base!==it.uid)o.push(same?(eqI<0?['sac','⚒',A.sac.includes(it.uid)?'Quitar sacrificio':'Sacrificar en yunque']:null):['base','⚒','Al yunque']);
-  if(A.base===it.uid)o.push(['temper','⚒','Templar',!A.sac.length]);
+  const ft=fuseTarget(it);if(ft)o.push(['fuse','⚒','Fusionar']);
+  if(A.base!==it.uid)o.push(['base','🎲','Al yunque']);
   if(eqI<0)o.push(['melt','🔥','Fundir +'+meltValue(it)]);o.push(['info','ℹ','Detalles'])}
  const L=o.filter(Boolean),n=L.length,rad=Math.min(92,40+n*11),W=innerWidth,H=innerHeight,ccx=Math.max(rad+40,Math.min(W-rad-40,cx)),ccy=Math.max(rad+40,Math.min(H-rad-40,cy));
  const d=document.createElement('div');d.className='radial';d.dataset.act='rclose';
@@ -2494,23 +2692,26 @@ function openRadial(uid,anvil){const R=RUN,f=$('forge');const old=f.querySelecto
 function radialAct(a){const R=RUN,sel=findItem(R.sel);R.msg='';const close=()=>{const r=$('forge').querySelector('.radial');if(r)r.remove()};
  if(a==='rclose'){close();return}
  if(a==='r_info'){close();const d=$('forge').querySelector('.fdet,.fanv');if(d)d.scrollIntoView({behavior:'smooth',block:'start'});return}
- if(a==='r_temper')return temper();if(a==='r_blood')return bloodForge();if(a==='r_kfuse'&&sel)return fuseKamon(sel);
+ if(a==='r_sharp'){close();const d=$('forge').querySelector('.fanv');if(d)d.scrollIntoView({behavior:'smooth',block:'start'});return}if(a==='r_blood')return bloodForge();if(a==='r_kfuse'&&sel)return fuseKamon(sel);
  if(!sel){close();return}
  if(a==='r_equip0')return forgeDrop(sel,'eq0');if(a==='r_equip1')return forgeDrop(sel,'eq1');
  if(a==='r_swap')return forgeDrop(sel,R.wpn[0].uid===sel.uid?'eq1':'eq0');
- if(a==='r_base'||a==='r_sac')return forgeDrop(sel,'anvil');
+ if(a==='r_base')return forgeDrop(sel,'anvil');
+ if(a==='r_fuse'){close();const t=fuseTarget(sel);if(t)fuseInto(t,sel);return}
  if(a==='r_melt')return sel.kind==='kamon'?forgeDrop(sel,'melt'):fMelt(sel);
  if(a==='r_kon')return forgeDrop(sel,'kamon');if(a==='r_koff')return forgeDrop(sel,'bag');close()}
 function forgeAct(e){if(fdrag.sup)return;{const el0=e.target.closest('[data-act]');if(el0&&!el0.disabled){const a0=el0.dataset.act;
   if(a0==='rclose'&&e.target.closest('.rb,.rc'))return;
   if(a0==='rclose'||a0.startsWith('r_')){radialAct(a0);return}
   if(a0==='sel'){RUN.sel=+el0.dataset.u;RUN.sharp=null;RUN.msg='';renderForge();openRadial(RUN.sel);return}
+  if(a0==='guide'){const f=$('forge');const g=f.querySelector('.guide');if(g)g.remove();f.insertAdjacentHTML('beforeend',guideHTML());return}
+  if(a0==='gclose'){if(e.target.closest('.gcard')&&!e.target.closest('[data-act="gclose"] button, .gh button'))return;const g=$('forge').querySelector('.guide');if(g)g.remove();try{localStorage.setItem('stickronin_guide','1')}catch(_){}return}
   if(a0==='anvilmenu'){if(RUN.anvil.base){renderForge();openRadial(0,true)}return}}}const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const R=RUN,act=el.dataset.act,sel=findItem(R.sel);R.msg='';
  if(act==='go')return closeForge();
  if(act==='sel'){R.sel=+el.dataset.u;R.sharp=null}
  else if(act==='equip'&&sel){const sl=+el.dataset.s;const old=R.wpn[sl];R.wpn[sl]=sel;R.bag=R.bag.filter(x=>x.uid!==sel.uid);R.bag.push(old);R.anvil.sac=R.anvil.sac.filter(u=>u!==sel.uid);R.msg='Equipada: '+sel.name}
  else if(act==='base'&&sel){R.anvil={base:sel.uid,sac:[]};R.sharp=null}
- else if(act==='sac'&&sel){const A=R.anvil;A.sac=A.sac.includes(sel.uid)?A.sac.filter(u=>u!==sel.uid):A.sac.concat(sel.uid)}
+ else if(act==='fuse'&&sel){const t=fuseTarget(sel);if(t)return fuseInto(t,sel)}
  else if(act==='melt'&&sel){R.tama+=meltValue(sel);R.bag=R.bag.filter(x=>x.uid!==sel.uid);R.slots=R.slots.filter(u=>u!==sel.uid);R.anvil.sac=R.anvil.sac.filter(u=>u!==sel.uid);if(R.anvil.base===sel.uid)R.anvil.base=R.wpn[0].uid;R.msg='+'+meltValue(sel)+' acero';R.sel=null;sfx('blunt')}
  else if(act==='kon'&&sel)R.slots.push(sel.uid);
  else if(act==='koff'&&sel)R.slots=R.slots.filter(u=>u!==sel.uid);
@@ -2849,7 +3050,7 @@ function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CT
  <p>En el aire, ⚔ = golpe en caída</p>
  <p>Salta sobre sus cabezas y vuelve a saltar para pisarlos</p>
  <p>Al cortarlos, sus trozos se vuelven mini zombis: acaba con todos</p>
- <p>Tras cada oleada llegas a la forja: elige armas, reforja y equipa emblemas</p>
+ <p>Tras cada oleada llegas a la forja: suelta un arma encima de otra igual para fusionarlas y mejorarla, funde las que sobren para conseguir acero, afila 🎲 o prueba la sangre 🩸 en el yunque, y equípate emblemas (kamon)</p>
  <p style="opacity:.75">Teclado: ${['u','l','d','r'].map(k).join('')} mover · ${k('jump')} saltar · ${k('atk')} atacar · ${k('dash')} especial · ${k('hook')} gancho · ${k('swap')} arma · ${k('menu')} pausa · también con mando</p>
  ${best?`<p style="opacity:.75">Tu récord: ${best} bajas</p>`:''}</div><button class="edl" id="bBack" type="button">← Volver</button>`}
 /* ================= NOMBRE + RANKING ================= */
