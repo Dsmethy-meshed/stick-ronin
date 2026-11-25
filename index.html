@@ -73,6 +73,10 @@ canvas{display:block;touch-action:none}
 #mpPick .pkt svg{width:40px;height:40px}#mpPick .pkt i{font-style:normal;position:absolute;top:-9px;left:-9px;width:24px;height:24px;border-radius:50%;background:#2e9b45;display:flex;align-items:center;justify-content:center;font-size:14px}
 #mpPick .pkt small{font:700 10px system-ui;color:var(--rc);line-height:1}
 #mpPick .pkd{right:41px;bottom:296px;width:44px;height:44px;border-radius:50%;background:#5a4a50;font-size:18px;animation-delay:.05s}
+.vtag{font:600 12px system-ui;opacity:.6;margin:6px 0}.vtag b{color:#ffd04a;opacity:1;cursor:pointer;text-decoration:underline}
+#verBar{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:90;display:none;flex-wrap:wrap;align-items:center;gap:8px;max-width:92vw;background:#2a1d12;border:2px solid #ffd04a;color:#fff;border-radius:14px;padding:8px 12px;font:14px system-ui;box-shadow:0 6px 20px #000a}
+#verBar small{flex-basis:100%;opacity:.75;font-size:12px}#verBar .vgo{background:#d1242c;border-radius:10px;padding:6px 10px;font-weight:800}#verBar .vx{opacity:.7;padding:4px 6px}
+#verNew{position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:90;background:#1d2a16;border:2px solid #4be36b;color:#fff;border-radius:14px;padding:8px 14px;font:14px system-ui;display:flex;flex-direction:column;align-items:center;max-width:92vw;text-align:center;animation:fxpop .3s cubic-bezier(.2,1.7,.4,1);box-shadow:0 6px 20px #000a}#verNew small{opacity:.8;font-size:12px}
 #bHunt{position:fixed;top:92px;left:50%;transform:translateX(-50%);z-index:6;display:none;background:#d1242c;color:#fff;border:2px solid #fff3;border-radius:12px;padding:10px 16px;font:800 15px system-ui;box-shadow:0 4px 14px #0008}
 #mpTags{position:fixed;inset:0;pointer-events:none;z-index:5}.mptag{position:absolute;transform:translate(-50%,-100%);font:800 12px system-ui;color:#fff;background:rgba(0,0,0,.55);border:2px solid #fff;border-radius:8px;padding:1px 6px;white-space:nowrap;text-shadow:0 1px 0 #000}
 #forge .fc.can{border-color:#ffd04a!important;box-shadow:0 0 18px rgba(255,208,74,.55)}
@@ -800,7 +804,7 @@ function pollPad(){const gp=pickPad();
  pad.prev=bs}
 function updPadDiag(){const d=document.getElementById('padDiag');if(!d)return;d.textContent=pad.on?`${pad.id}\nmapeo: ${pad.map} · ${pad.nb} botones · ${pad.na} ejes\npulsados: ${pad.live&&pad.live.length?pad.live.join(', '):'—'}\nejes: ${(pad.axes||[]).join('  ')}`:(padErr?'Error del navegador: '+padErr:'No se detecta ningún mando. Pulsa un botón del mando con esta ventana activa.')}
 function pauseGame(){if(state!=='play')return;state='pause';for(const k in held)held[k]=false;for(const k in keys)keys[k]=false;hudShow(false);const o=$('ov');o.style.display='flex';
- o.innerHTML=`<h1>PAUSA</h1><h2>${TRAIN&&TRAIN.mp?'Sala '+NET.code+(NET.host?' (eres el anfitrión)':''):TRAIN?'Dojo de entrenamiento':'Oleada '+wave+' · '+kills+' bajas'}</h2><button class="edl" id="bResume" type="button" style="background:#d1242c;border-color:#d1242c">▶ Continuar</button>${TRAIN&&TRAIN.mp&&NET.host&&!(NET.match&&NET.match.on)?'<button class="edl" data-mp="hunt" type="button" style="background:#d1242c;border-color:#d1242c">⚔ Empezar Cacería</button>':''}${TRAIN&&TRAIN.mp&&NET.host&&NET.match&&NET.match.on?'<button class="edl" data-mp="endhunt" type="button">⏹ Terminar la Cacería</button>':''}<button class="edl" id="bKeys2" type="button">🎮 Controles</button><button class="edl" id="bToMenu" type="button">☰ ${TRAIN&&TRAIN.mp?'Salir de la sala':'Volver al menú principal'}</button><p style="opacity:.6;margin-top:14px">${TRAIN&&TRAIN.mp?(NET.host?'Si sales, la sala se cierra para todos.':''):TRAIN?'':'La partida se guarda al llegar a cada forja; si vuelves al menú perderás lo hecho desde la última.'}</p>`}
+ o.innerHTML=`<h1>PAUSA</h1><h2>${TRAIN&&TRAIN.mp?'Sala '+NET.code+(NET.host?' (eres el anfitrión)':''):TRAIN?'Dojo de entrenamiento':'Oleada '+wave+' · '+kills+' bajas'}</h2><button class="edl" id="bResume" type="button" style="background:#d1242c;border-color:#d1242c">▶ Continuar</button>${TRAIN&&TRAIN.mp&&NET.host&&!(NET.match&&NET.match.on)?'<button class="edl" data-mp="hunt" type="button" style="background:#d1242c;border-color:#d1242c">⚔ Empezar Cacería</button>':''}${TRAIN&&TRAIN.mp&&NET.host&&NET.match&&NET.match.on?'<button class="edl" data-mp="endhunt" type="button">⏹ Terminar la Cacería</button>':''}<button class="edl" id="bKeys2" type="button">🎮 Controles</button><button class="edl" id="bToMenu" type="button">☰ ${TRAIN&&TRAIN.mp?'Salir de la sala':'Volver al menú principal'}</button>${verTag()}<p style="opacity:.6;margin-top:14px">${TRAIN&&TRAIN.mp?(NET.host?'Si sales, la sala se cierra para todos.':''):TRAIN?'':'La partida se guarda al llegar a cada forja; si vuelves al menú perderás lo hecho desde la última.'}</p>`}
 function resumeGame(){if(state!=='pause')return;$('ov').style.display='none';state='play';hudShow(true)}
 function goMenu(){if(NET.on)mpLeave();closeKeys();state='title';TRAIN=null;$('dojo').style.display='none';$('forge').style.display='none';resetGame();showTitle();hudShow(false)}
 function openKeys(){rebind=null;$('keys').style.display='block';renderKeys()}
@@ -2754,7 +2758,7 @@ function forgeAct(e){if(fdrag.sup)return;{const el0=e.target.closest('[data-act]
 
 // ===== comportamiento propio de cada tipo de arma =====
 function aimDir(md,maxD,cone){let dir=md.m>.2?Math.atan2(md.x,md.z):P.yaw;const t=nearestZombie(maxD,dir,cone);if(t)dir=Math.atan2(t.x-P.x,t.z-P.z);P.yaw=dir;P.heading=dir;return dir}
-function shot(k,dir,o){if(NET.on&&mpHunt()&&k!=='chainfx'){const L0=k==='chain'||k==='kama'||k==='fan'?.4:.6;mpRoute({t:'shot',k,p:[r2(P.x+Math.sin(dir)*L0),r2(P.y+(o.y||1.3)),r2(P.z+Math.cos(dir)*L0)],v:[r2(Math.sin(dir)*o.v),r2(o.vy||0),r2(Math.cos(dir)*o.v)],l:o.life||.5})}const L=k==='chain'||k==='kama'||k==='fan'?.4:.6;addProj({k,x:P.x+Math.sin(dir)*L,y:P.y+(o.y||1.3),z:P.z+Math.cos(dir)*L,vx:Math.sin(dir)*o.v,vy:o.vy||0,vz:Math.cos(dir)*o.v,life:o.life,pierce:o.pierce,direct:true,dmg:o.dmg||1,R:o.R,blunt:o.blunt,home:o.home,bounce:o.bounce||0,ret:o.ret,outD:o.outD,d:0,big:o.big})}
+function shot(k,dir,o){if(NET.on&&mpHunt()&&k!=='chainfx'){const L0=k==='chain'||k==='kama'||k==='fan'?.4:.6;mpRoute({t:'shot',k,p:[r2(P.x+Math.sin(dir)*L0),r2(P.y+(o.y||1.3)),r2(P.z+Math.cos(dir)*L0)],v:[r2(Math.sin(dir)*o.v),r2(o.vy||0),r2(Math.cos(dir)*o.v)],l:o.life||.5})}const L=k==='chain'||k==='kama'||k==='fan'?.4:.6;addProj({k,x:P.x+Math.sin(dir)*L,y:P.y+(o.y||1.3),z:P.z+Math.cos(dir)*L,vx:Math.sin(dir)*o.v,vy:o.vy||0,vz:Math.cos(dir)*o.v,life:o.life,pierce:o.pierce,direct:true,dmg:o.dmg||1,R:o.R,blunt:o.blunt,home:(NET.on&&mpHunt())?0:o.home,bounce:o.bounce||0,ret:o.ret,outD:o.outD,d:0,big:o.big})}
 function muzzle(d,big){const m=toW(P,P.yaw,[0,1.35,1.3]);smoke(m,big?6:3);sparks(m,[Math.sin(d),0,Math.cos(d)],big?14:6,[1,.75,.35]);sfx('blunt');sfx('whoosh');shake=Math.max(shake,big?.22:.08);P.vx-=Math.sin(d)*(big?5:2.5);P.vz-=Math.cos(d)*(big?5:2.5)}
 function bowPick(){const t=P.bowTgt&&P.bowTgt.alive?P.bowTgt:null;return t}
 function bowUpdTarget(){const W=weapon();if(W.tap!=='arrow'||P.dead){P.bowTgt=null;return}const rg=(SM.rng||1)*20;let best=null,bd=1e9;
@@ -2927,7 +2931,7 @@ function step(){
   if(P.knockT>0){P.knockT-=DT;P.vx=P.kv[0];P.vz=P.kv[1];P.kv[0]*=.97;P.kv[1]*=.97;if(P.onGround&&P.knockT<.3)P.knockT=0}}
  input.jumpP=input.atkP=input.dashP=input.hookP=false;
  if(state!=='title'){
-  updateZombies();updateSpiders();updateYokai();updateFalls();mpProxyPush();updateSlashes();updateProj();mpProxyPop();if(state==='play')updateLoot();for(const r of rags)updateRag(r);rags=rags.filter(r=>!r.dead&&(r.keep||r.convert||r.life<8));
+  updateZombies();updateSpiders();updateYokai();updateFalls();mpProxyPush('proj');updateSlashes();updateProj();mpProxyPop();if(state==='play')updateLoot();for(const r of rags)updateRag(r);rags=rags.filter(r=>!r.dead&&(r.keep||r.convert||r.life<8));
   if(state==='play')updateWaves();
   comboT-=DT;if(comboT<=0)combo=0;if(state==='dead')deadT+=DT;
  }
@@ -3070,7 +3074,7 @@ function showTitle(){
  <div style="width:min(400px,92vw);margin:2px 0 8px"><div style="font:800 13px system-ui;letter-spacing:2px;opacity:.75;margin-bottom:4px">🏆 TOP 10</div><div id="rkList" style="text-align:left;font:14px system-ui;max-height:42vh;overflow-y:auto">Cargando…</div></div>
  ${savedRun()?`<button class="edl" id="bCont" type="button" style="font-size:16px;padding:12px 18px;background:#d1242c;border-color:#d1242c">▶ Continuar partida (oleada ${savedRun().wave})</button>`:''}<div class="go">${savedRun()?'Toca fuera para empezar una nueva':'Toca para empezar'}</div>
  <div><button class="edl" id="bName" type="button">👤 ${esc(playerName)} ✎</button> <button class="edl" id="bInfo" type="button">ℹ Info</button> <button class="edl" id="bKeys" type="button">🎮 Controles</button> <button class="edl" id="bTrain" type="button">⚙ Dojo</button> <button class="edl" data-mp="open" type="button">👥 Multijugador</button></div>
- <div><a class="edl" href="editor.html">Editor de animaciones${(n=>n?` · ${n} tuya${n>1?'s':''} en uso`:'')(loadKF())}</a></div>`;
+ ${verTag()}<div><a class="edl" href="editor.html">Editor de animaciones${(n=>n?` · ${n} tuya${n>1?'s':''} en uso`:'')(loadKF())}</a></div>`;
  fillRank($('rkList'))}
 function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CTRL.kb[a][0]);
  o.innerHTML=`<h1 style="font-size:40px">ℹ CÓMO SE JUEGA</h1><div style="width:min(440px,92vw);text-align:left;max-height:62vh;overflow-y:auto;font:14px system-ui;line-height:1.45">
@@ -3080,7 +3084,8 @@ function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CT
  <p>En el aire, ⚔ = golpe en caída</p>
  <p>Salta sobre sus cabezas y vuelve a saltar para pisarlos</p>
  <p>Al cortarlos, sus trozos se vuelven mini zombis: acaba con todos</p>
- <p>👥 Multijugador (hasta 4): uno crea la sala y los demás escriben el código de 4 letras. Cada uno tiene su cámara. Modo <b>Cacería</b>: todos contra todos, primero a 10 bajas o el que más tenga en 5 minutos; el parry (atacar justo cuando te golpean, de frente) bloquea el golpe cuerpo a cuerpo y lanza volando al atacante; flechas y balas no se pueden parar; reapareces a los 3 s. Todos empezáis con katana y van saliendo armas por el mapa: pasa por encima y elige Coger (o el botón de cambiar arma) o Quitar (tecla X). El anfitrión lo empieza con «⚔ Empezar Cacería» (también desde la pausa). Asedio (cooperativo) llegará después. Funciona en la versión de GitHub</p>
+ <p>🔄 Versión: la ves abajo en el título y en la pausa. Si hay una versión nueva en GitHub sale un aviso arriba para actualizar, y al actualizar te dice qué ha cambiado. En multijugador avisa si alguien tiene otra versión</p>
+ <p>👥 Multijugador (hasta 4): uno crea la sala y los demás escriben el código de 4 letras. Cada uno tiene su cámara. Modo <b>Cacería</b>: todos contra todos, primero a 10 bajas o el que más tenga en 5 minutos; el parry (atacar justo cuando te golpean, de frente) bloquea el golpe cuerpo a cuerpo y lanza volando al atacante (1 s de recarga tras parar o desviar); los disparos apuntan con 0,1 s de retraso y se desvían atacando hacia ellos, salvo los cargados, que solo se esquivan; reapareces a los 3 s. Todos empezáis con katana y van saliendo armas por el mapa: pasa por encima y elige Coger (o el botón de cambiar arma) o Quitar (tecla X). El anfitrión lo empieza con «⚔ Empezar Cacería» (también desde la pausa). Asedio (cooperativo) llegará después. Funciona en la versión de GitHub</p>
  <p>Tras cada oleada llegas a la forja: suelta un arma encima de otra igual para fusionarlas y mejorarla, funde las que sobren para conseguir acero, afila 🎲 o prueba la sangre 🩸 en el yunque, y equípate emblemas (kamon)</p>
  <p style="opacity:.75">Teclado: ${['u','l','d','r'].map(k).join('')} mover · ${k('jump')} saltar · ${k('atk')} atacar · ${k('dash')} especial · ${k('hook')} gancho · ${k('swap')} arma · ${k('menu')} pausa · también con mando</p>
  ${best?`<p style="opacity:.75">Tu récord: ${best} bajas</p>`:''}</div><button class="edl" id="bBack" type="button">← Volver</button>`}
@@ -3104,24 +3109,24 @@ function mpOnMsg(m,conn){if(!m||m.from===NET.id)return;if(NET.bc&&m.to!=='all'&&
   if(m.t==='hello'){const used=new Set([0].concat(Object.values(NET.peers).map(p=>p.slot)));
    if(Object.keys(NET.peers).length>=NET.max-1){mpSend(m.from,{t:'full'});return}
    let s=1;while(used.has(s))s++;NET.peers[m.from]={id:m.from,name:cleanName(m.name)||'Jugador',slot:s,st:null,J:null};if(conn)NET.conns[m.from]=conn;
-   mpSend(m.from,{t:'welcome',slot:s});if(NET.match&&NET.match.on){const M=NET.match;M.score[m.from]={k:0,d:0};setTimeout(()=>mpSend(m.from,{t:'start',mode:M.mode,goal:M.goal,time:Math.ceil(M.t),score:M.score,picks:Object.values(NET.picks).map(q=>({id:q.id,x:q.x,y:q.y,z:q.z,item:q.item}))}),300)}mpSend('all',{t:'roster',list:mpRoster()});mpStatus();banner('👥 '+NET.peers[m.from].name+' ha entrado');sfx('ready');return}
+   mpSend(m.from,{t:'welcome',slot:s,ver:GAME_VER});if(m.ver!==GAME_VER)setTimeout(()=>banner('⚠ '+NET.peers[m.from].name+' tiene la v'+(m.ver||'?')+' (tú v'+GAME_VER+')'),2400);if(NET.match&&NET.match.on){const M=NET.match;M.score[m.from]={k:0,d:0};setTimeout(()=>mpSend(m.from,{t:'start',mode:M.mode,goal:M.goal,time:Math.ceil(M.t),score:M.score,picks:Object.values(NET.picks).map(q=>({id:q.id,x:q.x,y:q.y,z:q.z,item:q.item}))}),300)}mpSend('all',{t:'roster',list:mpRoster()});mpStatus();banner('👥 '+NET.peers[m.from].name+' ha entrado');sfx('ready');return}
   if(m.t==='s'&&NET.peers[m.from]){mpApply(m.from,m.st);for(const k in NET.peers)if(k!==m.from)mpSend(k,{t:'s',id:m.from,st:m.st});return}
   if(m.t==='bye')return mpDrop(m.from);
-  if(m.t==='hit'||m.t==='parried'||m.t==='die'||m.t==='wtake'||m.t==='shot')return mpHostHandle(m)}
+  if(m.t==='hit'||m.t==='parried'||m.t==='deflect'||m.t==='die'||m.t==='wtake'||m.t==='shot')return mpHostHandle(m)}
  else{
-  if(m.t==='welcome'){NET.hostIdGuess=m.from;NET.slot=m.slot;NET.joined=true;mpEnter();return}
+  if(m.t==='welcome'){if(m.ver!==GAME_VER)setTimeout(()=>banner('⚠ El anfitrión tiene la v'+(m.ver||'?')+' (tú v'+GAME_VER+'). Actualizad todos'),1500);NET.hostIdGuess=m.from;NET.slot=m.slot;NET.joined=true;mpEnter();return}
   if(m.t==='full'){mpFail('La sala está llena (máximo 4)');return}
   if(m.t==='roster'){const keep={};for(const r of m.list){if(r.id===NET.id)continue;keep[r.id]=1;const p=NET.peers[r.id]||(NET.peers[r.id]={id:r.id,st:null,J:null});p.name=r.name;p.slot=r.slot}for(const k in NET.peers)if(!keep[k])mpRemove(k);mpStatus();return}
   if(m.t==='s'){const id=m.id||m.from;if(!NET.peers[id])NET.peers[id]={id,name:'…',slot:1,st:null,J:null};mpApply(id,m.st);return}
   if(m.t==='close'){mpFail('El anfitrión ha cerrado la sala');return}
-  if(['hit','parried','kf','score','start','end','free','wspawn','wgone','shot'].includes(m.t))return mpDeliver(m)}}
-function mpApply(id,st){const p=NET.peers[id];if(!p||!st)return;p.st=st;p.seen=performance.now();if(!p.J||Math.hypot(st.J[3][0]-p.J[3][0],st.J[3][2]-p.J[3][2])>3)p.J=st.J.map(q=>q.slice())}
+  if(['hit','parried','deflect','kf','score','start','end','free','wspawn','wgone','shot'].includes(m.t))return mpDeliver(m)}}
+function mpApply(id,st){const p=NET.peers[id];if(!p||!st)return;p.st=st;p.seen=performance.now();const hh=p.hist||(p.hist=[]);hh.push([p.seen,st.J[3][0],Math.min(st.J[9][1],st.J[11][1])-.05,st.J[3][2]]);while(hh.length>30)hh.shift();if(!p.J||Math.hypot(st.J[3][0]-p.J[3][0],st.J[3][2]-p.J[3][2])>3)p.J=st.J.map(q=>q.slice())}
 function mpRemove(id){const p=NET.peers[id];if(!p)return;if(p.tag)p.tag.remove();if(p.meshes)for(const k in p.meshes)scene.remove(p.meshes[k]);delete NET.peers[id];delete NET.conns[id]}
 function mpDrop(id){const p=NET.peers[id];if(!p)return;banner('👥 '+p.name+' ha salido');mpRemove(id);if(NET.host)mpSend('all',{t:'roster',list:mpRoster()});mpStatus()}
 async function mpStart(host,code){mpLeave(true);NET.host=host;NET.code=(code||mpCode()).toUpperCase();NET.peers={};NET.conns={};NET.slot=host?0:-1;NET.joined=host;NET.on=true;
  mpScreen(host?'Creando sala…':'Conectando a '+NET.code+'…');
  if(useBC){NET.id=(host?'H':'C')+Math.random().toString(36).slice(2,8);NET.bc=new BroadcastChannel('stickronin-'+NET.code);NET.bc.onmessage=e=>mpOnMsg(e.data);
-  if(host){NET.hostId=NET.id;mpEnter()}else{mpSend('all',{t:'hello',name:playerName});NET.joinTO=setTimeout(()=>{if(!NET.joined)mpFail('No se encuentra la sala '+NET.code)},4000)}return}
+  if(host){NET.hostId=NET.id;mpEnter()}else{mpSend('all',{t:'hello',name:playerName,ver:GAME_VER});NET.joinTO=setTimeout(()=>{if(!NET.joined)mpFail('No se encuentra la sala '+NET.code)},4000)}return}
  try{await loadPeerJS()}catch(e){mpFail(/claude\.ai|claudeusercontent/.test(location.href)?'Desde el enlace de Claude no se puede conectar. Abre el juego en dsmethy-meshed.github.io/stick-ronin':'No hay conexión a internet para encontrar la sala');return}
  const pid='stickronin-'+NET.code;
  const peer=host?new Peer(pid):new Peer();NET.peer=peer;
@@ -3129,7 +3134,7 @@ async function mpStart(host,code){mpLeave(true);NET.host=host;NET.code=(code||mp
  peer.on('open',id=>{NET.id=id;
   if(host){NET.hostId=id;peer.on('connection',c=>{c.on('data',d=>mpOnMsg(d,c));c.on('close',()=>{for(const k in NET.conns)if(NET.conns[k]===c)mpDrop(k)})});mpEnter()}
   else{const c=peer.connect(pid,{serialization:'json'});NET.conns.host=c;
-   c.on('open',()=>{c.send({t:'hello',name:playerName,from:NET.id})});c.on('data',d=>mpOnMsg(d,c));c.on('close',()=>{if(NET.on)mpFail('Se perdió la conexión con el anfitrión')});
+   c.on('open',()=>{c.send({t:'hello',name:playerName,ver:GAME_VER,from:NET.id})});c.on('data',d=>mpOnMsg(d,c));c.on('close',()=>{if(NET.on)mpFail('Se perdió la conexión con el anfitrión')});
    NET.joinTO=setTimeout(()=>{if(!NET.joined)mpFail('No se puede conectar con la sala '+NET.code)},9000)}})}
 // cliente: todo lo que envía va al anfitrión
 function mpTo(){return NET.host?'all':(NET.bc?NET.hostIdGuess||'all':'host')}
@@ -3173,12 +3178,12 @@ function mpScreen(msg,err){const o=$('ov');o.style.display='flex';
  o.innerHTML=`<h1 style="font-size:40px">👥 MULTIJUGADOR</h1>
  <div style="width:min(420px,92vw);font:14px system-ui;line-height:1.45;text-align:left;opacity:.9">
  <p>Hasta <b>4 jugadores</b>. Uno crea la sala y los demás escriben su código. Funciona en la misma wifi y también desde casas distintas (hace falta internet solo para encontrarse). Solo funciona en la versión de GitHub, no en el enlace de Claude.</p>
- <p style="opacity:.8">Al entrar estáis en la <b>sala libre</b> (sin daño) para moveros y probar. El anfitrión pulsa <b>⚔ Empezar Cacería</b>: todos contra todos, cada golpe quita vida; el <b>parry</b> (atacar justo cuando te golpean, mirando al rival) bloquea el golpe cuerpo a cuerpo y <b>lanza volando</b> al que atacaba; las <b>flechas y balas no se pueden parar</b> (hacen algo menos de daño); reapareces a los 3 s. Todos empezáis con <b>katana</b> y van apareciendo <b>armas por el mapa</b> (con un haz de luz del color de su rareza): pasa por encima y, sin dejar de moverte, pulsa el botón del arma que aparece encima del botón especial para <b>✔ cogerla</b> (cambia la que llevas) o la <b>✖</b> de arriba para quitarla (desaparece para todos). Gana el primero en llegar a 10 bajas o el que más tenga a los 5 minutos.</p>
+ <p style="opacity:.8">Al entrar estáis en la <b>sala libre</b> (sin daño) para moveros y probar. El anfitrión pulsa <b>⚔ Empezar Cacería</b>: todos contra todos, cada golpe quita vida; el <b>parry</b> (atacar justo cuando te golpean, mirando al rival) bloquea el golpe cuerpo a cuerpo y <b>lanza volando</b> al que atacaba (después tiene <b>1 s de recarga</b>); los <b>disparos</b> (flechas, balas, shuriken…) apuntan con 0,1 s de retraso, así que moviéndote los esquivas, y se pueden <b>desviar atacando</b> hacia ellos; los <b>disparos cargados no se desvían</b>, solo se esquivan; reapareces a los 3 s. Todos empezáis con <b>katana</b> y van apareciendo <b>armas por el mapa</b> (con un haz de luz del color de su rareza): pasa por encima y, sin dejar de moverte, pulsa el botón del arma que aparece encima del botón especial para <b>✔ cogerla</b> (cambia la que llevas) o la <b>✖</b> de arriba para quitarla (desaparece para todos). Gana el primero en llegar a 10 bajas o el que más tenga a los 5 minutos.</p>
  <p style="opacity:.6">Próximamente: <b>Asedio</b> (oleadas de yokai en equipo).</p></div>
  ${msg?`<p style="font:700 15px system-ui;color:${err?'#ff6a5a':'#ffd04a'}">${esc(msg)}</p>`:''}
  <button class="edl" data-mp="create" type="button" style="font-size:17px;padding:12px 20px;background:#d1242c;border-color:#d1242c">➕ Crear sala</button>
  <div style="display:flex;gap:8px;align-items:center;margin:6px 0"><input id="mpIn" maxlength="4" placeholder="CÓDIGO" autocomplete="off" autocapitalize="characters" style="width:120px;font:800 22px system-ui;letter-spacing:4px;text-align:center;text-transform:uppercase;padding:8px;border-radius:10px;border:2px solid #555;background:#1e1a21;color:#fff"><button class="edl" data-mp="join" type="button" style="font-size:17px;padding:12px 18px">Unirse ▶</button></div>
- <button class="edl" data-mp="back" type="button">← Volver</button>`;
+ <button class="edl" data-mp="back" type="button">← Volver</button>${verTag()}`;
  const i=$('mpIn');if(i)i.addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Enter')mpAct('join')})}
 function mpAct(a){if(a==='open'){mpScreen();return}if(a==='hunt'){mpStartHunt();return}if(a==='endhunt'){mpEnd();return}if(a==='free'){const m={t:'free'};mpSend('all',m);mpDeliver(m);return}if(a==='leave'){goMenu();return}if(a==='back'){mpLeave(true);showTitle();return}
  if(a==='create'){mpStart(true);return}
@@ -3187,21 +3192,26 @@ function mpAct(a){if(a==='open'){mpScreen();return}if(a==='hunt'){mpStartHunt();
    Cada jugador detecta sus propios golpes contra los demás (los demás jugadores se meten como "objetivos" en la lista de enemigos
    solo mientras se procesa tu ataque). El golpeado aplica el daño en su móvil (y puede hacer parry). El anfitrión lleva el marcador. */
 var mpCurProj=null;
-const HUNT={goal:10,time:300,dmg:20,spawns:[[-12,-12],[12,12],[-12,12],[12,-12],[0,-14],[0,14],[-15,0],[15,0]]};
+const HUNT={parryCd:1,goal:10,time:300,dmg:20,spawns:[[-12,-12],[12,12],[-12,12],[12,-12],[0,-14],[0,14],[-15,0],[15,0]]};
 const mpHunt=()=>NET.on&&NET.match&&NET.match.mode==='hunt'&&NET.match.on;
-function mpProxyPush(){if(!mpHunt())return;for(const k in NET.peers){const p=NET.peers[k],st=p.st;if(!st||!p.J||st.dead||st.inv)continue;
+function mpPast(p,ms){const h=p.hist;if(!h||!h.length)return null;const t=performance.now()-ms;for(let i=h.length-1;i>=0;i--)if(h[i][0]<=t)return h[i];return h[0]}
+function mpProxyPush(phase){if(!mpHunt())return;const lag=phase!=='proj'&&weapon().tap;for(const k in NET.peers){const p=NET.peers[k],st=p.st;if(!st||!p.J||st.dead||st.inv)continue;
   const J=p.J,pr=p.proxy||(p.proxy={rp:k,r:.3,h:1.8,s:1,alive:true,iaiT:0,vx:0,vy:0,vz:0,mini:false,hitCd:0,walkT:0,speed:0,atkCd:9,atkWind:0,stun:0});
-  pr.x=J[3][0];pr.z=J[3][2];pr.y=Math.min(J[9][1],J[11][1])-.05;pr.yaw=Math.atan2(J[0][0]-J[3][0]||0,1);pr.alive=true;
+  pr.x=J[3][0];pr.z=J[3][2];pr.y=Math.min(J[9][1],J[11][1])-.05;if(lag){const o=mpPast(p,100+60);if(o){pr.x=o[1];pr.y=o[2];pr.z=o[3]}}pr.yaw=Math.atan2(J[0][0]-J[3][0]||0,1);pr.alive=true;
   if(pr.iaiT>0){pr.iaiT=0;mpHitProxy(pr,{mode:'waist',vel:[0,2,0]})}
   zs.push(pr)}}
 function mpProxyPop(){if(zs.some(z=>z.rp))zs=zs.filter(z=>!z.rp)}
 function mpHitProxy(pr,hit,extra){const now=performance.now();NET.hTry=(NET.hTry||0)+1;if(now<pr.hitCd)return;NET.hOut=(NET.hOut||0)+1;pr.hitCd=now+350;
  let dmg=HUNT.dmg*(SM.dmg||1)*(hit&&hit.blunt?1.2:1)*(extra||1);const v=(hit&&hit.vel)||[0,2,0],m=Math.hypot(v[0],v[2])||1,k=Math.min(1,9/m);
  const im=(hit&&hit.impact)||[pr.x,pr.y+1.1,pr.z];spray(im,v,12,5,.6);sfx(hit&&hit.blunt?'blunt':'slice');hitstop=Math.max(hitstop,.04);shake=Math.max(shake,.08);
- mpSend(NET.host?pr.rp:mpTo(),{t:'hit',tg:pr.rp,by:NET.id,rk:mpCurProj?mpCurProj.k:0,dmg:Math.round(dmg*(mpCurProj?.8:1)),v:[v[0]*k,Math.min(9,v[1]||2),v[2]*k]})}
+ mpSend(NET.host?pr.rp:mpTo(),{t:'hit',tg:pr.rp,by:NET.id,rk:mpCurProj?mpCurProj.k:0,chg:mpCurProj&&(mpCurProj.big||mpCurProj.k==='kunai')?1:0,dmg:Math.round(dmg*(mpCurProj?.8:1)),v:[v[0]*k,Math.min(9,v[1]||2),v[2]*k]})}
 function mpTakeHit(m){NET.hIn=(NET.hIn||0)+1;if(!mpHunt()||P.dead||P.inv>0)return;NET.hOk=(NET.hOk||0)+1;
  const a=NET.peers[m.by],ax=a&&a.J?a.J[3][0]:P.x,az=a&&a.J?a.J[3][2]:P.z;
- if(P.parryT>0&&!m.rk&&Math.abs(angDiff(Math.atan2(ax-P.x,az-P.z),P.yaw))<1.4){const mid=[(P.x+ax)/2,P.y+1.25,(P.z+az)/2];sparks(mid,[ax-P.x,.6,az-P.z],18,[1,.95,.6]);sfx('parry');hitstop=Math.max(hitstop,.08);P.parryAnim=.24;P.inv=.25;P.yaw=Math.atan2(ax-P.x,az-P.z);
+ const front=Math.abs(angDiff(Math.atan2(ax-P.x,az-P.z),P.yaw))<1.5;
+ const pok=!(NET.parryCd>0);
+ if(m.rk&&!m.chg&&front&&pok&&(P.parryT>0||(P.atk&&P.atk.type!=='iai'))){NET.parryCd=HUNT.parryCd;const mid=[P.x+Math.sin(P.yaw)*.7,P.y+1.2,P.z+Math.cos(P.yaw)*.7];sparks(mid,[ax-P.x,.8,az-P.z],14,[1,.95,.6]);sfx('parry');hitstop=Math.max(hitstop,.05);P.inv=Math.max(P.inv,.12);
+  banner('¡DESVIADA!');mpRoute({t:'deflect',tg:m.by,by:NET.id});return}
+ if(P.parryT>0&&!m.rk&&front&&pok){NET.parryCd=HUNT.parryCd;const mid=[(P.x+ax)/2,P.y+1.25,(P.z+az)/2];sparks(mid,[ax-P.x,.6,az-P.z],18,[1,.95,.6]);sfx('parry');hitstop=Math.max(hitstop,.08);P.parryAnim=.24;P.inv=.25;P.yaw=Math.atan2(ax-P.x,az-P.z);
   mpRoute({t:'parried',tg:m.by,by:NET.id});return}
  P.hp-=m.dmg;P.inv=.45;P.atk=null;P.charge=null;P.wall=null;P.wallLock=.3;P.sky=null;P.odDive=null;NET.lastBy=m.by;
  P.vx=m.v[0];P.vy=Math.max(4,m.v[1]);P.vz=m.v[2];P.knockT=.3;P.kv=[P.vx,P.vz];dmgFlash=.5;shake=Math.max(shake,.18);spray([P.x,P.y+1.2,P.z],[m.v[0],1,m.v[2]],16,4,.6);sfx('hurt');hitstop=.04;
@@ -3218,7 +3228,7 @@ function mpRespawn(){const s=mpSpawnPoint();P.dead=false;P.hp=100;P.x=s[0];P.z=s
 // rutas: todo pasa por el anfitrión, que lo entrega al destinatario (tg) o a todos
 function mpRoute(m){m.by=m.by||NET.id;if(NET.host)mpHostHandle(m);else mpSend(mpTo(),m)}
 function mpHostHandle(m){
- if(m.t==='hit'||m.t==='parried'){if(m.tg===NET.id)mpDeliver(m);else mpSend(m.tg,m);return}
+ if(m.t==='hit'||m.t==='parried'||m.t==='deflect'){if(m.tg===NET.id)mpDeliver(m);else mpSend(m.tg,m);return}
  if(m.t==='shot'){for(const k in NET.peers)if(k!==m.by)mpSend(k,m);if(m.by!==NET.id)mpDeliver(m);return}
  if(m.t==='wtake'){if(!NET.picks[m.id])return;const g={t:'wgone',id:m.id,by:m.by,take:m.take};mpSend('all',g);mpDeliver(g);return}
  if(m.t==='die'){const M=NET.match;if(!M||!M.on)return;const sc=M.score;const vic=sc[m.by]||(sc[m.by]={k:0,d:0});vic.d++;
@@ -3229,6 +3239,7 @@ function mpName(id){if(id===NET.id)return playerName;const p=NET.peers[id];retur
 function mpDeliver(m){
  if(m.t==='hit')return mpTakeHit(m);
  if(m.t==='parried')return mpParried(m);
+ if(m.t==='deflect'){banner('Te han desviado el disparo');sfx('block');return}
  if(m.t==='kf'){const kn=m.killer?mpName(m.killer):null,vn=mpName(m.vic);banner(kn?(kn+' ⚔ '+vn):(vn+' se ha caído'));
   const p=NET.peers[m.vic];if(p&&p.J){const r=makeRag(p.J.map(q=>q.slice()),[0,3,0],p.col||mpColor(p.slot));rags.push(r);spray(p.J[3],[0,1,0],24,6,1)}
   if(m.killer===NET.id){sfx('parry');comboPop=1}return}
@@ -3257,7 +3268,7 @@ function mpShowEnd(m){if(NET.match)NET.match.on=false;mpPickClear();TRAIN.god=tr
 function mpHuntBtn(){let b=document.getElementById('bHunt');if(!b){b=document.createElement('button');b.id='bHunt';b.type='button';b.textContent='⚔ Empezar Cacería';
   b.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();mpStartHunt()});document.body.appendChild(b)}
  b.style.display=NET.on&&NET.host&&state==='play'&&!(NET.match&&NET.match.on)?'block':'none'}
-function mpMatchTick(rdt){const M=NET.match;mpHuntBtn();if(!M||!M.on)return;
+function mpMatchTick(rdt){const M=NET.match;mpHuntBtn();NET.parryCd=Math.max(0,(NET.parryCd||0)-rdt);if(!M||!M.on)return;
  if(P.dead){NET.respawnT-=rdt;if(NET.respawnT<=0)mpRespawn()}
  if(NET.host){M.t-=rdt;NET.scT=(NET.scT||0)-rdt;if(NET.scT<=0){NET.scT=1;mpScoreSend()}if(M.t<=0)mpEnd()}}
 function mpHuntLabel(){const M=NET.match;if(!M||!M.on)return null;const t=Math.max(0,Math.ceil(M.t||0)),mm=Math.floor(t/60),ss=String(t%60).padStart(2,'0');
@@ -3300,6 +3311,21 @@ function mpPickGone(m){const q=NET.picks[m.id];if(!q)return;
 
 addEventListener('beforeunload',()=>{try{mpLeave(true)}catch(_){}});
 
+/* ================= VERSIÓN Y AVISO DE ACTUALIZACIÓN =================
+   Sube GAME_VER (y version.json en GitHub) cada vez que se publica. El juego compara con version.json y avisa si hay una nueva. */
+const GAME_VER='1.2',GAME_DATE='25 nov 2026',GAME_NOTES='Cacería: los disparos apuntan con 0,1 s de retraso y se desvían atacando (los cargados no), parry y desvío con 1 s de recarga, aviso de versiones';
+let verRemote=null;
+function verTag(){return`<div class="vtag">v${GAME_VER} · ${GAME_DATE}${verRemote&&verRemote.v!==GAME_VER?` · <b data-vup="1">🔄 hay v${esc(verRemote.v)}</b>`:''}</div>`}
+async function verCheck(){if(!/github\.io$/.test(location.hostname))return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const j=await r.json();verRemote=j;
+ if(j.v&&j.v!==GAME_VER)verBar(j)}catch(_){}}
+function verBar(j){let b=document.getElementById('verBar');if(!b){b=document.createElement('div');b.id='verBar';document.body.appendChild(b);b.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();if(e.target.closest('[data-vx]')){b.style.display='none';return}verReload()})}
+ b.innerHTML=`🔄 Nueva versión <b>v${esc(j.v)}</b> (tienes la v${GAME_VER})${j.notes?`<small>${esc(j.notes)}</small>`:''}<span class="vgo">Actualizar</span><span class="vx" data-vx="1">✕</span>`;b.style.display=state==='play'&&NET.on?'none':'flex'}
+function verReload(){if(NET.on&&!confirmLeave())return;location.replace(location.pathname+'?v='+encodeURIComponent((verRemote&&verRemote.v)||Date.now()))}
+function confirmLeave(){return true}
+function verWelcome(){let seen='';try{seen=localStorage.getItem('stickronin_ver')||'';localStorage.setItem('stickronin_ver',GAME_VER)}catch(_){}
+ if(seen&&seen!==GAME_VER){const t=document.createElement('div');t.id='verNew';t.innerHTML=`✨ Actualizado a <b>v${GAME_VER}</b><small>${esc(GAME_NOTES)}</small>`;document.body.appendChild(t);setTimeout(()=>t.remove(),6500)}}
+document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('[data-vup]')){e.preventDefault();e.stopPropagation();verReload()}},true);
+setTimeout(()=>{verWelcome();verCheck()},1200);setInterval(()=>{if(state!=='play')verCheck()},60000);
 /* ================= NOMBRE + RANKING ================= */
 const NAME_KEY='stickronin_name',LOC_RANK='stickronin_rank_local';
 let playerName='';try{playerName=localStorage.getItem(NAME_KEY)||''}catch(e){}
