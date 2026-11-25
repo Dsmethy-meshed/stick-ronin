@@ -27,6 +27,29 @@ canvas{display:block;touch-action:none}
 #forge .fsec{margin:12px 0 6px;font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.05em}
 #forge .frow{display:flex;gap:8px}#forge .frow>.fc{flex:1}
 #forge .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.radial{position:fixed;inset:0;z-index:60;background:rgba(8,6,10,.55);animation:rfade .12s ease-out}
+.radial .rc{position:fixed;transform:translate(-50%,-50%);width:62px;height:62px;border-radius:50%;background:#1e1a21;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:26px}
+#forge .radial .rb{position:fixed;min-height:0;transform:translate(-50%,-50%);width:70px;height:70px;border-radius:50%;border:2px solid #d1242c;background:#241e28;color:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;animation:rpop .16s ease-out both;box-shadow:0 6px 16px rgba(0,0,0,.5)}
+#forge .radial .rb b{font-size:20px;line-height:1}.radial .rb span{font:700 9.5px/1.1 system-ui;max-width:64px;text-align:center}
+#forge .radial .rb[disabled]{opacity:.35}#forge .radial .rb:active{background:#d1242c}
+@keyframes rpop{from{transform:translate(-50%,-50%) scale(.3);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}@keyframes rfade{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){.radial,.radial .rb{animation:none}}
+#forge .fhint{font-size:12px;opacity:.75;margin:6px 2px 8px;line-height:1.35}
+#forge .zones{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#forge .zone{position:relative;border-radius:14px;padding:4px;background:#17131a;border:2px solid #2c2631;transition:border-color .12s,background .12s}
+#forge .zone>i{position:absolute;top:-9px;left:-6px;z-index:3;font-style:normal;background:#d1242c;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font:800 13px system-ui}
+#forge .zone .fc{border-width:2px;min-height:96px}
+#forge .zone.tool{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:78px;text-align:center;border-style:dashed;border-color:#a8763a}
+#forge .zone.tool.fire{border-color:#c4472b}#forge .zone.tool.idle{opacity:.85}
+#forge .zone .big{font-size:26px;line-height:1}#forge .zone.tool .nm{font-weight:800;font-size:13px}
+#forge .can{border-color:#ffd04a!important;background:#231d12!important}
+#forge .hot{border-color:#fff!important;background:#3a2a14!important;transform:scale(1.03)}
+#forge .wc .wi{position:relative;display:flex;justify-content:center;height:46px}#forge .wc .wi sup{position:absolute;top:-2px;right:6px;font-size:13px;color:#ffd75a;font-weight:900;text-shadow:0 1px 2px #000}
+#forge .wc .nm{font-weight:800;font-size:12px}#forge .wc .rk{font-size:11px;opacity:.85}
+#forge .fc[data-drag]{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;cursor:grab}
+#forge .fc.lift{opacity:.3}
+.fc.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(-4deg) scale(1.08);box-shadow:0 10px 30px rgba(0,0,0,.6);background:#2a2330;border:2px solid #fff;border-radius:12px;padding:8px 6px;text-align:center;color:#eadfd2;font:12px system-ui;opacity:.95}
+.fc.ghost .wi{display:flex;justify-content:center}.fc.ghost sup{color:#ffd75a;font-weight:900}
 #forge .fc{position:relative;border:2px solid #555;border-radius:12px;padding:8px 6px;background:#1e1a21;text-align:center;min-height:84px;box-sizing:border-box}
 #forge .fc.sel{box-shadow:0 0 0 3px #fff inset}#forge .fc.on{background:#2a2316}
 #forge .fc.empty{border-style:dashed;opacity:.45;display:flex;align-items:center;justify-content:center;font-size:12px}
@@ -602,7 +625,7 @@ function autoProfile(gp){const pid=gp.id+'#v2';if(CTRL.customPad===gp.id||CTRL.p
 /* navegación de menús con mando */
 const gnav={el:null,rep:0,dir:''};
 function menuRoot(){if($('keys').style.display==='block')return $('keys');const vis=id=>{const e=$(id);return e&&getComputedStyle(e).display!=='none'};if(state==='forge'&&vis('forge'))return $('forge');if(state==='dojo'&&vis('dojo'))return $('dojo');if(state!=='play'&&vis('ov'))return $('ov');return null}
-function navItems(root){return Array.from(root.querySelectorAll('button,a,.go,[data-k],[data-a],[data-act],[data-d],[data-u],[data-v],[data-n],select')).filter(e=>{if(e.disabled)return false;const r=e.getBoundingClientRect();return r.width>4&&r.height>4&&getComputedStyle(e).visibility!=='hidden'})}
+function navItems(root){const rd=root.querySelector('.radial');if(rd)root=rd;return Array.from(root.querySelectorAll('button,a,.go,[data-k],[data-a],[data-act],[data-d],[data-u],[data-v],[data-n],select')).filter(e=>{if(e.disabled||e.classList.contains('radial'))return false;const r=e.getBoundingClientRect();return r.width>4&&r.height>4&&getComputedStyle(e).visibility!=='hidden'})}
 function navSig(e){const d=e.dataset||{};return [e.tagName,e.id,d.act,d.u,d.s,d.v,d.d,d.n,d.k,d.a].join('|')}
 function navSet(e){if(gnav.el)gnav.el.classList.remove('gpf');gnav.el=e;if(e){const sg=navSig(e),r=gnav.root||document;gnav.sig=sg;gnav.sidx=navItems(r).filter(x=>navSig(x)===sg).indexOf(e);e.classList.add('gpf');try{e.scrollIntoView({block:'nearest'})}catch(_){}}}
 function navMove(root,d){const it=navItems(root);if(!it.length)return;if(!gnav.el||!it.includes(gnav.el)){navSet(it.find(e=>e.id==='bCont'||e.id==='bResume')||it.find(e=>e.classList.contains('go'))||it.find(e=>e.dataset.act&&e.dataset.act!=='go')||it[0]);return}
@@ -2239,6 +2262,22 @@ const AR={
 const EFF_IDS=Object.keys(AR.eff),AR_RC=AR.rarCol.map(c=>new THREE.Color(c)),PCOL={wood:new THREE.Color(0x6b4a2a),dark:new THREE.Color(0x3a3a40),red:new THREE.Color(0xb3261e)};
 const NAMES=['del Cuervo','de Ceniza','del Oni Rojo','Luna Rota','de la Grulla','Tormenta','Kagerō','Shiranui','del Zorro','Raijin','Niebla','del Ronin','Sangre Fría','Hoja de Arce','Trueno Sordo','Yomi'];
 const TYPE_N={katana:'Katana',maza:'Kanabō',nito:'Nitō',odachi:'Ōdachi',naginata:'Naginata',yari:'Yari',kusarigama:'Kusarigama',tessen:'Tessen',kama:'Kama',tanegashima:'Tanegashima',yumi:'Yumi',shuriken:'Shuriken'};
+const WICON=(()=>{const st='#dfe5ec',wd='#8a5a34',gd='#c9a24a';
+ const kat=(x0,y0,x1,y1,cx,cy,hl)=>`<path d="M${x0} ${y0} Q${cx} ${cy} ${x1} ${y1}" stroke="${st}" stroke-width="4.5" fill="none" stroke-linecap="round"/><path d="M${x0} ${y0} Q${cx} ${cy} ${x1} ${y1}" stroke="#fff" stroke-width="1.2" fill="none" opacity=".7" transform="translate(-1.2 -1.2)"/><line x1="${x0}" y1="${y0}" x2="${x0-hl}" y2="${y0+hl}" stroke="C" stroke-width="5.5" stroke-linecap="round"/><line x1="${x0-3}" y1="${y0-3}" x2="${x0+3}" y2="${y0+3}" stroke="${gd}" stroke-width="4" stroke-linecap="round"/>`;
+ return{
+ katana:kat(20,44,55,8,40,30,11),
+ odachi:kat(17,47,60,4,44,30,14),
+ nito:kat(20,44,55,8,40,30,11)+`<g transform="translate(64 0) scale(-1 1)">${kat(20,44,55,8,40,30,11)}</g>`,
+ maza:`<path d="M10 56 L14 52 L48 6 Q58 4 58 14 L18 56 Z" fill="#3a2a1e" stroke="${wd}" stroke-width="1.5"/>`+[[24,40],[32,30],[40,20],[47,12],[30,40],[38,28],[46,18]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="2.2" fill="${st}"/>`).join('')+`<line x1="8" y1="58" x2="15" y2="51" stroke="C" stroke-width="5" stroke-linecap="round"/>`,
+ naginata:`<line x1="6" y1="58" x2="42" y2="22" stroke="${wd}" stroke-width="3.5" stroke-linecap="round"/><path d="M41 23 Q54 16 58 4 Q50 10 44 16 Z" fill="${st}"/><line x1="38" y1="26" x2="44" y2="20" stroke="C" stroke-width="5" stroke-linecap="round"/>`,
+ yari:`<line x1="6" y1="58" x2="46" y2="18" stroke="${wd}" stroke-width="3.5" stroke-linecap="round"/><path d="M44 20 L50 8 L58 6 L56 14 Z" fill="${st}"/><line x1="40" y1="24" x2="46" y2="18" stroke="C" stroke-width="5" stroke-linecap="round"/>`,
+ kusarigama:`<line x1="30" y1="54" x2="40" y2="40" stroke="${wd}" stroke-width="4" stroke-linecap="round"/><path d="M40 40 Q58 30 48 12 Q50 28 37 37 Z" fill="${st}"/><path d="M30 54 Q16 52 14 38 Q12 26 18 18" stroke="#9aa3ab" stroke-width="2" stroke-dasharray="2.5 2.5" fill="none"/><circle cx="18" cy="16" r="5" fill="C"/>`,
+ tessen:`<path d="M14 52 L10 16 A40 40 0 0 1 50 50 Z" fill="#2b2430" stroke="${st}" stroke-width="2"/>`+[0,1,2,3,4,5].map(i=>{const a=(-1.67+i*.3);return`<line x1="14" y1="52" x2="${(14+Math.cos(a)*40).toFixed(1)}" y2="${(52+Math.sin(a)*40).toFixed(1)}" stroke="C" stroke-width="1.2" opacity=".8"/>`}).join('')+`<circle cx="14" cy="52" r="3" fill="${gd}"/>`,
+ kama:[0,1].map(i=>`<g transform="translate(${i?18:0} ${i?6:0})"><line x1="12" y1="56" x2="24" y2="36" stroke="${wd}" stroke-width="4" stroke-linecap="round"/><path d="M24 36 Q40 30 34 14 Q34 28 21 33 Z" fill="${st}"/><line x1="11" y1="58" x2="15" y2="51" stroke="C" stroke-width="5" stroke-linecap="round"/></g>`).join(''),
+ tanegashima:`<line x1="14" y1="40" x2="60" y2="18" stroke="#3b3f45" stroke-width="4" stroke-linecap="round"/><path d="M4 54 L20 36 L30 34 L22 44 L10 58 Z" fill="${wd}"/><circle cx="26" cy="38" r="2.5" fill="C"/><line x1="56" y1="20" x2="60" y2="18" stroke="${gd}" stroke-width="5"/>`,
+ yumi:`<path d="M14 6 Q44 30 14 58" stroke="${wd}" stroke-width="3.5" fill="none" stroke-linecap="round"/><line x1="14" y1="6" x2="14" y2="58" stroke="${st}" stroke-width="1"/><line x1="10" y1="32" x2="58" y2="32" stroke="${st}" stroke-width="2"/><path d="M58 32 L52 28 L52 36 Z" fill="${st}"/><line x1="10" y1="32" x2="16" y2="32" stroke="C" stroke-width="4"/>`,
+ shuriken:`<path d="M32 4 L37 27 L60 32 L37 37 L32 60 L27 37 L4 32 L27 27 Z" fill="${st}" stroke="#7d868f" stroke-width="1"/><circle cx="32" cy="32" r="5" fill="C"/>`}})();
+function wIcon(type,col,sz){return`<svg viewBox="0 0 64 64" width="${sz||46}" height="${sz||46}" aria-hidden="true">${(WICON[type]||'').replace(/="C"/g,'="'+(col||'#d1242c')+'"')}</svg>`}
 const TYPE_I={katana:'刀',maza:'棒',nito:'双',odachi:'太',naginata:'薙',yari:'槍',kusarigama:'鎖',tessen:'扇',kama:'鎌',tanegashima:'銃',yumi:'弓',shuriken:'星'};
 const WDESC={katana:'Equilibrada. Mantener: desenvaine. Especial: lanzar y teletransporte.',maza:'Pesada y lenta. Mantener: golpe al suelo. Especial: embestida que lanza.',
  nito:'Dos katanas, muy ágil. Mantener: modo demonio (corres más rápido cortando todo lo que tocas). Especial: doble paso en zigzag.',odachi:'Enorme, barridos larguísimos. Combo: tajo der→izq, izq→der y diagonal final. Mantener: tajo vertical imparable (te golpean menos mientras cargas). Especial: lanza la espada hacia arriba y te teletransportas a ella para reposicionarte. En el aire a más de 3 m, atacar = picado con onda enorme (puedes usar el gancho durante la caída).',
@@ -2358,7 +2397,7 @@ function bloodForge(){const b=findItem(RUN.anvil.base);if(!b)return;const B=AR.b
  refreshSM();renderForge()}
 function fuseKamon(it){const same=RUN.bag.filter(x=>x.kind==='kamon'&&x.eff===it.eff&&x.rk===it.rk);if(same.length<3||it.rk>=4)return;const rm=same.slice(0,3).map(x=>x.uid);
  RUN.bag=RUN.bag.filter(x=>!rm.includes(x.uid));const wasOn=rm.some(u=>RUN.slots.includes(u));RUN.slots=RUN.slots.filter(u=>!rm.includes(u));const n={uid:UID++,kind:'kamon',eff:it.eff,rk:it.rk+1};RUN.bag.push(n);if(wasOn)RUN.slots.push(n.uid);RUN.sel=n.uid;RUN.msg='Kamon fusionado: rango '+n.rk;sfx('ready');refreshSM();renderForge()}
-function openForge(){
+function openForge(){try{submitScore(true)}catch(e){}
  state='forge';RUN.anvil={base:RUN.wpn[wIdx].uid,sac:[]};RUN.sel=RUN.anvil.base;RUN.sharp=null;RUN.msg='';
  if(wave%AR.chest.every===0&&RUN.chestW!==wave){RUN.chestW=wave;const t=weapon().id,r=Math.random(),rar=r<AR.chest.leg(wave)?3:r<AR.chest.leg(wave)+AR.chest.epic?2:1,w=genWeapon(t,rar);RUN.bag.push(w);RUN.bag.push(genKamon(wave>=10?2:1));RUN.msg='🎁 Cofre del jefe: '+AR.rarName[rar]+' '+w.name+' y un kamon'}
  RUN.slots=RUN.slots.slice(0,AR.kamonSlots(wave+1));
@@ -2370,17 +2409,20 @@ function updWUI(){const b=$('wbtn');b.textContent='⇄ '+weapon().name;$('bDash'
 function statBars(w,tap){return AR.stats.map(([k,n])=>{const v=w.lv[k],p=w.plusS[k]||0,oni=k===w.oni,m=Math.max(1+(v-3)*AR.lvStep,.4);
   return`<div class="fs${tap&&!oni?' tap':''}" ${tap&&!oni?`data-act="sharp" data-k="${k}"`:''}><span>${n}${oni?' 👹':''}</span><b>${'■'.repeat(Math.min(v,9))}<i>${'□'.repeat(Math.max(0,5-v))}</i></b><em>${v}${p?` (+${p})`:''} · ×${m.toFixed(2)}</em></div>`}).join('')}
 function card(it,extra){if(!it)return'<div class="fc empty">vacío</div>';const sel=RUN.sel===it.uid?' sel':'';
- if(it.kind==='kamon'){const E=AR.eff[it.eff];return`<div class="fc${sel}${RUN.slots.includes(it.uid)?' on':''}" data-act="sel" data-u="${it.uid}" style="border-color:${AR.rarCol[Math.min(3,it.rk-1)]}"><div class="ic">${E.ico}</div><div class="nm">${E.name}</div><div class="rk">Rango ${'I II III IV'.split(' ')[it.rk-1]}</div>${extra||''}</div>`}
- return`<div class="fc${sel}" data-act="sel" data-u="${it.uid}" style="border-color:${AR.rarCol[it.rar]}"><div class="ic">${TYPE_I[it.type]}${it.plus?`<sup>+${it.plus}</sup>`:''}</div><div class="nm">${it.name}</div><div class="rk" style="color:${AR.rarCol[it.rar]}">${AR.rarName[it.rar]} · ${power(it)}</div>${extra||''}</div>`}
+ if(it.kind==='kamon'){const E=AR.eff[it.eff];return`<div class="fc${sel}${RUN.slots.includes(it.uid)?' on':''}" data-act="sel" data-u="${it.uid}" data-drag="${it.uid}" style="border-color:${AR.rarCol[Math.min(3,it.rk-1)]}"><div class="ic">${E.ico}</div><div class="nm">${E.name}</div><div class="rk">Rango ${'I II III IV'.split(' ')[it.rk-1]}</div>${extra||''}</div>`}
+ return`<div class="fc wc${sel}" data-act="sel" data-u="${it.uid}" data-drag="${it.uid}" style="border-color:${AR.rarCol[it.rar]};--rc:${AR.rarCol[it.rar]}"><div class="wi">${wIcon(it.type,AR.rarCol[it.rar])}${it.plus?`<sup>+${it.plus}</sup>`:''}</div><div class="nm">${TYPE_N[it.type]}</div><div class="rk"><span style="color:${AR.rarCol[it.rar]}">${AR.rarName[it.rar]}</span> ${power(it)}</div>${extra||''}</div>`}
 function renderForge(){
  const R=RUN,A=R.anvil,b=findItem(A.base),sel=findItem(R.sel),eq=R.wpn.map(x=>x.uid);
  const slotsN=AR.kamonSlots(wave+1),kam=R.slots.map(u=>R.bag.find(x=>x.uid===u)).filter(Boolean);
  let pts=0;for(const u of A.sac){const s=R.bag.find(x=>x.uid===u);if(s)pts+=AR.sacri[s.rar]+s.plus}
  let h=`<div class="fh"><b>⚒ FORJA</b><span>Oleada ${wave} superada · 🔩 ${R.tama} acero</span><button data-act="go">Continuar ▶</button></div>`;
  if(R.msg)h+=`<div class="fmsg">${R.msg}</div>`;
- h+=`<div class="fsec">Equipadas</div><div class="frow">${card(R.wpn[0])}${card(R.wpn[1])}</div>`;
- h+=`<div class="fsec">Kamon (${kam.length}/${slotsN})</div><div class="frow">${Array.from({length:slotsN},(_,i)=>kam[i]?card(kam[i]):'<div class="fc empty">hueco libre</div>').join('')}</div>`;
- h+=`<div class="fsec">Bolsa (${R.bag.length}/${AR.bag})</div><div class="fgrid">${R.bag.filter(x=>!R.slots.includes(x.uid)).map(x=>card(x,A.sac.includes(x.uid)?'<div class="tag">sacrificio</div>':'')).join('')||'<div class="fempty">Mata enemigos para encontrar armas y kamon</div>'}</div>`;
+ h+=`<div class="fhint">Toca un arma para ver qué puedes hacer con ella, o mantenla pulsada y arrástrala a ①, ②, el yunque o el fuego.</div>`;
+ h+=`<div class="zones"><div class="zone" data-drop="eq0"><i>①</i>${card(R.wpn[0])}</div><div class="zone" data-drop="eq1"><i>②</i>${card(R.wpn[1])}</div>
+ <div class="zone tool${b?'':' idle'}" data-drop="anvil" data-act="anvilmenu">${b?`<div class="wi">${wIcon(b.type,AR.rarCol[b.rar],34)}</div><div class="nm">Yunque</div><div class="rk">${A.sac.length?A.sac.length+' sacrificio'+(A.sac.length>1?'s':''):'base: '+TYPE_N[b.type]}</div>`:'<div class="big">⚒</div><div class="nm">Yunque</div><div class="rk">suelta aquí</div>'}</div>
+ <div class="zone tool fire" data-drop="melt"><div class="big">🔥</div><div class="nm">Fundir</div><div class="rk">🔩 ${R.tama}</div></div></div>`;
+ h+=`<div class="fsec">Kamon ${kam.length}/${slotsN}</div><div class="frow" data-drop="kamon">${Array.from({length:slotsN},(_,i)=>kam[i]?card(kam[i]):'<div class="fc empty">hueco libre</div>').join('')}</div>`;
+ h+=`<div class="fsec">Bolsa ${R.bag.length}/${AR.bag}</div><div class="fgrid" data-drop="bag">${R.bag.filter(x=>!R.slots.includes(x.uid)).map(x=>card(x,A.sac.includes(x.uid)?'<div class="tag">sacrificio</div>':'')).join('')||'<div class="fempty">Mata enemigos para encontrar armas y kamon</div>'}</div>`;
  // detalle
  if(sel){h+=`<div class="fdet">`;
   if(sel.kind==='kamon'){const E=AR.eff[sel.eff],on=R.slots.includes(sel.uid),same=R.bag.filter(x=>x.kind==='kamon'&&x.eff===sel.eff&&x.rk===sel.rk).length;
@@ -2403,7 +2445,67 @@ function renderForge(){
   h+=`</div>`}
  $('forge').innerHTML=`<div class="fin">${h}</div>`;
 }
-function forgeAct(e){const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const R=RUN,act=el.dataset.act,sel=findItem(R.sel);R.msg='';
+const fdrag={it:null,uid:0,x0:0,y0:0,ghost:null,on:false,zone:null,el:null,sup:false};
+function dropOk(it,z){if(!it||!z)return false;const R=RUN,eqI=R.wpn.findIndex(w=>w.uid===it.uid);
+ if(it.kind==='kamon')return z==='kamon'||z==='bag'||z==='melt';
+ if(z==='eq0'||z==='eq1')return eqI!==+z[2];if(z==='anvil')return true;if(z==='melt')return eqI<0;return false}
+function forgeDrop(it,z){const R=RUN;R.msg='';const eqI=R.wpn.findIndex(w=>w.uid===it.uid);
+ if(it.kind==='kamon'){if(z==='kamon'&&!R.slots.includes(it.uid)){if(R.slots.length<AR.kamonSlots(wave+1)){R.slots.push(it.uid);R.msg='Kamon puesto: '+AR.eff[it.eff].name}else R.msg='No quedan huecos de kamon'}
+  else if(z==='bag'&&R.slots.includes(it.uid)){R.slots=R.slots.filter(u=>u!==it.uid);R.msg='Kamon quitado'}
+  else if(z==='melt'){fMelt(it);return}}
+ else if(z==='eq0'||z==='eq1'){const sl=+z[2];if(eqI>=0){const t=R.wpn[0];R.wpn[0]=R.wpn[1];R.wpn[1]=t;R.msg='Armas intercambiadas'}else{const old=R.wpn[sl];R.wpn[sl]=it;R.bag=R.bag.filter(x=>x.uid!==it.uid);R.bag.push(old);R.anvil.sac=R.anvil.sac.filter(u=>u!==it.uid);R.msg='Equipada en '+(sl?'②':'①')+': '+TYPE_N[it.type]}sfx('swish')}
+ else if(z==='anvil'){const A=R.anvil,b=findItem(A.base);
+  if(!b||b.type!==it.type||A.base===it.uid){if(A.base!==it.uid){R.anvil={base:it.uid,sac:[]};R.sharp=null;R.msg='En el yunque: '+TYPE_N[it.type]+'. Arrastra otras del mismo tipo para sacrificarlas.'}}
+  else if(eqI>=0)R.msg='No puedes sacrificar un arma equipada';
+  else{A.sac=A.sac.includes(it.uid)?A.sac.filter(u=>u!==it.uid):A.sac.concat(it.uid);R.msg=A.sac.includes(it.uid)?'Sacrificio añadido':'Sacrificio quitado'}sfx('blunt')}
+ else if(z==='melt'){if(eqI>=0){R.msg='No puedes fundir un arma equipada'}else{fMelt(it);return}}
+ R.sel=it.uid;refreshSM();renderForge()}
+function fMelt(it){const R=RUN,v=meltValue(it);R.tama+=v;R.bag=R.bag.filter(x=>x.uid!==it.uid);R.slots=R.slots.filter(u=>u!==it.uid);R.anvil.sac=R.anvil.sac.filter(u=>u!==it.uid);if(R.anvil.base===it.uid)R.anvil.base=R.wpn[0].uid;R.msg='Fundida: +'+v+' acero';R.sel=null;sfx('blunt');refreshSM();renderForge()}
+function fdStart(){if(!fdrag.it||fdrag.on)return;fdrag.on=true;const g=fdrag.el.cloneNode(true);g.className+=' ghost';g.style.width=fdrag.el.offsetWidth+'px';document.body.appendChild(g);fdrag.ghost=g;fdrag.el.classList.add('lift');g.style.left=(fdrag.x-g.offsetWidth/2)+'px';g.style.top=(fdrag.y-g.offsetHeight*.7)+'px';try{navigator.vibrate&&navigator.vibrate(15)}catch(_){}
+ document.querySelectorAll('#forge [data-drop]').forEach(z=>{if(dropOk(fdrag.it,z.dataset.drop))z.classList.add('can')})}
+function fdZone(x,y){const g=fdrag.ghost;if(g)g.style.display='none';const el=document.elementFromPoint(x,y);if(g)g.style.display='';const d=el&&el.closest&&el.closest('[data-drop]');return d?d:null}
+function fdClear(){document.querySelectorAll('#forge .hot,#forge .can').forEach(e=>e.classList.remove('hot','can'))}
+$('forge').addEventListener('pointerdown',e=>{const el=e.target.closest('[data-drag]');if(!el||state!=='forge')return;const it=findItem(+el.dataset.drag);if(!it)return;Object.assign(fdrag,{it,uid:it.uid,x0:e.clientX,y0:e.clientY,x:e.clientX,y:e.clientY,on:false,el,ghost:null,zone:null,mouse:e.pointerType==='mouse'});clearTimeout(fdrag.tm);if(!fdrag.mouse)fdrag.tm=setTimeout(fdStart,220)});
+addEventListener('touchmove',e=>{if(fdrag.on)e.preventDefault()},{passive:false});
+addEventListener('pointermove',e=>{if(!fdrag.it)return;const dx=e.clientX-fdrag.x0,dy=e.clientY-fdrag.y0;
+ fdrag.x=e.clientX;fdrag.y=e.clientY;
+ if(!fdrag.on){if(Math.hypot(dx,dy)<9)return;if(fdrag.mouse)fdStart();else{clearTimeout(fdrag.tm);fdrag.it=null;return}}
+ e.preventDefault();const g=fdrag.ghost;g.style.left=(e.clientX-g.offsetWidth/2)+'px';g.style.top=(e.clientY-g.offsetHeight*.7)+'px';
+ const z=fdZone(e.clientX,e.clientY);document.querySelectorAll('#forge .hot').forEach(x=>x!==z&&x.classList.remove('hot'));if(z&&dropOk(fdrag.it,z.dataset.drop))z.classList.add('hot');fdrag.zone=z},{passive:false});
+addEventListener('pointerup',e=>{clearTimeout(fdrag.tm);if(!fdrag.it)return;const was=fdrag.on,it=fdrag.it,z=was?fdZone(e.clientX,e.clientY):null;if(fdrag.ghost)fdrag.ghost.remove();if(fdrag.el)fdrag.el.classList.remove('lift');fdClear();fdrag.it=null;
+ if(was){fdrag.sup=true;setTimeout(()=>fdrag.sup=false,60);if(z&&dropOk(it,z.dataset.drop))forgeDrop(it,z.dataset.drop)}});
+addEventListener('pointercancel',()=>{clearTimeout(fdrag.tm);if(fdrag.on)return;if(fdrag.ghost)fdrag.ghost.remove();if(fdrag.el)fdrag.el.classList.remove('lift');fdClear();fdrag.it=null});
+function openRadial(uid,anvil){const R=RUN,f=$('forge');const old=f.querySelector('.radial');if(old)old.remove();
+ const it=anvil?findItem(R.anvil.base):findItem(uid);const src=anvil?f.querySelector('[data-drop="anvil"]'):f.querySelector('.fin [data-u="'+uid+'"]');if(!it||!src)return;
+ const r=src.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,eqI=R.wpn.findIndex(w=>w.uid===it.uid),A=R.anvil,b=findItem(A.base),o=[];
+ if(anvil){const pts=A.sac.length;o.push(['temper','⚒','Templar',!pts]);o.push(['blood','🩸','Sangre '+AR.blood.cost(R.bloodN)+'🔩',R.tama<AR.blood.cost(R.bloodN)]);o.push(['info','ℹ','Detalles'])}
+ else if(it.kind==='kamon'){const on=R.slots.includes(it.uid),same=R.bag.filter(x=>x.kind==='kamon'&&x.eff===it.eff&&x.rk===it.rk).length;
+  o.push(on?['koff','✖','Quitarse']:['kon','✚','Ponerse',R.slots.length>=AR.kamonSlots(wave+1)]);if(same>=3&&it.rk<4)o.push(['kfuse','⬆','Fusionar']);o.push(['melt','🔥','Fundir +'+meltValue(it)]);o.push(['info','ℹ','Detalles'])}
+ else{if(eqI<0){o.push(['equip0','①','Equipar ①']);o.push(['equip1','②','Equipar ②'])}else o.push(['swap','⇄','Cambiar a '+(eqI?'①':'②')]);
+  const same=b&&b.type===it.type&&A.base!==it.uid;
+  if(A.base!==it.uid)o.push(same?(eqI<0?['sac','⚒',A.sac.includes(it.uid)?'Quitar sacrificio':'Sacrificar en yunque']:null):['base','⚒','Al yunque']);
+  if(A.base===it.uid)o.push(['temper','⚒','Templar',!A.sac.length]);
+  if(eqI<0)o.push(['melt','🔥','Fundir +'+meltValue(it)]);o.push(['info','ℹ','Detalles'])}
+ const L=o.filter(Boolean),n=L.length,rad=Math.min(92,40+n*11),W=innerWidth,H=innerHeight,ccx=Math.max(rad+40,Math.min(W-rad-40,cx)),ccy=Math.max(rad+40,Math.min(H-rad-40,cy));
+ const d=document.createElement('div');d.className='radial';d.dataset.act='rclose';
+ d.innerHTML=`<div class="rc" style="left:${ccx}px;top:${ccy}px">${anvil?'⚒':it.kind==='kamon'?AR.eff[it.eff].ico:wIcon(it.type,AR.rarCol[it.rar],38)}</div>`+L.map(([a,ic,lb,dis],i)=>{const ang=-Math.PI/2+i/n*Math.PI*2,x=ccx+Math.cos(ang)*rad,y=ccy+Math.sin(ang)*rad;
+  return`<button class="rb" data-act="r_${a}" ${dis?'disabled':''} style="left:${x}px;top:${y}px;animation-delay:${i*22}ms"><b>${ic}</b><span>${lb}</span></button>`}).join('');
+ f.appendChild(d)}
+function radialAct(a){const R=RUN,sel=findItem(R.sel);R.msg='';const close=()=>{const r=$('forge').querySelector('.radial');if(r)r.remove()};
+ if(a==='rclose'){close();return}
+ if(a==='r_info'){close();const d=$('forge').querySelector('.fdet,.fanv');if(d)d.scrollIntoView({behavior:'smooth',block:'start'});return}
+ if(a==='r_temper')return temper();if(a==='r_blood')return bloodForge();if(a==='r_kfuse'&&sel)return fuseKamon(sel);
+ if(!sel){close();return}
+ if(a==='r_equip0')return forgeDrop(sel,'eq0');if(a==='r_equip1')return forgeDrop(sel,'eq1');
+ if(a==='r_swap')return forgeDrop(sel,R.wpn[0].uid===sel.uid?'eq1':'eq0');
+ if(a==='r_base'||a==='r_sac')return forgeDrop(sel,'anvil');
+ if(a==='r_melt')return sel.kind==='kamon'?forgeDrop(sel,'melt'):fMelt(sel);
+ if(a==='r_kon')return forgeDrop(sel,'kamon');if(a==='r_koff')return forgeDrop(sel,'bag');close()}
+function forgeAct(e){if(fdrag.sup)return;{const el0=e.target.closest('[data-act]');if(el0&&!el0.disabled){const a0=el0.dataset.act;
+  if(a0==='rclose'&&e.target.closest('.rb,.rc'))return;
+  if(a0==='rclose'||a0.startsWith('r_')){radialAct(a0);return}
+  if(a0==='sel'){RUN.sel=+el0.dataset.u;RUN.sharp=null;RUN.msg='';renderForge();openRadial(RUN.sel);return}
+  if(a0==='anvilmenu'){if(RUN.anvil.base){renderForge();openRadial(0,true)}return}}}const el=e.target.closest('[data-act]');if(!el||el.disabled)return;const R=RUN,act=el.dataset.act,sel=findItem(R.sel);R.msg='';
  if(act==='go')return closeForge();
  if(act==='sel'){R.sel=+el.dataset.u;R.sharp=null}
  else if(act==='equip'&&sel){const sl=+el.dataset.s;const old=R.wpn[sl];R.wpn[sl]=sel;R.bag=R.bag.filter(x=>x.uid!==sel.uid);R.bag.push(old);R.anvil.sac=R.anvil.sac.filter(u=>u!==sel.uid);R.msg='Equipada: '+sel.name}
@@ -2763,7 +2865,8 @@ let rankCache=null;
 function cleanName(n){return String(n||'').replace(/[\u0000-\u001f<>]/g,'').trim().slice(0,16)}
 function localRank(){try{return JSON.parse(localStorage.getItem(LOC_RANK)||'[]')}catch(e){return[]}}
 function better(a,b){return !b||a.wave>b.wave||(a.wave===b.wave&&a.kills>b.kills)}
-async function submitScore(){if(TRAIN||horde300||wave<1)return;const rec={name:cleanName(playerName)||'Anónimo',wave,kills,weapon:(weapon()&&weapon().name)||'',t:Date.now()};
+async function submitScore(mid){if(TRAIN||horde300||wave<1)return;const rec={name:cleanName(playerName)||'Anónimo',wave,kills,weapon:(weapon()&&weapon().name)||'',t:Date.now()};
+ if(mid){if(RANK_URL)rankFetch('a=add&id='+encodeURIComponent(PID)+'&name='+encodeURIComponent(rec.name)+'&wave='+rec.wave+'&kills='+rec.kills+'&weapon='+encodeURIComponent(rec.weapon)).then(t=>{if(t)rankCache=t});return}
  const L=localRank();L.push(rec);L.sort((a,b)=>b.wave-a.wave||b.kills-a.kills);try{localStorage.setItem(LOC_RANK,JSON.stringify(L.slice(0,10)))}catch(e){}
  rankMsg='';if(RANK_URL){const q='a=add&id='+encodeURIComponent(PID)+'&name='+encodeURIComponent(rec.name)+'&wave='+rec.wave+'&kills='+rec.kills+'&weapon='+encodeURIComponent(rec.weapon);const top=await rankFetch(q);if(top){rankCache=top;const pos=top.findIndex(r=>r.id===PID);rankMsg=pos>=0?'¡Estás en el puesto '+(pos+1)+' del ranking!':'Partida guardada en el ranking.'}else rankMsg='No se pudo conectar con el ranking (guardado en este dispositivo).';if(state==='dead'&&deadShown){const m=document.getElementById('rankMsg');if(m)m.textContent=rankMsg}return}
  if(!RDB||!RUID){rankMsg='Ranking global no disponible aquí: guardado solo en este dispositivo.';return}
@@ -2784,6 +2887,7 @@ async function loadRank(){let rows=null;
 async function fillRank(list){if(!list)return;const rows=await loadRank();if(!document.contains(list))return;
  if(!rows.length){list.style.textAlign='center';list.textContent='Todavía no hay nadie. ¡Sé el primero!';return}
  list.innerHTML=rows.map((r,i)=>`<div style="display:flex;gap:8px;align-items:center;padding:5px 9px;margin:3px 0;border-radius:9px;background:${(r.id&&(r.id===PID||r.id===RUID))||(!r.id&&r.name===playerName)?'rgba(209,36,44,.35)':'rgba(44,40,50,.8)'}"><b style="width:22px;color:${i<3?['#ffd04a','#d8d8e0','#d08a4a'][i]:'#999'}">${i+1}</b><span style="flex:1;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.name||'Anónimo')}</span><span style="opacity:.6;font-size:11px">${esc(r.weapon||'')}</span><span style="min-width:74px;text-align:right">Oleada <b>${+r.wave|0}</b></span></div>`).join('')}
+setInterval(()=>{if(state==='title'&&document.hidden!==true){const l=document.getElementById('rkList');if(l&&document.getElementById('bName')&&!document.querySelector('#keys[style*="block"]'))fillRank(l)}},30000);
 async function showRanking(){const o=$('ov');o.style.display='flex';
  o.innerHTML=`<h1 style="font-size:40px">🏆 TOP 10</h1><div id="rkList" style="width:min(420px,92vw);text-align:left;font:15px system-ui">Cargando…</div><button class="edl" id="bBack" type="button">← Volver</button>`;fillRank($('rkList'))}
 function showDead(){const o=$('ov');o.style.display='flex';o.innerHTML=`<h1 style="color:#e0404a">HAS MUERTO</h1><h2 style="color:#fff">Oleada ${wave} · ${kills} bajas · récord ${best}</h2><p id="rankMsg" style="opacity:.8">${esc(rankMsg)}</p><div class="go">Toca para reintentar</div><button class="edl" id="bRankD" type="button">🏆 Ranking</button> <button class="edl" id="bMenuD" type="button">☰ Menú principal</button>`}
