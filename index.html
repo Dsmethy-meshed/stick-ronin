@@ -544,6 +544,13 @@ const ATK={
   air:{wind:.18,strike:.09,hold:.08,rec:.3,tilt:25,a0:140,a1:-70,reach:2.5,push:7,cut:'line',hs:.07,sh:.12},
   plunge:{wind:.2,strike:.1,hold:.14,rec:.4,tilt:0,a0:165,a1:-55,reach:2.5,push:8,cut:'split',hs:.09,sh:.16,plunge:1},
   wall:{wind:.18,strike:.09,hold:.08,rec:.3,tilt:70,a0:130,a1:-90,reach:2.5,push:7,cut:'line',hs:.07,sh:.12}},
+ kusarigama:{seq:['ku1','ku2','ku3'],
+  ku1:{wind:.07,strike:.09,hold:.03,rec:.15,tilt:12,a0:150,a1:-120,reach:3.1,lunge:1.2,push:6,cut:'line',hs:.05,sh:.08},
+  ku2:{wind:.07,strike:.09,hold:.03,rec:.15,tilt:12,a0:-120,a1:150,reach:3.1,lunge:1.2,push:6,cut:'line',hs:.05,sh:.08},
+  ku3:{wind:.1,strike:.12,hold:.05,rec:.24,tilt:30,a0:160,a1:-160,reach:3.4,lunge:1.6,push:8,cut:'waist',hs:.06,sh:.12},
+  air:{wind:.07,strike:.09,hold:.04,rec:.18,tilt:20,a0:150,a1:-120,reach:3,push:6,cut:'line',hs:.05,sh:.08},
+  plunge:{wind:.14,strike:.1,hold:.1,rec:.3,tilt:0,a0:160,a1:-55,reach:2.6,push:7,cut:'split',hs:.07,sh:.12,plunge:1},
+  wall:{wind:.1,strike:.09,hold:.06,rec:.2,tilt:60,a0:130,a1:-90,reach:2.8,push:6,cut:'line',hs:.05,sh:.09}},
  naginata:{seq:['n1','n2','n3'],
   n1:{wind:.18,strike:.12,hold:.06,rec:.28,tilt:86,a0:150,a1:-150,reach:2.4,lunge:1.8,push:7,cut:'waist',hs:.06,sh:.1},
   n2:{wind:.16,strike:.12,hold:.06,rec:.28,tilt:86,a0:-150,a1:150,reach:2.4,lunge:1.8,push:7,cut:'waist',hs:.06,sh:.1},
@@ -589,7 +596,7 @@ const WT={
  odachi:{name:'ŌDACHI',spd:6.3,acc:.8,turn:.85,jmp:.92,g:odachiG,run:'heavy',cad:2.0,charge:'cleave',special:'odive'},
  naginata:{name:'NAGINATA',spd:6.0,acc:.8,turn:.8,jmp:1.08,g:naginataG,run:'pole',cad:2.4,charge:'spin',spinR:2.8,special:'vault'},
  yari:{name:'YARI',spd:6.3,acc:.9,turn:.85,jmp:1.1,g:yariG,run:'pole',cad:2.5,charge:'drag',special:'lunge'},
- kusarigama:{name:'KUSARIGAMA',spd:6.8,acc:1.1,turn:1.1,jmp:1,g:kusaG,run:'ninja',cad:2.7,charge:'lasso',special:'grapple',tap:'chain',shotCd:.42},
+ kusarigama:{name:'KUSARIGAMA',spd:6.8,acc:1.1,turn:1.1,jmp:1,g:kusaG,run:'ninja',cad:2.7,charge:'whirl',special:'grapple'},
  tessen:{name:'TESSEN',spd:7.6,acc:1.4,turn:1.35,jmp:1.15,g:tessenG,run:'light',cad:3.0,charge:'aim',aimRel:'gust',special:'glide'},
  kama:{name:'KAMA',spd:7.8,acc:1.4,turn:1.35,jmp:1.05,g:kamaG,g2:kamaG2,run:'dual',cad:3.0,charge:'aim',aimRel:'kamas',special:'blink'},
  tanegashima:{name:'TANEGASHIMA',spd:5.4,acc:.7,turn:.75,jmp:.92,g:gunG,run:'gun',cad:2.3,charge:'aim',aimRel:'bigshot',special:'recoil',tap:'bullet',shotCd:1.0},
@@ -915,7 +922,7 @@ let horde300=false;
 function startGame(horde){TRAIN=null;loadKF();resetGame();updWUI();horde300=horde===true;if(horde===true){wave=8;waveQueue=300;banner('HORDA: 300')}state='play';$('ov').style.display='none';hudShow(true)}
 function fwdW(){return[Math.sin(P.yaw),0,Math.cos(P.yaw)]}
 function nearestZombie(maxD,dir,maxAng){let best=null,bd=1e9;for(const z of zs){if(!z.alive||z.iaiT>0)continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz);if(d>maxD||Math.abs(z.y-P.y)>2.2)continue;const a=Math.abs(angDiff(dir,Math.atan2(dx,dz)));if(a>maxAng)continue;const s=d+a*1.5;if(s<bd){bd=s;best=z}}return best}
-function canAct(){const a=P.atk;if(!a)return true;if(a.type==='iai')return false;if(a.kf)return kfCanAct(a);const d=a.def,T2=d.wind+d.strike,T3=T2+d.hold;return(d.slam||d.plunge||d.spin||d.wave)?a.t>=T3+d.rec*.4:a.t>=T2+d.hold*.6}
+function canAct(){if(P&&(P.whirl||P.kHold||P.khook&&P.khook.ph==='out'))return false;const a=P.atk;if(!a)return true;if(a.type==='iai')return false;if(a.kf)return kfCanAct(a);const d=a.def,T2=d.wind+d.strike,T3=T2+d.hold;return(d.slam||d.plunge||d.spin||d.wave)?a.t>=T3+d.rec*.4:a.t>=T2+d.hold*.6}
 function switchWeapon(){if(P&&(P.atk||P.charge))return;wIdx=(wIdx+1)%2;const b=$('wbtn');b.textContent='⇄ '+weapon().name;if(RUN){refreshSM();b.style.boxShadow='inset 0 0 0 2px '+AR.rarCol[RUN.wpn[wIdx].rar]}$('bDash').textContent=SPN[weapon().special]||'DASH';b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),400);sfx('whoosh')}
 function startIai(md){
  let dir=md.m>.2?Math.atan2(md.x,md.z):P.yaw;const t=nearestZombie(8,dir,.9);if(t)dir=Math.atan2(t.x-P.x,t.z-P.z);
@@ -936,8 +943,9 @@ function startAttack(md,forceKey,power){
  if(!set.seq.includes(key))P.comboStep=0;
  if(P.wall)P.yaw=Math.atan2(P.wallN[0],P.wallN[2]);
  else{let dir=md.m>.2?Math.atan2(md.x,md.z):P.yaw;const t=nearestZombie(4.4,dir,1.9);if(t)dir=Math.atan2(t.x-P.x,t.z-P.z);P.yaw=dir;P.heading=dir}
- {const mf=(KF[key]&&!P.wall)?({...LAYER_DEF,...(KF[key].layer||{})}).move:(PROC_MOVE[key]||0);P.amv=[P.vx*mf,P.vz*mf];P.av=[P.vx*(1-mf)*.5,P.vz*(1-mf)*.5];P.atkFade=null}
- const kfA=KF[key];if(kfA&&!P.wall){startKF(key,kfA,power);return}
+ const kfK=KF[W.id+':'+key]?W.id+':'+key:(KF[key]&&(W.id==='katana'||W.id==='maza')?key:null);
+ {const mf=(kfK&&!P.wall)?({...LAYER_DEF,...(KF[kfK].layer||{})}).move:(PROC_MOVE[key]||0);P.amv=[P.vx*mf,P.vz*mf];P.av=[P.vx*(1-mf)*.5,P.vz*(1-mf)*.5];P.atkFade=null}
+ const kfA=kfK&&KF[kfK];if(kfA&&!P.wall){startKF(key,kfA,power);return}
  const d=set[key];
  P.atk={type:key,def:d,t:0,startDir:P.bladeL.slice(),startHand:P.J[7].slice(),dirL:P.bladeL.slice(),handL:P.J[7].slice(),ang:d.a0,spinOff:0,power:power||0,
   aPull:d.spin?d.a0:d.a0+(d.a0-d.a1)*(W.blunt?.1:.06),aOver:d.a1+(d.a1-d.a0)*.05,hitE:new Set(),hitR:new Set(),crouch:0,id:++trailId,kills:0,struck:false,slammed:false,landed:false};
@@ -1178,6 +1186,8 @@ function targetPose(){
  if(P.charge&&P.charge.kind==='spin'&&P.charge.t>.25){hL=[-.12,1.22,.42];hR=[.14,1.2,.46];blade=nrm3([1,.05,.15]);snapHands=true;pel[1]-=.08;neck[1]-=.08;head[1]-=.08}
  if(P.charge&&P.charge.kind==='cleave'&&P.charge.t>.1){const k=clamp(P.charge.t,0,1.2)/1.2,tr=Math.sin(time*45)*.015*k;blade=nrm3([tr,.35,-1]);snapHands=true;hR=[.06,1.62+.1*k,-.1];hL=[-.04,1.55+.1*k,-.05];const cr=.06+.12*k;pel[1]-=cr;neck[1]-=cr*.6;head[1]-=cr*.6;neck[2]-=.08;head[2]-=.06;fL=[-.26,0,.34];fR=[.26,0,-.3]}
  if(P.charge&&P.charge.kind==='drag'&&P.charge.t>.1){const k=clamp(P.charge.t,0,1);blade=nrm3([0,.08,1]);snapHands=true;hR=[.14,1.05,-.35-.15*k];hL=[-.02,1.1,.1];pel[1]-=.1;neck[1]-=.08;head[1]-=.08;neck[2]-=.05;fL=[-.2,0,.38];fR=[.22,0,-.34]}
+ if(P.whirl){const a=P.whirl.a-P.yaw;hR=[.12+Math.sin(a)*.3,1.5,.1+Math.cos(a)*.3];hL=[-.3,1.15,.25];blade=nrm3([Math.sin(a),.15,Math.cos(a)]);snapHands=true;pel[1]-=.06;neck[1]-=.04}
+ if(P.kHold){hR=[.25,1.45,-.35];hL=[-.15,1.25,.4];blade=nrm3([0,.4,-1]);snapHands=true}
  if(P.charge&&P.charge.kind==='lasso'&&P.charge.t>.1){const a=time*16;hR=[.15+Math.cos(a)*.25,1.85,.1+Math.sin(a)*.25];hL=[-.25,1.15,.3];blade=nrm3([Math.cos(a),.3,Math.sin(a)]);snapHands=true}
  if(P.charge&&P.charge.kind==='demon'&&P.charge.t>.2){const q=time*22;hL=[-.38+Math.sin(q)*.1,1.1,.3+Math.cos(q)*.2];hR=[.38-Math.sin(q)*.1,1.1,.3-Math.cos(q)*.2];blade=nrm3([Math.sin(q),.1,Math.cos(q)]);snapHands=true}
  if((P.charge&&P.charge.kind==='aim'&&P.charge.t>.1)||P.shotT>0){const ap=aimPoseData(W);hL=ap.hL;hR=ap.hR;blade=ap.blade;neck=ap.neck;head=ap.head;snapHands=true}
@@ -1418,7 +1428,7 @@ function stomp(z,strong){
 function updateLocomotion(md){
  const W=weapon(),onG=P.onGround;
  let sp=Math.hypot(P.vx,P.vz);if(sp>.3)P.heading=Math.atan2(P.vx,P.vz);else P.heading=P.yaw;P.speed=sp;
- const prevH=P.heading,maxS=P.charge?(P.charge.kind==='demon'&&P.charge.t>.2?8.6*(SM.mov||1):P.charge.kind==='spin'&&P.charge.t>.25?3.2:P.charge.kind==='aim'||P.charge.kind==='lasso'?2.2:1.1):W.spd*(SM.mov||1);
+ const prevH=P.heading,maxS=P.whirl?3.4*(SM.mov||1):P.kHold?2.2:P.charge?(P.charge.kind==='demon'&&P.charge.t>.2?8.6*(SM.mov||1):P.charge.kind==='spin'&&P.charge.t>.25?3.2:P.charge.kind==='aim'||P.charge.kind==='lasso'?2.2:1.1):W.spd*(SM.mov||1);
  if(P.skidT>0){
   P.skidT-=DT;P.speed=approach(P.speed,0,26*DT);if(tick%3===0)dust([P.x,P.y,P.z],2,1.2);
   P.yaw=turnTo(P.yaw,P.skidTo,(P.skidT<.14?16:2)*DT);
@@ -1489,6 +1499,7 @@ function updatePlayer(){
  if(P.specQ){P.atkQ=0;P.atkBuf=0;if(P.dead||P.grap||P.trap){P.specQ=0}else if(!P.atk||canAct()){P.specQ=0;P.atk=null;P.dashBuf=1}}
  if(P.dashBuf>0&&W.special!=='charge'){if(P.dashCd<=0&&!P.sky&&!P.odDive&&(canAct()||P.trap||P.charge)&&!P.grap&&!P.throwK&&!P.vault&&(P.onGround||P.wall||P.airDash>0||P.trap)){if(W.special==='throw')startThrow(md);else doSpecial(W,md)}P.dashBuf=0}
  if(P.throwK)updateThrow();
+ if(P.whirl)updWhirl(md);if(P.kHold||P.khook)updKHook(md);
  if(P.dashBuf>0&&P.dashCd<=0&&canAct()&&!P.grap&&(P.onGround||P.wall||P.airDash>0||P.trap)){
   let dx=md.x,dz=md.z;if(md.m<.2){dx=Math.sin(P.yaw);dz=Math.cos(P.yaw)}if(P.wall){dx=P.wallN[0];dz=P.wallN[2]}
   const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;if(!P.onGround&&!P.wall)P.airDash--;
@@ -1523,6 +1534,7 @@ function updatePlayer(){
    else if(C.kind==='cleave'){if(t<.2)startAttack(md);else cleaveRelease(t,md)}
    else if(C.kind==='drag'){if(t<.2)startAttack(md);else dragRelease(t,md)}
    else if(C.kind==='lasso'){if(t<.2)startAttack(md);else lassoRelease(t,md)}
+   else if(C.kind==='whirl'){startAttack(md)}
    else{if(t<.2)startAttack(md);else aimRelease(W,t,md)}
   }
  }
@@ -1963,7 +1975,7 @@ let KF={};
 function loadKF(){
  KF={};
  try{let lib=null;try{lib=JSON.parse(localStorage.getItem('animeditor_v1'))}catch(e){}if(!lib||!Array.isArray(lib.anims))lib=JSON.parse(JSON.stringify(BUILTIN));if(lib&&Array.isArray(lib.anims))for(const a of lib.anims){
-  if(!a||!a.live||!KF_SLOTS.includes(a.slot)||!Array.isArray(a.keys)||!a.keys.length)continue;
+  if(!a||!a.live||!(KF_SLOTS.includes(a.slot)||/^[a-z]+:[a-z0-9]+$/.test(a.slot))||!Array.isArray(a.keys)||!a.keys.length)continue;
   if(!a.keys.every(k=>k&&k.p&&['head','neck','pel','hL','hR','fL','fR'].every(j=>Array.isArray(k.p[j])&&k.p[j].length===3)))continue;
   a.keys.forEach(k=>{k.blade=k.blade||[.12,-.38,.92];k.root=k.root||[0,0,0];k.ry=k.ry||0;k.rx=k.rx||0;k.rz=k.rz||0});a.keys.sort((x,y)=>x.t-y.t);a.hits=Array.isArray(a.hits)?a.hits:[];a.dur=Math.max(.1,+a.dur||1);
   KF[a.slot]=a;}}catch(e){}
@@ -2435,7 +2447,7 @@ const TYPE_I={katana:'刀',maza:'棒',nito:'双',odachi:'太',naginata:'薙',yar
 const WDESC={katana:'Equilibrada. Mantener: desenvaine. Especial: lanzar y teletransporte.',maza:'Pesada y lenta. Mantener: golpe al suelo. Especial: embestida que lanza.',
  nito:'Dos katanas, muy ágil. Mantener: modo demonio (corres más rápido cortando todo lo que tocas). Especial: doble paso en zigzag.',odachi:'Enorme, barridos larguísimos. Combo: tajo der→izq, izq→der y diagonal final. Mantener: tajo vertical imparable (te golpean menos mientras cargas). Especial: lanza la espada hacia arriba y te teletransportas a ella para reposicionarte. En el aire a más de 3 m, atacar = picado con onda enorme (puedes usar el gancho durante la caída).',
  naginata:'Barridos amplios a media distancia. Mantener: giro sobre el asta. Especial: salto con pértiga que acaba en barrido.',yari:'Estocadas que atraviesan en línea. Mantener: lanzada que ensarta y arrastra a los enemigos hacia ti. Especial: estocada larga en carrera.',
- kusarigama:'Golpe de cadena a distancia. Mantener: lazo que enreda y amontona a un grupo. Especial: te engancha y vuelas hasta el enemigo.',tessen:'Abanico, el más rápido. Mantener: ráfaga de viento. Especial: planeo de viento que aparta a todos.',
+ kusarigama:'Arcos rápidos y largos con la cadena. Mantener: torbellino de 3 s a tu alrededor (arco corto, largo, corto, largo…), luego vuelve a empezar. Especial: lanza la hoz hacia donde apuntas y te arrastras tras ella; mantenlo para lanzarla más lejos (la que más llega de todas).',tessen:'Abanico, el más rápido. Mantener: ráfaga de viento. Especial: planeo de viento que aparta a todos.',
  kama:'Dos hoces muy rápidas. Mantener: lanzar las hoces. Especial: aparecer a su espalda.',tanegashima:'Mosquete pesado: bala perforante, recarga lenta. Mantener: apuntar. Especial: descarga que te lanza hacia atrás.',
  yumi:'Apunta solo al enemigo más cercano (marca roja) y puedes disparar corriendo hacia atrás. Toque: flechas rápidas. Mantener: flecha gigante que atraviesa toda la línea (tarda en cargar). Especial: bomba de humo y saltas; flotando apuntas un círculo en el suelo (stick para moverlo, mantén para apuntar más), disparas una flecha explosiva ahí y sales despedido con una voltereta; luego flotas. En el aire: disparar te mantiene flotando; a la 3ª flecha caes clavando el gancho con onda de choque.',shuriken:'Shuriken que rebotan, muy ágil. Mantener: abanico de kunai. Especial: bomba de humo y desapareces.'};
 const legendText=t=>t==='maza'?'La embestida termina en terremoto':'Parry: el contraataque lanza 8 tajos de viento';
@@ -2797,6 +2809,7 @@ function holdCharge(W,C,md){
   if(C.sp<=0){C.sp=.1;const F=[Math.sin(P.yaw),Math.cos(P.yaw)];let n=0;for(const z of zs){if(!z.alive||z.iaiT>0||n>=6)continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz);if(d<1.7+(z.r||.3)&&(dx*F[0]+dz*F[1])/(d||1)>-.2&&Math.abs(z.y-P.y)<1.6){n++;procKill(z,[dx*3+F[0]*4,3,dz*3+F[1]*4],false,true,.8)}}if(n){sfx('swish');P.blade=1}}}
  if(C.kind==='cleave'&&!C.ready&&C.t>=1.2){C.ready=true;sfx('ready');sparks(toW(P,P.yaw,[0,2.2,0]),[0,1,0],12,[1,.8,.4])}
  if((C.kind==='drag'||C.kind==='lasso')&&!C.ready&&C.t>=1){C.ready=true;sfx('ready')}
+ if(C.kind==='whirl'&&C.t>=.2){P.charge=null;startWhirl();return}
  if(C.kind==='cleave'&&tick%5===0)dust([P.x+rand(-.6,.6),P.y,P.z+rand(-.6,.6)],1,.6);
  if(C.kind==='spin'&&C.t>.25){P.spinVis=(P.spinVis||0)+DT*15;C.sp-=DT;
   if(C.sp<=0){C.sp=.12;const R=(W.spinR||2.5)*(SM.rng||1);let n=0;
@@ -2838,7 +2851,8 @@ function doSpecial(W,md){
   case'twin':{startDash(fdir,17,.13,'cut');const side=Math.random()<.5?.6:-.6;DELAY.push({t:.17,fn:()=>{if(!P.dead)startDash(fdir+side,17,.13,'cut')}});P.dashCd=.85*cdm;break}
   case'vault':{P.atk=null;P.heading=fdir;P.yaw=fdir;P.speed=8.5;P.vx=Math.sin(fdir)*8.5;P.vz=Math.cos(fdir)*8.5;P.vy=8.8;P.onGround=false;P.floatT=.35;P.vaultSweep=1;P.inv=Math.max(P.inv,.45);P.jumping=true;sfx('jump');dust([P.x,P.y,P.z],6,1.8);P.dashCd=1.2*cdm;P.spinFx=.35;break}
   case'lunge':startDash(fdir,23,.3*sp,'cut');sfx('swish');P.dashCd=.9*cdm;break;
-  case'grapple':{const t=nearestZombie(10*sp,fdir,1.2)||nearestAlive(P.x,P.z,10*sp);
+  case'grapple':{kusaSpecial(md);break}
+  case'grapple_old':{const t=nearestZombie(10*sp,fdir,1.2)||nearestAlive(P.x,P.z,10*sp);
    if(t){const dx=t.x-P.x,dz=t.z-P.z,d=Math.hypot(dx,dz)||1,a=Math.atan2(dx,dz);startDash(a,22,Math.max(.08,Math.min(.45,(d-1.1)/22)),'cut');addProj({k:'chainfx',x:t.x,y:t.y+1,z:t.z,vx:0,vy:0,vz:0,life:.3,direct:true});sfx('hook');
     DELAY.push({t:Math.min(.45,(d-1.1)/22)+.02,fn:()=>{if(!t.alive)return;if(t.kind){t.hurtT=0;t.atkCd=Math.max(t.atkCd,1.5);yokaiHit(t,{vel:[Math.sin(a)*4,3,Math.cos(a)*4]},2)}else procKill(t,[Math.sin(a)*6,5,Math.cos(a)*6],true,true,2)}})}
    else{startDash(fdir,20,.28,'cut');sfx('hook')}P.dashCd=.9*cdm;break}
@@ -3046,6 +3060,12 @@ function draw(){
   g.userData.blood.opacity=P.blade*.9;
   if(g.userData.saya)g.userData.saya.visible=!!(P.charge&&P.charge.kind==='iai'&&W.id==='katana'&&P.charge.t>.12);
   if(g.userData.glow)g.userData.glow.opacity=P.charge?clamp(P.charge.t,0,1)*(.35+.25*Math.sin(time*20)):0;
+  // kusarigama: cadena desde la mano hasta la hoz
+  if(W.id==='kusarigama'&&!blink){const hnd=J[7];let tip=null,dir=null;
+   if(P.whirl){const w=P.whirl;tip=[P.x+Math.sin(w.a)*w.R,P.y+1.05,P.z+Math.cos(w.a)*w.R];dir=[Math.sin(w.a),0,Math.cos(w.a)]}
+   else if(P.khook){const K=P.khook;if(K.ph==='out'||K.pt<K.end){tip=K.p.slice();dir=[Math.sin(K.dir),0,Math.cos(K.dir)]}}
+   else if(P.atk&&P.atk.def&&!P.atk.kf&&P.atk.ang!==undefined){const d=P.atk.def,dl=dirAt(P.atk.ang,d.tilt);tip=toW(P,P.yaw,add3(PIVOT,mul3(dl,d.reach*.95)));dir=dirW(P.yaw,dl)}
+   if(tip){chainDraw(hnd,tip,P.khook?.15:.05);g.visible=true;placeWeapon(g,tip,dir,[dir[2],0,-dir[0]])}}
   // cuerda del gancho
   if(P.grap){const h0=J[5],h1=P.grap.tip,N=12;let prev=h0;for(let i=1;i<=N;i++){const t=i/N,sag=P.grap.sag*Math.sin(t*Math.PI)*Math.min(1,Math.hypot(h1[0]-h0[0],h1[2]-h0[2])/6+.2),wob=Math.sin(t*Math.PI*3+time*30)*P.grap.sagV*.004;const p=[lerp(h0[0],h1[0],t)+wob,lerp(h0[1],h1[1],t)-sag,lerp(h0[2],h1[2],t)-wob];limb(prev,p,.028,COL.rope);prev=p}
    red(h1,.07)}
@@ -3074,7 +3094,7 @@ function showTitle(){
  <div style="width:min(400px,92vw);margin:2px 0 8px"><div style="font:800 13px system-ui;letter-spacing:2px;opacity:.75;margin-bottom:4px">🏆 TOP 10</div><div id="rkList" style="text-align:left;font:14px system-ui;max-height:42vh;overflow-y:auto">Cargando…</div></div>
  ${savedRun()?`<button class="edl" id="bCont" type="button" style="font-size:16px;padding:12px 18px;background:#d1242c;border-color:#d1242c">▶ Continuar partida (oleada ${savedRun().wave})</button>`:''}<div class="go">${savedRun()?'Toca fuera para empezar una nueva':'Toca para empezar'}</div>
  <div><button class="edl" id="bName" type="button">👤 ${esc(playerName)} ✎</button> <button class="edl" id="bInfo" type="button">ℹ Info</button> <button class="edl" id="bKeys" type="button">🎮 Controles</button> <button class="edl" id="bTrain" type="button">⚙ Dojo</button> <button class="edl" data-mp="open" type="button">👥 Multijugador</button></div>
- ${verTag()}<div><a class="edl" href="editor.html">Editor de animaciones${(n=>n?` · ${n} tuya${n>1?'s':''} en uso`:'')(loadKF())}</a></div>`;
+ ${verTag()}${/github\.io$/.test(location.hostname)?'':`<div><a class="edl" href="editor.html">Editor de animaciones${(n=>n?` · ${n} tuya${n>1?'s':''} en uso`:'')(loadKF())}</a></div>`}`;
  fillRank($('rkList'))}
 function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CTRL.kb[a][0]);
  o.innerHTML=`<h1 style="font-size:40px">ℹ CÓMO SE JUEGA</h1><div style="width:min(440px,92vw);text-align:left;max-height:62vh;overflow-y:auto;font:14px system-ui;line-height:1.45">
@@ -3148,7 +3168,7 @@ function mpStatus(){}
 // --- estado propio que se envía ---
 const r2=v=>Math.round(v*100)/100;
 function mpCapture(){if(!P||!P.Jdraw)return null;const W=weapon(),g=W.g,q=g.quaternion,p=g.position;
- const st={J:P.Jdraw.map(l=>toW(P,P.ryaw,l).map(r2)),w:W.id,gv:g.visible?1:0,gp:[r2(p.x),r2(p.y),r2(p.z)],gq:[q.x,q.y,q.z,q.w].map(v=>Math.round(v*1000)/1000),dead:P.dead?1:0,hp:Math.round(P.hp),inv:P.inv>.6&&mpHunt()?1:0};
+ const st={J:P.Jdraw.map(l=>toW(P,P.ryaw,l).map(r2)),w:W.id,gv:g.visible?1:0,gp:[r2(p.x),r2(p.y),r2(p.z)],gq:[q.x,q.y,q.z,q.w].map(v=>Math.round(v*1000)/1000),ch:W.id==='kusarigama'&&(P.whirl||P.khook||P.atk&&P.atk.def)?1:0,dead:P.dead?1:0,hp:Math.round(P.hp),inv:P.inv>.6&&mpHunt()?1:0};
  if(W.g2){const g2=W.g2;st.g2v=g2.visible?1:0;st.g2p=[r2(g2.position.x),r2(g2.position.y),r2(g2.position.z)];st.g2q=[g2.quaternion.x,g2.quaternion.y,g2.quaternion.z,g2.quaternion.w].map(v=>Math.round(v*1000)/1000)}
  if(!NET.host)st.n=playerName;return st}
 function mpTick(rdt){if(!NET.on||!NET.joined)return;mpMatchTick(rdt);mpPickTick(rdt);NET.sendT-=rdt;
@@ -3164,7 +3184,7 @@ function mpDraw(dt){if(!NET.on)return;mpPickDraw(dt);
   for(let i=0;i<p.J.length;i++)for(let c=0;c<3;c++)p.J[i][c]+=(st.J[i][c]-p.J[i][c])*a;
   if(st.dead)continue;
   drawChar(p.J,p.col||(p.col=mpColor(p.slot)),.055,.15);
-  if(WT[st.w]){const m=mpWeaponMesh(p,st.w);if(m){m.visible=!!st.gv;m.position.lerp(vTmpA.set(...st.gp),a);m.quaternion.slerp(qTmp.set(...st.gq),a)}
+  if(WT[st.w]){const m=mpWeaponMesh(p,st.w);if(m){m.visible=!!st.gv;m.position.lerp(vTmpA.set(...st.gp),a);m.quaternion.slerp(qTmp.set(...st.gq),a);if(st.ch)chainDraw(p.J[7],[m.position.x,m.position.y,m.position.z],.05)}
    if(st.g2p){const m2=mpWeaponMesh(p,st.w,true);if(m2){m2.visible=!!st.g2v;m2.position.lerp(vTmpA.set(...st.g2p),a);m2.quaternion.slerp(qTmp.set(...st.g2q),a)}}}}}
 const vTmpA=new THREE.Vector3(),qTmp=new THREE.Quaternion(),vTag=new THREE.Vector3();
 function mpTags(){let box=document.getElementById('mpTags');if(!box){box=document.createElement('div');box.id='mpTags';document.body.appendChild(box)}
@@ -3313,7 +3333,7 @@ addEventListener('beforeunload',()=>{try{mpLeave(true)}catch(_){}});
 
 /* ================= VERSIÓN Y AVISO DE ACTUALIZACIÓN =================
    Sube GAME_VER (y version.json en GitHub) cada vez que se publica. El juego compara con version.json y avisa si hay una nueva. */
-const GAME_VER='1.2',GAME_DATE='25 nov 2026',GAME_NOTES='Cacería: los disparos apuntan con 0,1 s de retraso y se desvían atacando (los cargados no), parry y desvío con 1 s de recarga, aviso de versiones';
+const GAME_VER='1.3',GAME_DATE='25 nov 2026',GAME_NOTES='Kusarigama nueva: arcos rápidos, torbellino de 3 s al mantener y gancho que lanza la hoz y te arrastra (mantén para más distancia)';
 let verRemote=null;
 function verTag(){return`<div class="vtag">v${GAME_VER} · ${GAME_DATE}${verRemote&&verRemote.v!==GAME_VER?` · <b data-vup="1">🔄 hay v${esc(verRemote.v)}</b>`:''}</div>`}
 async function verCheck(){if(!/github\.io$/.test(location.hostname))return;try{const r=await fetch('version.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)return;const j=await r.json();verRemote=j;
@@ -3326,6 +3346,46 @@ function verWelcome(){let seen='';try{seen=localStorage.getItem('stickronin_ver'
  if(seen&&seen!==GAME_VER){const t=document.createElement('div');t.id='verNew';t.innerHTML=`✨ Actualizado a <b>v${GAME_VER}</b><small>${esc(GAME_NOTES)}</small>`;document.body.appendChild(t);setTimeout(()=>t.remove(),6500)}}
 document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('[data-vup]')){e.preventDefault();e.stopPropagation();verReload()}},true);
 setTimeout(()=>{verWelcome();verCheck()},1200);setInterval(()=>{if(state!=='play')verCheck()},60000);
+/* ================= KUSARIGAMA =================
+   Toque: arcos rápidos con la cadena. Mantener: torbellino de 3 s (arco corto, largo, corto, largo…) que daña alrededor.
+   Especial: lanza la hoz en la dirección que apuntas y te arrastras tras ella; mantener = más lejos (la que más llega). */
+const KUSA={whirlT:3,wind:.15,rS:1.7,rL:3.5,hookMin:8,hookMax:24,hookV:42,hookVmax:30,pull:26};
+function chainDraw(a,b,sag){const N=10;let prev=a;for(let i=1;i<=N;i++){const t=i/N,s=(sag||0)*Math.sin(t*Math.PI);const p=[lerp(a[0],b[0],t),lerp(a[1],b[1],t)-s,lerp(a[2],b[2],t)];limb(prev,p,.017,PCOL.dark);prev=p}}
+function startWhirl(){P.whirl={t:0,ang:P.yaw,hit:new Set(),half:0,id:'wh'+(UID++)};P.atk=null;sfx('whoosh')}
+function whirlR(W){const w=P.whirl,ph=Math.floor(w.prog/Math.PI),f=(w.prog%Math.PI)/Math.PI,a=ph%2?KUSA.rL:KUSA.rS,b=ph%2?KUSA.rS:KUSA.rL,e=Math.sin(f*Math.PI);
+ // dentro de cada medio giro el radio sube hasta su máximo (corto o largo) y vuelve
+ return (SM.rng||1)*(KUSA.rS*.6+(a-KUSA.rS*.6)*e)}
+function updWhirl(md){const w=P.whirl,W=weapon();if(W.id!=='kusarigama'||P.dead){P.whirl=null;return}
+ w.t+=DT;const sp=w.t<KUSA.wind?3:13.5;const prev=w.prog||0;w.prog=prev+sp*DT;
+ const half=Math.floor(w.prog/Math.PI);if(half!==w.half){w.half=half;w.hit=new Set();sfx(half%2?'spin':'swish')}
+ const R=whirlR(W),a0=w.ang+prev,a1=w.ang+w.prog;w.R=R;w.a=a1;
+ const tip=[P.x+Math.sin(a1)*R,P.y+1.05,P.z+Math.cos(a1)*R],inner=[P.x+Math.sin(a1)*.5,P.y+1.05,P.z+Math.cos(a1)*.5];
+ trail.push({a:inner,b:tip,t:time,id:w.id+'_'+half,w:.8});
+ if(w.t>=KUSA.wind){let n=0;for(const z of zs){if(!z.alive||w.hit.has(z)||z.iaiT>0||n>=10)continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz);if(d>R+(z.r||.3)||Math.abs(z.y-P.y)>1.7)continue;
+   const za=Math.atan2(dx,dz),da=angDiff(a0,za);if(!(da>=-.25&&da<=a1-a0+.25)&&d>.7)continue;w.hit.add(z);n++;const tn=[Math.cos(za),0,-Math.sin(za)];
+   procKill(z,[dx/(d||1)*5+tn[0]*4,3.5,dz/(d||1)*5+tn[2]*4],false,true,1)}
+  if(n){P.blade=1;hitstop=Math.max(hitstop,.02)}}
+ if(w.t>=KUSA.whirlT){P.whirl=null;P.atkBuf=0;sfx('sheath')}}
+// especial: lanzar la hoz y arrastrarse tras ella
+function kusaSpecial(md){const d=md.m>.2?Math.atan2(md.x,md.z):P.yaw;P.kHold={t:0,dir:d};P.atk=null;P.charge=null;P.whirl=null}
+function kusaThrow(){const H=P.kHold;P.kHold=null;const k=clamp(H.t/1,0,1),sp=SM.spc||1;
+ const max=(KUSA.hookMin+(KUSA.hookMax-KUSA.hookMin)*k)*sp,v=KUSA.hookV+(KUSA.hookVmax-KUSA.hookV)*k,d=H.dir;
+ P.yaw=P.heading=d;P.khook={ph:'out',p:[P.x+Math.sin(d)*.6,P.y+1.2,P.z+Math.cos(d)*.6],dir:d,v,max,trav:0,hit:new Set(),k};
+ sfx('hook');sfx('whoosh');P.dashCd=.9/(SM.cd||1)}
+function updKHook(md){
+ if(P.kHold){const H=P.kHold;if(md.m>.2)H.dir=Math.atan2(md.x,md.z);P.yaw=P.heading=H.dir;
+  if(held.dash&&H.t<1){H.t+=DT;if(!H.rd&&H.t>=1){H.rd=1;sfx('ready')}
+   if(tick%3===0){const L=(KUSA.hookMin+(KUSA.hookMax-KUSA.hookMin)*clamp(H.t,0,1))*(SM.spc||1);for(let i=1;i<=4;i++){const r=i/4*L;addP({k:'s',x:P.x+Math.sin(H.dir)*r,y:P.y+1.2,z:P.z+Math.cos(H.dir)*r,vx:0,vy:0,vz:0,life:.1,max:.1,size:.06,c:H.rd?[1,.4,.3]:[1,1,1]})}}}
+  else kusaThrow();return}
+ const K=P.khook;if(!K)return;
+ if(K.ph==='out'){const st=K.v*DT,ux=Math.sin(K.dir),uz=Math.cos(K.dir);
+  for(let s=0;s<3;s++){K.p[0]+=ux*st/3;K.p[2]+=uz*st/3;K.trav+=st/3;
+   if(pointBox(K.p[0],K.p[1],K.p[2])){K.p[0]-=ux*.3;K.p[2]-=uz*.3;K.ph='pull';K.wall=1;sparks(K.p,[-ux,.5,-uz],8,[1,.8,.4]);sfx('blunt');break}
+   for(const z of zs){if(!z.alive||K.hit.has(z))continue;if(Math.hypot(z.x-K.p[0],z.z-K.p[2])<.6+(z.r||.3)&&K.p[1]>z.y-.2&&K.p[1]<z.y+(z.h||1.8)+.3){K.hit.add(z);procKill(z,[ux*5,4,uz*5],false,true,1.5);K.ph='pull';break}}
+   if(K.ph!=='out')break;if(K.trav>=K.max){K.ph='pull';break}}
+  if(K.ph==='pull'){const dx=K.p[0]-P.x,dz=K.p[2]-P.z,dist=Math.hypot(dx,dz);const t=Math.max(.06,(dist-.9)/KUSA.pull);startDash(Math.atan2(dx,dz),KUSA.pull,t,'cut');
+   const gy=K.wall?Math.max(0,K.p[1]-P.y):0;if(gy>.5)P.vy=Math.min(12,4+gy*2);K.end=t;K.pt=0;sfx('hook');shake=Math.max(shake,.08)}}
+ else{K.pt+=DT;if(K.pt>=K.end+.05||P.dead)P.khook=null}}
 /* ================= NOMBRE + RANKING ================= */
 const NAME_KEY='stickronin_name',LOC_RANK='stickronin_rank_local';
 let playerName='';try{playerName=localStorage.getItem(NAME_KEY)||''}catch(e){}
