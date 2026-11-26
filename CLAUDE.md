@@ -9,12 +9,15 @@ Versión publicada: **v1.5 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmeth
 
 ## Reglas de trabajo (acordadas, obligatorias)
 
-1. **No subir nada a GitHub sin permiso explícito.** Primero Daniel lo aprueba y después se publica.
-2. **El editor de animaciones (`editor.html`) nunca va a GitHub.** Es solo para nosotros y se queda en local.
+1. **Dos ramas en GitHub (acordado el 26 nov 2026):**
+   - **`dev`:** se sube cada cambio en cuanto funcione, sin pedir permiso. Es la rama de pruebas.
+   - **`main`:** es lo que publica GitHub Pages y ven los jugadores. Solo se fusiona `dev` en `main` cuando Daniel lo aprueba explícitamente.
+   - Nunca hacer push forzado a `main`.
+2. **El editor de animaciones (`editor.html`) puede estar en GitHub** como copia de seguridad (cambio del 26 nov 2026). Hay que tener en cuenta que en Pages es público por su enlace.
 3. **Nada de grabar ni enviar vídeos de gameplay**, salvo que lo pida expresamente.
 4. **Cuando cambies algo del juego, aplícalo a todo lo relacionado:** guías, textos de ayuda, menú ℹ Info, descripciones de armas, guía de la forja, notas de versión y hoja de cálculo de equilibrio. No te saltes pasos.
 5. **Todas las animaciones de ataque deben poder editarse en el editor.** Sé consecuente: si añades o cambias un ataque, que el editor lo tenga.
-6. **Cada vez que subas a GitHub:**
+6. **Cada vez que publiques en `main`** (en `dev` no hace falta):
    - sube `GAME_VER`, `GAME_DATE` y `GAME_NOTES` en `index.html`;
    - actualiza `version.json` igual. La barra de aviso de actualización solo comprueba en `github.io`.
    - La próxima versión será la 1.6.
@@ -35,7 +38,7 @@ Versión publicada: **v1.5 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmeth
 |---|---|
 | `index.html` | El juego completo en un solo archivo (~470 KB, ~4000 líneas). Three.js r128 desde cdnjs. |
 | `version.json` | Versión publicada (`v`, `date`, `notes`) para el aviso de actualización. |
-| `editor.html` | Editor de animaciones por fotogramas clave. **Solo local, nunca a GitHub.** |
+| `editor.html` | Editor de animaciones por fotogramas clave. Está también en GitHub como copia. |
 | `README.md` | README público corto. |
 
 Servicios externos que usa el juego:
@@ -136,7 +139,7 @@ Servicios externos que usa el juego:
 
 ---
 
-## Editor de animaciones (`editor.html`, solo local)
+## Editor de animaciones (`editor.html`)
 - Genera clips de referencia desde el `ATK` del juego (`GEN_V`, `GEN_ATK`) y los guarda en localStorage, en ranuras `arma:tecla`.
 - Deslizadores `we` (separación arma–mano) y `wox/woy/woz`. La kusarigama dibuja la cadena hasta el arma.
 - La estela del editor sigue la posición del arma.
