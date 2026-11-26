@@ -49,3 +49,14 @@
 - Captura: los trozos vuelan hacia fuera desde el jugador.
 
 **No comprobado:** cómo se siente en un Android real, ni los fps en el móvil.
+
+**Pruebas añadidas tras la revisión de 3 revisores** (corrección y seguridad aprueban; el de pruebas pidió más evidencia):
+- **Umbral:** con 19 zombis, ragdoll; con 20 y 21, desmembrado.
+- **Fin de oleada:** a los 0,5 s con trozos pendientes, `waveBreak` sigue en 0; a los 1,5 s han salido los 2 minis.
+- **Contraprueba:** si se ignoran los trozos, la oleada termina antes de tiempo (`waveBreak` 2,32). Esto demuestra que la condición nueva es necesaria.
+- **Expulsión:** 45 bajas seguidas dejan 40 cadáveres como máximo y 90 minis en total (2 por baja, ninguno perdido).
+- **Muerte de un mini:** `convert` es false, no crea minis y se borra a los ~3,1 s.
+- **`GORE.on=false`:** vuelve `flyCorpse` (7 de 10) y no se usa el desmembrado.
+- **Reinicio:** `resetGame` vacía `CORPSES`.
+- **`rotAx`:** conserva la longitud en 20 000 casos aleatorios y el ángulo 0 deja el vector igual (revisor de pruebas, en node).
+- 0 errores en todas.
