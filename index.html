@@ -4019,8 +4019,8 @@ const NAME_KEY='stickronin_name',LOC_RANK='stickronin_rank_local';
 let playerName='';try{playerName=localStorage.getItem(NAME_KEY)||''}catch(e){}
 const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let RDB=null,RUID=null,rankMsg='';
-// Ranking: solo desde GitHub Pages (main). Desde otro sitio (enlace de pruebas de dev, localhost) se guarda solo en el dispositivo.
-const RANK_URL_PROD='https://script.google.com/macros/s/AKfycbwB36PZrlqC5Rz6z1eIVKgliHAo6LobhkVDa8JLKvHVfVlh1vEZuni2rf7wWfY-g7hrQw/exec',RANK_URL=/(^|\.)github\.io$/.test(location.hostname)?RANK_URL_PROD:'';// URL de la aplicación web de Apps Script (ranking compartido en Google Sheets)
+// Ranking: solo desde la web oficial (dsmethy-meshed.github.io, rama main). Desde otro sitio (enlace de pruebas de dev, localhost) se guarda solo en el dispositivo.
+const RANK_URL_PROD='https://script.google.com/macros/s/AKfycbwB36PZrlqC5Rz6z1eIVKgliHAo6LobhkVDa8JLKvHVfVlh1vEZuni2rf7wWfY-g7hrQw/exec',RANK_URL=location.hostname==='dsmethy-meshed.github.io'?RANK_URL_PROD:'';// URL de la aplicación web de Apps Script (ranking compartido en Google Sheets)
 let PID='';try{PID=localStorage.getItem('stickronin_pid')||'';if(!PID){PID='p'+Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('stickronin_pid',PID)}}catch(e){PID='p'+Math.random().toString(36).slice(2,12)}
 async function rankFetch(q){if(!RANK_URL)return null;const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),9000);try{const r=await fetch(RANK_URL+'?'+q,{signal:ctl.signal,redirect:'follow',credentials:'omit'});const j=await r.json();return j&&Array.isArray(j.top)?j.top:null}catch(e){return null}finally{clearTimeout(tm)}}
 let rankCache=null;
