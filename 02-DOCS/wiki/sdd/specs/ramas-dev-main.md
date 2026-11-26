@@ -2,7 +2,7 @@
 title: Flujo de ramas dev/main y harness rsc en GitHub
 date: 2026-11-26
 branch: dev
-status: pending-approval
+status: approved (Daniel, 26 nov 2026: "Aprobada, sube dev")
 ---
 
 # Spec — Flujo de ramas dev/main y harness rsc en GitHub
