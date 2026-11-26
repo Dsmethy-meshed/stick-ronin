@@ -50,3 +50,6 @@
 .claude/skills/gamedev-multiplayer
 .claude/skills/level-design
 .claude/skills/performance
+
+# configuración local de Claude Code (nunca al repo)
+.claude/settings.local.json
