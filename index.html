@@ -257,7 +257,7 @@ button.gpf,a.gpf,div.gpf{outline:3px solid #ffd04a!important;outline-offset:2px;
 <div id="ov"></div><div id="forge"></div><div id="dojo"></div><div id="keys"></div>
 <script>
 /* Sentry: avisa de los errores que les pasan a los jugadores (no en pruebas locales). Solo errores, sin grabar pantallas ni datos personales. */
-window.sentryOnLoad=function(){try{Sentry.init({release:'stick-ronin@'+(window.GAME_VER_TAG||'dev'),environment:/github\.io$/.test(location.hostname)?'github':'claude',sampleRate:1,tracesSampleRate:0,replaysSessionSampleRate:0,replaysOnErrorSampleRate:0,autoSessionTracking:false,
+window.sentryOnLoad=function(){try{Sentry.init({release:'stick-ronin@'+(window.GAME_VER_TAG||'dev'),environment:/github\.io$/.test(location.hostname)?'github':/claude/.test(location.hostname)?'claude':'dev',sampleRate:1,tracesSampleRate:0,replaysSessionSampleRate:0,replaysOnErrorSampleRate:0,autoSessionTracking:false,
  beforeSend(ev){return /^(localhost|127\.0\.0\.1)$/.test(location.hostname)?null:ev}})}catch(e){}};
 </script>
 <script src="https://js-de.sentry-cdn.com/2ee0b5df1a5d131e84907b778cece4d0.min.js" crossorigin="anonymous"></script>
@@ -4019,7 +4019,9 @@ const NAME_KEY='stickronin_name',LOC_RANK='stickronin_rank_local';
 let playerName='';try{playerName=localStorage.getItem(NAME_KEY)||''}catch(e){}
 const esc=t=>String(t==null?'':t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let RDB=null,RUID=null,rankMsg='';
-const RANK_URL='https://script.google.com/macros/s/AKfycbwB36PZrlqC5Rz6z1eIVKgliHAo6LobhkVDa8JLKvHVfVlh1vEZuni2rf7wWfY-g7hrQw/exec';// URL de la aplicación web de Apps Script (ranking compartido en Google Sheets)
+// Ranking: el real solo desde GitHub Pages (main). Desde otro sitio (enlace de pruebas de dev) va al ranking de dev;
+// si RANK_URL_DEV está vacío, se guarda solo en el dispositivo y nunca se toca el ranking real.
+const RANK_URL_PROD='https://script.google.com/macros/s/AKfycbwB36PZrlqC5Rz6z1eIVKgliHAo6LobhkVDa8JLKvHVfVlh1vEZuni2rf7wWfY-g7hrQw/exec',RANK_URL_DEV='',RANK_IS_PROD=/(^|\.)github\.io$/.test(location.hostname),RANK_URL=RANK_IS_PROD?RANK_URL_PROD:RANK_URL_DEV;// URL de la aplicación web de Apps Script (ranking compartido en Google Sheets)
 let PID='';try{PID=localStorage.getItem('stickronin_pid')||'';if(!PID){PID='p'+Math.random().toString(36).slice(2,12)+Date.now().toString(36);localStorage.setItem('stickronin_pid',PID)}}catch(e){PID='p'+Math.random().toString(36).slice(2,12)}
 async function rankFetch(q){if(!RANK_URL)return null;const ctl=new AbortController(),tm=setTimeout(()=>ctl.abort(),9000);try{const r=await fetch(RANK_URL+'?'+q,{signal:ctl.signal,redirect:'follow',credentials:'omit'});const j=await r.json();return j&&Array.isArray(j.top)?j.top:null}catch(e){return null}finally{clearTimeout(tm)}}
 let rankCache=null;
