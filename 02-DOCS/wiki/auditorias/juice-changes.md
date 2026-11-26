@@ -18,6 +18,8 @@
 - Hit-stop: el primer golpe es completo (0,05 s), el segundo de la ráfaga baja a 0,0175 s, el golpe firma no cambia (0,1 s) y el tope de 0,25 s/s corta el resto.
 - Con el interruptor apagado se mantiene el valor original.
 - 20 bajas en ráfaga con 40 zombis: 0 errores.
+- De punta a punta, en el bucle real (`frame`), 6 bajas normales en 0,36 s: **305 ms congelado sin la mejora y 137 ms con ella**, 0 errores.
+- Revisión de 3 revisores (corrección, seguridad y pruebas). Hallazgo corregido: un golpe firma que llegaba con congelación residual se medía por el incremento y se acortaba. Ahora se mira el valor pedido (`hitstop>=HS_BIG`). Comprobado en node: el parry con 0,05 s de resto se queda en 0,1.
 
 **Escáner, antes y después:** sigue marcando `no_pitch_variation` y `audio_no_headroom`, porque solo busca nombres como `playbackRate` o `detune` y no entiende el audio sintetizado. Es un falso positivo: la prueba en el navegador confirma el cambio.
 
