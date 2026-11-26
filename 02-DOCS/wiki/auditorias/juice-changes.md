@@ -26,3 +26,26 @@
 **Qué probar al jugar:** hordas de la oleada 6 o más con barridos y giros. Si los golpes encadenados se sienten flojos, sube `HS_REPEAT_K` a 0,5. Si todavía hay tirones, baja `HS_MAX_PER_SEC` a 0,18.
 
 **Nota:** el sonido actual es provisional y se va a cambiar por una biblioteca. El bus y la variación de tono siguen valiendo: con muestras, el tono se aplica con `playbackRate`.
+
+## 2026-11-26 · Muerte de los zombis: ragdoll o desmembrado cinemático (rama `dev`)
+
+**Pedido por Daniel:** el cuerpo entero girando hacia atrás (`flyCorpse`), que salía con muchos enemigos, se sentía mal. Quería que siempre salieran desmembrados.
+
+**Regla nueva (`GORE.on`):**
+- **Menos de 20 zombis vivos** (`GORE.RAG_BELOW`): ragdoll con física, como siempre.
+- **20 o más**, o si se llena el cupo de ragdolls: desmembrado cinemático (`dismember`). El zombi se parte por el plano del corte; con arma contundente salen 1-2 miembros y a veces la cabeza. Cada trozo sale en la dirección del golpe, separándose del corte, y gira hacia delante. Rebota una vez (`BOUNCE .32`) con polvo y charco de sangre, y queda tirado; los muñones sangran 1,2 s.
+- A los 1,1 s (`CONVERT_T`), de los 2 trozos más grandes salen los 2 minis. Los trozos de un mini se hunden a los 2,6 s.
+- El fin de oleada y el contador del HUD cuentan los minis pendientes de los trozos.
+
+**Constantes:** `RAG_BELOW 20 · CUT_MAX 3 · SPIN_MIN/MAX 6/12 · BOUNCE .32 · BOUNCE_MIN_VY 3 · CONVERT_T 1.1 · MINI_LIFE 2.6 · SINK_T .5 · MAX_CORPSES 40`.
+
+**Revertir:** `GORE.on=false` vuelve a los cupos antiguos y a `flyCorpse`.
+
+**Rendimiento:** la física de un ragdoll cuesta unos 0,004 ms por paso (PC); el trozo cinemático, menos, porque no tiene restricciones ni colisiones con cajas. El dibujo es igual en los dos casos (los mismos lotes `ZB_SEG`/`ZB_SPH`). Efecto neutro o ligeramente positivo; la mejora es visual.
+
+**Comprobado (navegador, copia de prueba):**
+- 14 bajas con más de 20 zombis: 14 cadáveres en 39 trozos, 28 minis (2 por baja, como antes), 0 `flyCorpse`, 0 errores.
+- Con 12 zombis: se usa el ragdoll.
+- Captura: los trozos vuelan hacia fuera desde el jugador.
+
+**No comprobado:** cómo se siente en un Android real, ni los fps en el móvil.
