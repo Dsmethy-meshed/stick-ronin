@@ -648,12 +648,26 @@ const planeN=tilt=>{const t=tilt*D2R;return[-Math.cos(t),Math.sin(t),0]};
 function tanAt(a,tilt,sg){const ar=a*D2R,t=tilt*D2R,ca=Math.cos(ar);return[ca*Math.sin(t)*sg,ca*Math.cos(t)*sg,-Math.sin(ar)*sg]}
 function toL(o,yaw,w){const c=Math.cos(yaw),s=Math.sin(yaw),dx=w[0]-o.x,dy=w[1]-o.y,dz=w[2]-o.z;return[-c*dx+s*dz,dy,s*dx+c*dz]}
 
+/* ================= JUICE (ajustes de sensación) =================
+   Cada mejora tiene su interruptor: en false el juego se comporta como antes. Solo efectos: no cambian daño, puntos ni colisiones.
+   hsBurst  · hit-stop en ráfagas: las congelaciones seguidas de golpes normales se acortan y hay un tope por segundo
+   pitchVar · cada sonido varía un poco de tono y volumen, para que 20 bajas seguidas no suenen idénticas
+   master   · todo el sonido pasa por un volumen general y un compresor que evita la saturación en hordas */
+const JUICE={
+ hsBurst:true,HS_WINDOW:.15,HS_REPEAT_K:.35,HS_BIG:.08,HS_MAX_PER_SEC:.25,
+ pitchVar:true,PITCH_VAR:.06,VOL_VAR:.1,
+ master:true,MASTER_GAIN:.8,COMP_THRESHOLD:-14,COMP_RATIO:4,COMP_ATTACK:.003,COMP_RELEASE:.12
+};
 /* ================= AUDIO ================= */
-let AC=null,NB=null;const lastS={};
-function initAudio(){if(AC){if(AC.state==='suspended')AC.resume();return}try{AC=new(window.AudioContext||window.webkitAudioContext)();const n=AC.sampleRate*.6;NB=AC.createBuffer(1,n,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1}catch(e){AC=null}}
-function noise(dur,type,f0,f1,vol,q){const t=AC.currentTime,s=AC.createBufferSource();s.buffer=NB;const fl=AC.createBiquadFilter();fl.type=type;fl.Q.value=q||1;fl.frequency.setValueAtTime(f0,t);fl.frequency.exponentialRampToValueAtTime(f1,t+dur);const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(fl).connect(g).connect(AC.destination);s.start(t);s.stop(t+dur+.02)}
-function tone(dur,type,f0,f1,vol){const t=AC.currentTime,o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g).connect(AC.destination);o.start(t);o.stop(t+dur+.02)}
-function sfx(n){if(!AC)return;const now=AC.currentTime;if(lastS[n]&&now-lastS[n]<.035)return;lastS[n]=now;try{switch(n){
+let AC=null,NB=null,OUT=null,PV=1,VV=1;const lastS={};
+function initAudio(){if(AC){if(AC.state==='suspended')AC.resume();return}try{AC=new(window.AudioContext||window.webkitAudioContext)();const n=AC.sampleRate*.6;NB=AC.createBuffer(1,n,AC.sampleRate);const d=NB.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;
+ OUT=AC.destination;if(JUICE.master){try{const m=AC.createGain(),c=AC.createDynamicsCompressor();m.gain.value=JUICE.MASTER_GAIN;c.threshold.value=JUICE.COMP_THRESHOLD;c.ratio.value=JUICE.COMP_RATIO;c.attack.value=JUICE.COMP_ATTACK;c.release.value=JUICE.COMP_RELEASE;m.connect(c).connect(AC.destination);OUT=m}catch(_){OUT=AC.destination}}
+ }catch(e){AC=null}}
+function noise(dur,type,f0,f1,vol,q){f0*=PV;f1*=PV;vol*=VV;const t=AC.currentTime,s=AC.createBufferSource();s.buffer=NB;const fl=AC.createBiquadFilter();fl.type=type;fl.Q.value=q||1;fl.frequency.setValueAtTime(f0,t);fl.frequency.exponentialRampToValueAtTime(f1,t+dur);const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);s.connect(fl).connect(g).connect(OUT);s.start(t);s.stop(t+dur+.02)}
+function tone(dur,type,f0,f1,vol){f0*=PV;f1*=PV;vol*=VV;const t=AC.currentTime,o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(f0,t);o.frequency.exponentialRampToValueAtTime(f1,t+dur);const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.001,t+dur);o.connect(g).connect(OUT);o.start(t);o.stop(t+dur+.02)}
+function sfx(n){if(!AC)return;const now=AC.currentTime;if(lastS[n]&&now-lastS[n]<.035)return;lastS[n]=now;
+ if(JUICE.pitchVar){PV=1+(Math.random()*2-1)*JUICE.PITCH_VAR;VV=1+(Math.random()*2-1)*JUICE.VOL_VAR}else{PV=1;VV=1}
+ try{switch(n){
  case'swish':noise(.14,'bandpass',1200,4200,.24,1.4);break;
  case'spin':noise(.32,'bandpass',800,4000,.26,1.2);break;
  case'charge':noise(.6,'bandpass',150,600,.14,2);break;
@@ -4008,11 +4022,23 @@ function sentryReport(e,where){try{const k=where+':'+(e&&e.message);if(SENT.has(
  Sentry.withScope(sc=>{sc.setTag('donde',where);sc.setTag('version',GAME_VER);sc.setTag('modo',SIEGE.on?'asedio':NET.on?'multijugador':TRAIN?'dojo':'normal');sc.setTag('calidad',String(quality));sc.setTag('movil',String(IS_MOBILE));
   sc.setContext('partida',{oleada:wave,estado:state,arma:weapon().id,enemigos:zs.length,ragdolls:rags.length,particulas:parts.length});Sentry.captureException(e)})}catch(_){}}
 function safeRun(f,where){try{f()}catch(e){sentryReport(e,where);ERRS.n++;if(ERRS.last.length<8)ERRS.last.push(where+': '+(e&&e.message)+' @'+((e&&e.stack||'').split('\n')[1]||'').trim());if(ERRS.n<=3)console.error('[StickRonin]',where,e)}}
+// hit-stop en ráfagas: mira cuánta congelación nueva han pedido los golpes desde el fotograma anterior y la acorta si es una ráfaga de golpes normales
+let hsLeft=0,hsLastT=-9,hsWinT=-9,hsSpent=0;
+function hitstopBurst(t){
+ if(!(hitstop>hsLeft+1e-4)){if(hitstop<hsLeft)hsLeft=Math.max(0,hitstop);return}
+ const add=hitstop-hsLeft;
+ if(!JUICE.hsBurst||add>=JUICE.HS_BIG){hsLastT=t;return}
+ if(t-hsWinT>1){hsWinT=t;hsSpent=0}
+ let k=t-hsLastT<JUICE.HS_WINDOW?JUICE.HS_REPEAT_K:1;hsLastT=t;
+ const eff=Math.min(add*k,Math.max(0,JUICE.HS_MAX_PER_SEC-hsSpent));hsSpent+=eff;hitstop=hsLeft+eff;
+}
 function frame(now){
  requestAnimationFrame(frame);
  safeRun(pollPad,'pad');
  const rdt=Math.min(.05,(now-last)/1000);last=now;let dt=rdt;
+ hitstopBurst(now/1000);
  if(hitstop>0){hitstop-=rdt;dt=0}
+ hsLeft=Math.max(0,hitstop);
  let ts=1;if(slowT>0){slowT-=rdt;ts=.3}
  if(state==='forge'||state==='dojo'||state==='pause')acc=0;
  acc+=dt*ts;let n=0;while(acc>=DT&&n<3){safeRun(step,'step');acc-=DT;n++}if(n>=3)acc=0;
