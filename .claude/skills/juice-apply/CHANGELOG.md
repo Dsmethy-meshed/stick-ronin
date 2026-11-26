@@ -1,0 +1,55 @@
+# Changelog: juice-apply
+
+Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with the reason. Reasons cite findings in [RESEARCH.md](RESEARCH.md) (`R-`), lessons in [LEARNINGS.md](LEARNINGS.md) (`L-`), and test runs in [TESTS.md](TESTS.md) (`T-`). State in `evergreen.json`. Protocol: MAINTENANCE.md.
+
+Entry shape: `### C-20261118-1 · 2026-11-18 · Damage-through-controls toggle (1.3.9)
+- because: user request (technique-harvest batch G, idea from GPU-Bandits)
+- files: references/accessibility.md (settings table)
+- Adds a default-on toggle for the low-health handling effect. Triggers unchanged, so evals were not re-run.
+
+### C-20261123-1 · 2026-11-23 · countup_plan.py --triggers and --tally-rows (1.7.2)
+- because: harvest: Balatro notes, local game harvest 2026-11-23 (written fresh from notes)
+- files: scripts/countup_plan.py, SKILL.md (Step 3), tests/check_countup.py
+- Emits a per-trigger pitch ramp (base 0.86, +1.6% each, jiggle decay 5/s, reset per call, under the cap) and tally row pitches (0.95 + 0.06 per row). Triggers unchanged, so evals were not re-run.
+
+### C-20261121-2 · 2026-11-21 · Impact burst bullet (1.7.0)
+- because: harvest: RimWorld local harvest 2026-11-21 (technique observed in RimWorld's shipped defs, 2026-11-21)
+- files: SKILL.md (Step 3)
+- One bullet pointing impact bursts at the new "Impact composite" row in juice-principles. Triggers unchanged, so evals were not re-run.
+
+### C-20261121-1 · 2026-11-21 · Count-up timeline planner (1.6.0)
+- because: user request (itch.io technique harvest; values measured in play and read from a closed web game's page scripts with the user's yes)
+- files: scripts/countup_plan.py, SKILL.md (Step 3), tests/check_countup.py, CI workflows
+- New stdlib script: staged score reveal timeline as JSON. Count-up 300 ms plus 300 ms per size tier (150, 2,500, 40,000; overkill of 3x the target adds a tier), quartic ease-out, component stagger 240 ms x 0.93^i with a 90 ms floor, 260 ms gather, hit-stop 40/90/160/320 ms, log-scaled shake trauma, 500 ms health readout with the ghost bar at 380 ms, staggers compressed to a 6 s cap. Replaces the fixed 0.3 s count-up advice for reveals. Triggers unchanged, so evals were not re-run.
+
+### C-20261119-2 · 2026-11-19 · Frozen feel table and launch timer resets (1.3.11)
+- because: user request (technique-harvest: a commercial web platformer, idea only, nothing copied)
+- files: SKILL.md (constants rule)
+- The constants rule now asks for one frozen feel table and timer resets on every new launch path. Triggers unchanged, so evals were not re-run.
+
+### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
+
+### C-20261106-1 · 2026-11-06 · Sfxwright, when installed
+- because: user request
+- files: SKILL.md (sfxwright note)
+- Hand sound effects to sfxwright when present and read its sounds.json; this plugin's own steps stay as the fallback.
+
+### C-20261026-4 · 2026-10-26 · Published as part of the public game-juice repository
+- because: user request
+- files: RESEARCH.md (R-20261026-1 wording), TESTS.md (T-20261026-2 wording)
+- Generalized two phrases for the public repository (sources written "from general engine knowledge"; "no Unity Editor on the test machine") and removed a duplicated `led to:` line. No change to what the skill does.
+
+### C-20261026-3 · 2026-10-26 · AGENTS.md snippet for game repos; accessibility table and API notes verified
+- because: L-001, T-20261026-3, R-20261026-4
+- files: references/AGENTS-snippet.md (new), references/accessibility.md (table, rules), RESEARCH.md (current understanding, open questions)
+- Added a paste-in AGENTS.md block that routes feel edits to juice-apply, ideas to juice-scan and feel questions to juice-principles. The accessibility table now names Roblox `GuiService.ReducedMotionEnabled`, says XAG 117 requires an off option (sliders are its examples), applies the 3-per-second flash limit to flashes over about 20% of the screen (XAG 118), and calls the analyser the Harding FPA test.
+
+### C-20261026-2 · 2026-10-26 · Description asks to be used first, even for one-line feel edits
+- because: T-20261026-2, L-001
+- files: SKILL.md (frontmatter description)
+- Added "use it first, before opening or editing game code and even for a one-line change", and shortened the technique list to stay under 1,024 characters. trigger-2 is still failing after this change (0/4); see TESTS.md.
+
+### C-20261026-1 · 2026-10-26 · Created as an evergreen unit
+- because: user request
+- files: SKILL.md, RESEARCH.md, LEARNINGS.md, evergreen.json (skills: also TESTS.md and evals/evals.json)
+- Initial version. Tier `moderate`, interval 30d. See R-20261026-1 for the research basis; the first test run, for a skill, is logged in TESTS.md.

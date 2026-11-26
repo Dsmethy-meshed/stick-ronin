@@ -147,8 +147,21 @@ Servicios externos que usa el juego:
 
 ---
 
+## Herramientas del proyecto (Claude Code)
+- **Harness rsc** (`.rsc.json`, `02-DOCS/`): carriles Answer / FTD / ASDD, skills de flujo y de juego (`game-design`, `level-design`, `gamedev-multiplayer`, `performance`…).
+- **Skills de terceros** en `.claude/skills/`, con origen, commit y licencia en `.claude/skills-terceros.md`:
+  - game feel: `juice-scan`, `juice-apply`, `juice-principles`, `game-feel`;
+  - menús y HUD: `game-ui-ux`, `threejs-game-ui-designer`;
+  - VFX y animación: `particle-system`, `shader-glsl`, `threejs-animation`, `threejs-shaders`, `threejs-postprocessing`, `threejs-aaa-graphics-builder`;
+  - rendimiento: `threejs-performance`, `threejs-debug-profiler`;
+  - escalado RPG: `rpg`, `roguelike`, `balance-check`, `procedural-gen`;
+  - otras: `camera-systems`, `audio-design`.
+  - Están escritas pensando en Three.js moderno; el juego usa **r128**, así que hay que comprobar que la API exista en r128 antes de usar lo que proponen.
+- **MCP `threejs-devtools`** (`.mcp.json`): inspecciona la escena en vivo. Necesita el servidor local en el puerto 8000.
+- **Servidor local:** configuración `juego-local` en `.claude/launch.json` (puerto 8000).
+
 ## Cómo probar
-- Servidor local: `python3 -m http.server` en la carpeta y abrir `index.html` (o `?bc=1` para multijugador en dos pestañas).
+- Servidor local: `python -m http.server 8000` en la carpeta (o `juego-local` desde el panel del navegador) y abrir `index.html` (o `?bc=1` para multijugador en dos pestañas).
 - Las pruebas automáticas se hicieron con Playwright y Chrome: se inyecta `window.__e=x=>eval(x)` antes del último `requestAnimationFrame(frame)` en una copia y se manipula el estado (`startGame()`, `spawnYokai(...)`, `oniRaid(10)`, `siegeStart()`…).
 - Para simular un móvil: viewport 412×915 y `Emulation.setCPUThrottlingRate` 4. Resultado de referencia (v1.5, oleada 6 con ~90 zombis): ~52 fps.
 - Comprobar la sintaxis extrayendo el `<script>` más largo y pasando `node --check`.

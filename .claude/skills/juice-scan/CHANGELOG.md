@@ -1,0 +1,85 @@
+# Changelog: juice-scan
+
+Every change to [SKILL.md](SKILL.md) and its companions, newest first, each with the reason. Reasons cite findings in [RESEARCH.md](RESEARCH.md) (`R-`), lessons in [LEARNINGS.md](LEARNINGS.md) (`L-`), and test runs in [TESTS.md](TESTS.md) (`T-`). State in `evergreen.json`. Protocol: MAINTENANCE.md.
+
+Entry shape: `### C-YYYYMMDD-n · date · one-line summary`, then `because:` (IDs or "user request"), `files:` (file and section), and a sentence on what changed. Cite section headings, not line numbers.
+
+### C-20261121-2 · 2026-11-21 · looping_animation_no_reduce finding; still toggle rule (1.5.2)
+- because: user request (technique harvest of a browser game's shipped CSS and JS; no licence, so methods and numbers only, nothing copied)
+- files: scripts/juice_scan.py (loop_animation_findings), SKILL.md (findings list), tests/check_scan.py, tests/fixtures/web-loop-glow, tests/fixtures/web-loop-glow-still, juice-apply references/accessibility.md (looping row)
+- An infinite CSS animation in a project with no prefers-reduced-motion rule is flagged. juice-apply's accessibility table adds the rule that every loop stops under reduced motion and an in-game still toggle, holding a static end state. Triggers unchanged, so evals were not re-run.
+
+### C-20261121-1 · 2026-11-21 · batch_resolve_without_stagger finding (1.5.0)
+- because: user request (technique-harvest local install harvest 2026-11: a commercial turn-based dice game, tier A only (its store clips and release trailer watched as a viewer, measured frame by frame), idea only, nothing copied, no game named)
+- files: scripts/juice_scan.py (stagger_findings), SKILL.md (findings list), tests/check_scan.py, tests/fixtures/web-dice-flat, tests/fixtures/web-dice-stagger
+- A loop over dice, cards, loot or rewards that plays feedback for every item with no yield, await, delay or index-scaled time is flagged, with a 100 ms step and a 600 ms cap. Two fixtures prove it fires on the flat roll and stays quiet on the staggered one; the older fixtures must not gain it. Triggers unchanged, so evals were not re-run.
+
+### C-20261120-3 · 2026-11-20 · Godot traps: freed parent, shared material flash, music autoload (1.4.1)
+- because: R-20261120-1; user request (book round: Campos, Game Development Patterns with Godot 4, Godot 4.3)
+- files: references/engines/godot.md (Godot traps)
+- Three trap lines: effects parented to a node being freed vanish (parent to the level), a flash on a shared ShaderMaterial flashes every instance (reader extension, check on 4.3+), music outside an autoload dies on scene change (cross-fade, restore on leaving an area). The scanner is unchanged: the idea of flagging AnimationTree transitions that wait for a clip's end as a hidden input lock is noted only, since juice_scan.py has no declarative rules list to slot it into and no real project to test it on. Triggers unchanged, so evals were not re-run.
+
+### C-20261120-2 · 2026-11-20 · Single-file HTML games, streak, dodge, reduce-motion and audio findings (1.4.0)
+- because: user request (technique-harvest web-game harvest 2026-11, measured by play and written fresh, nothing copied: maumoya/boredom-blaster-play, sw897/one-tap-skyline, waleee7/peach-dash, dcjaychou/design-ridge-run, pkieltyka/zubspace, tianlinx/spire-echoes, luizbizzio/scandeck, larryzpl123/skybreak-protocol (MIT), vitaminclaude/voidstruck (PolyForm Strict, play and measure only)); L-004
+- files: scripts/juice_scan.py (1.4.0), tests/check_scan.py, 13 new fixtures under tests/fixtures (web-single-file*, web-streak-*, web-runner-*, web-vehicle-airtime, web-platformer-space, web-reduce-*, web-audio-*, godot-thruster), SKILL.md (Step 1 output paragraph, Step 2 bullets)
+- Inline `<script>` blocks of .html/.htm files are scanned as JavaScript with HTML line numbers (src= and non-JS types skipped; an HTML-only folder is detected as engine `web`). New findings: `streak_without_pitch_ladder` (low), `no_near_miss` (medium), `no_graze_margin` (low), `reduce_motion_not_applied` (medium). `--audio` adds an audio section: play calls, literal volumes, `audio_no_falloff`, `audio_loop_restart`, `audio_no_headroom`. Fix: `no_coyote_time` and `no_jump_buffer` fire only when a jump is bound to an input (a vehicle whose jump is airtime state no longer trips them). The nine older fixtures report the same findings, moments and risks as 1.3.0. Thresholds are our start values. Triggers unchanged, so evals were not re-run.
+
+### C-20261120-1 · 2026-11-20 · Hit-stop against hit rate, clip speed against move speed (1.3.12)
+- because: user request (technique-harvest verdict #33, post 1xajfgh: fixed hit-stop read as glitchy on fast weapons, feet slid when clip rate ignored ground speed; ideas only, no code in the source)
+- files: scripts/juice_scan.py (1.3.0), tests/check_scan.py, tests/fixtures/godot-wave-hero, tests/fixtures/unity-wave-hero, SKILL.md (Step 2 movement and hits bullet)
+- New findings with numbers. hit_stop_ignores_hit_rate: the longest hit-stop literal against the shortest attack gap (cooldown, fire rate, interval); flagged when no line that sets the freeze reads combo, cooldown or time since the last hit and the freeze is 25% or more of the gap or hits come 4+ a second (high at 50%+, low when no rate was found). anim_speed_not_tied_to_move_speed: a walk or run clip is played and nothing sets playback speed, a blend parameter, root motion or foot IK; the advice keeps rate = ground speed / stride speed within 0.8-1.25x. Thresholds are our start values. Triggers unchanged, so evals were not re-run.
+
+### C-20261119-2 · 2026-11-19 · Frozen feel table and launch timer resets (1.3.11)
+- because: user request (technique-harvest: a commercial web platformer, idea only, nothing copied)
+- files: scripts/juice_scan.py (1.2.0), tests/check_scan.py, tests/fixtures/web-platformer
+- New findings scattered_feel_constants (feel literals in two or more files) and launch_without_timer_reset (spring/bounce/launch paths that set upward velocity without clearing coyote and buffer), with a fixture that trips both. Triggers unchanged, so evals were not re-run.
+
+### C-20261118-1 · 2026-11-18 · Web reference: occluder silhouette and off-screen pointers (1.3.8)
+- because: user request (technique-harvest posts robinduckett-3 and robinduckett-5; idea source robinduckett/boo-mas, which has no licence, so written in our own words with no code copied)
+- files: references/engines/web.md (Readability in 3D and wide worlds)
+- Adds the second-draw silhouette (GreaterDepth, depth write off; Unity and Godot equivalents) and edge pointers (clamp, behind-camera and horizon hiding, merge, per-kind cap). Triggers unchanged, so evals were not re-run.
+
+### C-20261109-1 · 2026-11-09 · Step 2 checks foot sliding, stepped knockback and hit-stop on fast hits
+- because: user request (technique-harvest post 1xajfgh)
+- files: SKILL.md (Step 2)
+- One bullet asks the reader to confirm these on movement and hit moments. Triggers unchanged, so evals were not re-run.
+
+### C-20261101-1 · 2026-11-01 · Input path checks: dead zone, update-order lag, aim and collision
+- because: user request (Game Engine Architecture 2e learnings approved); P-16
+- files: SKILL.md (Step 4 control before polish)
+- Control checks now cover missing or over-wide dead zones and smoothing, a frame of lag from update order, and shots or hit boxes that disagree with what the player sees. Triggers unchanged, so evals were not re-run.
+
+### C-20261031-1 · 2026-10-31 · Over-juice check for low-health overlays in combat
+- because: user request (The Gamer's Brain 2e learnings approved); P-18
+- files: SKILL.md (Step 4 over-juice)
+- The over-juice list flags a full-screen low-health overlay or blur that stays on during combat. Triggers unchanged, so evals were not re-run.
+
+### C-20261030-1 · 2026-10-30 · Feel-type classifier and inferred properties in the report
+- because: user request (ludowright's feel-handoff list, Swink items left after game-juice 1.2.0); P-23 to P-25
+- files: SKILL.md (Step 2), references/report-template.md (header)
+- Step 2 classifies the feel (control, space, polish) before judging and lists the movement and rule properties the code implies; the report header carries both. Triggers unchanged, so evals were not re-run.
+
+### C-20261028-1 · 2026-10-28 · Scanner 1.1.0: card-game moments, tests and editor code skipped, predicates dropped
+- because: L-002, L-003, T-20261028-1
+- files: scripts/juice_scan.py (SKIP_DIRS, TEST_FILE, PREDICATE_NAME, MOMENTS, EXPECTED), tests/check_scan.py (unity-deckbuilder fixture, EXPECT_ABSENT)
+- New moments `card_play`, `card_draw` and `turn` with their expected channels. Test folders, test files and Unity `Editor/` folders are no longer scanned. Query helpers (`Has*`, `Is*`, `Get*`, `Meets*`, hit tests) no longer count as moments.
+
+### C-20261026-4 · 2026-10-26 · Published as part of the public game-juice repository
+- because: user request
+- files: RESEARCH.md (R-20261026-1 wording), TESTS.md (T-20261026-1)
+- Generalized one phrase for the public repository (sources written "from general engine knowledge") and removed a duplicated `led to:` line. No change to what the skill does.
+
+### C-20261026-3 · 2026-10-26 · Engine references checked against primary docs; Roblox pop uses UIScale
+- because: R-20261026-4, R-20261026-5, R-20261026-6, R-20261026-7, R-20261026-8; user request (pop sketch)
+- files: references/engines/roblox.md (settings hook, pickup pop, haptics), references/engines/godot.md (hit-stop, Godot traps), references/engines/web.md (PixiJS and GSAP sketches), RESEARCH.md (open questions, findings log)
+- Roblox: `GuiService.ReducedMotionEnabled` confirmed; `pop(gui)` now tweens a `UIScale` child instead of resizing `Size`; haptics lead with the `HapticEffect` instance, which the docs say supersedes `HapticService`. Godot: `create_timer` argument order confirmed; `Tween.set_ignore_time_scale` corrected from 4.3+ to 4.4+, with the fallback for older versions. Web: GSAP licence confirmed on gsap.com and its one restriction noted; the Arcade `timeScale` direction was already right.
+
+### C-20261026-2 · 2026-10-26 · Description claims feel complaints first, even for tiny projects; scanner sees indirect hit-stop calls
+- because: T-20261026-1, L-001; T-20261026-2 (juice-apply re-scan)
+- files: SKILL.md (frontmatter description), scripts/juice_scan.py (FEEDBACK timing and PROJECT_CHECKS hit_stop patterns)
+- The description now says to use the skill first, before reading any game code, even for a tiny project. It leads with complaint words (flat, floaty, weak, stiff, unsatisfying), and the engine list is shorter to stay under 1,024 characters. The scanner also counts `.freeze(` and `Freeze*(` calls as timing feedback, so a hit-stop moved into a settings helper is still recognized.
+
+### C-20261026-1 · 2026-10-26 · Created as an evergreen unit
+- because: user request
+- files: SKILL.md, RESEARCH.md, LEARNINGS.md, evergreen.json (skills: also TESTS.md and evals/evals.json)
+- Initial version. Tier `moderate`, interval 30d. See R-20261026-1 for the research basis; the first test run, for a skill, is logged in TESTS.md.
