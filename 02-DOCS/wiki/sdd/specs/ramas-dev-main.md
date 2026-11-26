@@ -59,10 +59,10 @@ Daniel, que desarrolla y prueba en Android y PC, y Claude Code, que trabaja en `
 2. Cuando Daniel aprueba una versión, se fusiona `dev` en `main`, se suben `GAME_VER`, `GAME_DATE`, `GAME_NOTES` y `version.json`, y se publica.
 
 ## Acceptance criteria
-- [ ] `origin/dev` existe y contiene el commit del harness.
-- [ ] `origin/main` sigue en `3a15e29`.
-- [ ] No se sube ningún secreto ni `settings.local.json`.
-- [ ] `CLAUDE.md` en `dev` tiene las reglas nuevas.
+- [x] `origin/dev` existe y contiene el commit del harness.
+- [x] `origin/main` sigue en `3a15e29`.
+- [x] No se sube ningún secreto ni `settings.local.json`.
+- [x] `CLAUDE.md` en `dev` tiene las reglas nuevas.
 
 ## Points to clarify
 - La constitución del proyecto (`02-DOCS/wiki/sdd/constitution.md`) sigue en borrador. Esta spec no depende de ella: es un cambio de flujo de trabajo, no de código del juego.
@@ -70,3 +70,4 @@ Daniel, que desarrolla y prueba en Android y PC, y Claude Code, que trabaja en `
 
 ## Revisions
 - 2026-11-26: primera versión.
+- 2026-11-26: implementada en `dev` (commits `87c90f7`..`8ebd646`). Añadida la protección de `main` en `.claude/settings.json`, pedida por Daniel.
