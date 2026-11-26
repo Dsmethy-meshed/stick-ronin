@@ -3960,7 +3960,7 @@ addEventListener('beforeunload',()=>{try{mpLeave(true)}catch(_){}});
 
 /* ================= VERSIÓN Y AVISO DE ACTUALIZACIÓN =================
    Sube GAME_VER (y version.json en GitHub) cada vez que se publica. El juego compara con version.json y avisa si hay una nueva. */
-const GAME_VER='1.5',GAME_DATE='26 nov 2026',GAME_NOTES='Asedio cooperativo con 3 compañeros IA (forja propia con metal, 2 armas en mano + 2 en bolsa); jefes Ō-oni y Karura, también en el modo normal cada 5 oleadas; onis de colores e incursiones de hasta 10; variantes de kappa, kasa, rokurokubi y tengu; zombis, yokai y jefes con más vida según la oleada; la habilidad especial depende de la rareza (común solo dash, rara/épica/legendaria con recarga); legendarias que solo se mejoran con legendarias y ganan huecos de emblema; yumi en ráfagas de 3 y shuriken en combo 1-2-3; modo ligero desde la oleada 5 (charcos de sangre y caídas sin física); móviles: sin antialias, calidad media de inicio que sube y baja sola; aviso automático de errores';
+const GAME_VER='1.6',GAME_DATE='26 nov 2026',GAME_NOTES='Muertes más brutales: con muchos zombis ya no salen cuerpos girando, se parten en trozos que vuelan con el golpe, rebotan y sangran; golpes en ráfaga más fluidos, sin tirones en las hordas; sonido más variado y sin saturar; el ranking solo cuenta las partidas de la web oficial';
 window.GAME_VER_TAG=GAME_VER;
 let verRemote=null;
 function verTag(){return`<div class="vtag">v${GAME_VER} · ${GAME_DATE}${verRemote&&verRemote.v!==GAME_VER?` · <b data-vup="1">🔄 hay v${esc(verRemote.v)}</b>`:''}</div>`}

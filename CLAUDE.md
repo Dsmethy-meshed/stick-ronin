@@ -3,7 +3,7 @@
 Survivor 3D de stickmans con armas japonesas, pensado sobre todo para **móvil (Android)**: oleadas de zombis, yokai y jefes, forja de armas y multijugador.
 El desarrollador es Daniel. Escribe en español y juega en Android (a veces en PC). **Responde siempre en español.**
 
-Versión publicada: **v1.5 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmethy-meshed/stick-ronin`, rama `main`.
+Versión publicada: **v1.6 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmethy-meshed/stick-ronin`, rama `main`.
 
 **Enlaces para el móvil:**
 - `main` (lo que ven los jugadores): https://dsmethy-meshed.github.io/stick-ronin/
@@ -25,7 +25,7 @@ Versión publicada: **v1.5 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmeth
 6. **Cada vez que publiques en `main`** (en `dev` no hace falta):
    - sube `GAME_VER`, `GAME_DATE` y `GAME_NOTES` en `index.html`;
    - actualiza `version.json` igual. La barra de aviso de actualización solo comprueba en `github.io`.
-   - La próxima versión será la 1.6.
+   - La próxima versión será la 1.7.
 7. **Datos de Daniel:**
    - No crear cuentas ni meter contraseñas o códigos por él.
    - No borrar datos de su hoja de Google sin su aprobación explícita.
