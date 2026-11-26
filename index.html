@@ -4027,7 +4027,7 @@ let hsLeft=0,hsLastT=-9,hsWinT=-9,hsSpent=0;
 function hitstopBurst(t){
  if(!(hitstop>hsLeft+1e-4)){if(hitstop<hsLeft)hsLeft=Math.max(0,hitstop);return}
  const add=hitstop-hsLeft;
- if(!JUICE.hsBurst||add>=JUICE.HS_BIG){hsLastT=t;return}
+ if(!JUICE.hsBurst||hitstop>=JUICE.HS_BIG){hsLastT=t;return} // golpe firma: se mira lo pedido (hitstop=max(...)), no solo lo añadido
  if(t-hsWinT>1){hsWinT=t;hsSpent=0}
  let k=t-hsLastT<JUICE.HS_WINDOW?JUICE.HS_REPEAT_K:1;hsLastT=t;
  const eff=Math.min(add*k,Math.max(0,JUICE.HS_MAX_PER_SEC-hsSpent));hsSpent+=eff;hitstop=hsLeft+eff;
