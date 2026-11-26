@@ -5,6 +5,10 @@ El desarrollador es Daniel. Escribe en español y juega en Android (a veces en P
 
 Versión publicada: **v1.5 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmethy-meshed/stick-ronin`, rama `main`.
 
+**Enlaces para el móvil:**
+- `main` (lo que ven los jugadores): https://dsmethy-meshed.github.io/stick-ronin/
+- `dev` (pruebas): https://raw.githack.com/Dsmethy-meshed/stick-ronin/dev/index.html (tarda unos minutos en actualizarse tras subir)
+
 ---
 
 ## Reglas de trabajo (acordadas, obligatorias)
@@ -45,9 +49,7 @@ Versión publicada: **v1.5 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmeth
 Servicios externos que usa el juego:
 - **PeerJS 1.5.4** (jsdelivr) para el multijugador WebRTC. Con `?bc=1` usa BroadcastChannel para probar en local.
 - **Ranking:** Google Apps Script `https://script.google.com/macros/s/AKfycbwB36PZrlqC5Rz6z1eIVKgliHAo6LobhkVDa8JLKvHVfVlh1vEZuni2rf7wWfY-g7hrQw/exec`. `submitScore` no envía desde localhost.
-  - El ranking real (`RANK_URL_PROD`) solo se usa desde `*.github.io` (`RANK_IS_PROD`).
-  - Desde cualquier otro sitio (el enlace de pruebas de `dev`, `https://raw.githack.com/Dsmethy-meshed/stick-ronin/dev/index.html`) usa `RANK_URL_DEV`. Si está vacío, guarda solo en el dispositivo.
-  - **Ranking de dev:** hoja «Ranking Stick Rōnin · DEV» (id `18F5jpoULj9dHDzY5b4BVhTf9qPc_nIJN22XrAjFO_c8`, pestaña «Hoja 1», mismas columnas). Falta que Daniel despliegue una copia del Apps Script apuntando a esa hoja y pegar su URL en `RANK_URL_DEV`.
+  - Solo se usa desde `*.github.io` (main). Desde el enlace de pruebas de `dev` o localhost se guarda solo en el dispositivo.
   - Sentry marca el entorno como `github`, `claude` o `dev` según el dominio.
 - **Sentry:**
   - Proyecto `stick-ronin-3d` en la organización `dsmeshyind` (región `https://de.sentry.io`), conectado como conector en Claude.
