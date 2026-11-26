@@ -13,6 +13,7 @@ Versión publicada: **v1.5 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmeth
    - **`dev`:** se sube cada cambio en cuanto funcione, sin pedir permiso. Es la rama de pruebas.
    - **`main`:** es lo que publica GitHub Pages y ven los jugadores. Solo se fusiona `dev` en `main` cuando Daniel lo aprueba explícitamente.
    - Nunca hacer push forzado a `main`.
+   - Subir siempre nombrando la rama (`git push origin dev`). En `.claude/settings.json` (`permissions.ask`) un push a `main`, un `git push` sin rama, `--all`, `--mirror` y `gh pr merge` piden confirmación. Si rsc reescribe ese archivo, comprobar que esas reglas siguen ahí.
 2. **El editor de animaciones (`editor.html`) puede estar en GitHub** como copia de seguridad (cambio del 26 nov 2026). Hay que tener en cuenta que en Pages es público por su enlace.
 3. **Nada de grabar ni enviar vídeos de gameplay**, salvo que lo pida expresamente.
 4. **Cuando cambies algo del juego, aplícalo a todo lo relacionado:** guías, textos de ayuda, menú ℹ Info, descripciones de armas, guía de la forja, notas de versión y hoja de cálculo de equilibrio. No te saltes pasos.
