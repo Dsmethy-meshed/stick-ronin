@@ -34,6 +34,8 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Parry fuera en normal/asedio → esquiva perfecta 避 con el dash; parry PvP con anti-machaque y bloqueo al fallar. **Prueba:** t13/t14 (esquiva: 0 daño, cámara lenta, ×2,5, recarga; PvP: 0,18 / 0,05 / bloqueo 0,45 s), t1/t2/t7/t8 sin errores.
 - [x] Cacería: armas del suelo con bendiciones que crecen con el tiempo. **Prueba:** t15 con dos pestañas (?bc=1): B ve las armas con sus kami, A recoge Nv3, golpe con 🔥❄🌸 → 100→70, quemadura hasta 58, 55 % de velocidad, controles al revés; A ve los estados de B y B el brillo del arma de A.
 - [x] Cacería: una sola arma, solo se cambia al empezar o tras morir. **Prueba:** t16 (dos pestañas: coge una, la otra sale 🔒, ⇄ no cambia, tras morir puede coger otra y se vuelve a bloquear).
+- [x] Limpieza: fuera masa de zombis (malla y buffers), carrera lateral por la pared, `skyTarget`, parry PvE viejo (`deflect`/`counterAttack`), kamon de prueba viejos del dojo (ahora da kamon Kago) y variables sueltas. **Prueba:** carga sin errores; t1/t2/t7/t13/t16/t17.
+- [x] Equilibrio: tienda con precios crecientes y 1 onigiri por visita, menos tama, zombis ×1,05 por oleada, +4 % de daño recibido por oleada, curación 15, base ×1,3. **Prueba:** t17 (40→60→80, tama 300→170, onigiri bloqueado).
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
