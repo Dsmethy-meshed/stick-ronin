@@ -1,11 +1,13 @@
 # Stick Ronin · prepara un modelo de Tripo (con rig) como PIEZAS RÍGIDAS pegadas a los 12 puntos del juego.
-# Uso: blender -b --factory-startup --python prep_tripo.py -- entrada.glb salida.glb salida_rig.json [triangulos]
+# Uso: blender -b --factory-startup --python prep_tripo.py -- entrada.glb salida.glb salida_rig.json [triangulos] [tex]
+# - Vale para rigs de Tripo (Hip, L_Upperarm…) y de Mixamo (mixamorig:Hips, LeftArm…).
+# - Con 'tex' conserva la textura (a 512 px, JPEG) y las UV: lo usa el protagonista (tinta aguada a partir de la textura).
 # - Baja la malla a N triángulos y quita las texturas (el juego pone el color de cada enemigo).
 # - Una sola malla: cada vértice guarda en su color (zm) sus 2 tramos y la proporción (se deforma en el shader del juego).
 # - Guarda en el JSON los 12 puntos de reposo y los puntos raíz de brazos y piernas (en coordenadas Y-arriba del juego).
 import bpy,bmesh,sys,json,mathutils
 a=sys.argv[sys.argv.index('--')+1:]
-src,out_glb,out_json=a[0],a[1],a[2];target=int(a[3]) if len(a)>3 else 1500
+src,out_glb,out_json=a[0],a[1],a[2];target=int(a[3]) if len(a)>3 else 1500;keep_tex=len(a)>4 and a[4]=='tex'
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 for o in list(bpy.data.objects):
@@ -15,6 +17,8 @@ mesh=[o for o in bpy.data.objects if o.type=='MESH'][0]
 if arm.animation_data:arm.animation_data.action=None
 for pb in arm.pose.bones:pb.matrix_basis=mathutils.Matrix()
 B=arm.data.bones;M=arm.matrix_world
+MIX='mixamorig:Hips' in B
+def mx(n):return 'mixamorig:'+n
 def H(n):return M@B[n].head_local
 def T(n):return M@B[n].tail_local
 # hueso del rig de Tripo -> tramo del juego (a=punto de anclaje, b=punto al que apunta)
@@ -25,16 +29,27 @@ SEG={'Hip':(3,2),'Pelvis':(3,2),'Waist':(3,2),'BoneRoot':(3,2),
  'R_Upperarm':(1,6),'R_UpperarmTwist01':(1,6),'R_UpperarmTwist02':(1,6),'R_ElbowShareBone':(6,7),'R_Forearm':(6,7),'R_ForearmTwist01':(6,7),'R_ForearmTwist02':(6,7),'R_Hand':(6,7),
  'L_Thigh':(3,8),'L_ThighTwist01':(3,8),'L_ThighTwist02':(3,8),'L_KneeShareBone':(8,9),'L_Calf':(8,9),'L_CalfTwist01':(8,9),'L_CalfTwist02':(8,9),'L_Foot':(8,9),'L_ToeBase':(8,9),
  'R_Thigh':(3,10),'R_ThighTwist01':(3,10),'R_ThighTwist02':(3,10),'R_KneeShareBone':(10,11),'R_Calf':(10,11),'R_CalfTwist01':(10,11),'R_CalfTwist02':(10,11),'R_Foot':(10,11),'R_ToeBase':(10,11)}
+if MIX:
+    SEG={mx('Hips'):(3,2),mx('Spine'):(3,2),mx('Spine1'):(2,1),mx('Spine2'):(2,1),mx('LeftShoulder'):(2,1),mx('RightShoulder'):(2,1),
+     mx('Neck'):(1,0),mx('Head'):(1,0),mx('HeadTop_End'):(1,0),
+     mx('LeftArm'):(1,4),mx('LeftForeArm'):(4,5),mx('LeftHand'):(4,5),mx('RightArm'):(1,6),mx('RightForeArm'):(6,7),mx('RightHand'):(6,7),
+     mx('LeftUpLeg'):(3,8),mx('LeftLeg'):(8,9),mx('LeftFoot'):(8,9),mx('LeftToeBase'):(8,9),mx('LeftToe_End'):(8,9),
+     mx('RightUpLeg'):(3,10),mx('RightLeg'):(10,11),mx('RightFoot'):(10,11),mx('RightToeBase'):(10,11),mx('RightToe_End'):(10,11)}
 def segOf(name):
     b=B.get(name)
     while b and b.name not in SEG:b=b.parent
     if b:return SEG[b.name]
+    if MIX and ('LeftHand' in name or 'RightHand' in name):return (4,5) if 'LeftHand' in name else (6,7)
     if '_Hand' in name or name[2:] in('Index1','Index2','Index3','Mid1','Mid2','Mid3','Ring1','Ring2','Ring3','Pinky1','Pinky2','Pinky3','Thumb1','Thumb2','Thumb3'):return (4,5) if name.startswith('L_') else (6,7)
     return (3,2)
 # 12 puntos de reposo y raíces de miembros (Blender Z-arriba -> juego Y-arriba: x, z, -y)
 g=lambda v:[round(v.x,4),round(v.z,4),round(-v.y,4)]
-RJ=[(H('Head')+T('Head'))/2,H('NeckTwist01'),H('Spine01'),H('Hip'),H('L_Forearm'),H('L_Hand'),H('R_Forearm'),H('R_Hand'),H('L_Calf'),H('L_Foot'),H('R_Calf'),H('R_Foot')]
-ROOT={'1-4':H('L_Upperarm'),'1-6':H('R_Upperarm'),'3-8':H('L_Thigh'),'3-10':H('R_Thigh')}
+if MIX:
+    RJ=[(H(mx('Head'))+H(mx('HeadTop_End')))/2,H(mx('Neck')),H(mx('Spine1')),H(mx('Hips')),H(mx('LeftForeArm')),H(mx('LeftHand')),H(mx('RightForeArm')),H(mx('RightHand')),H(mx('LeftLeg')),H(mx('LeftFoot')),H(mx('RightLeg')),H(mx('RightFoot'))]
+    ROOT={'1-4':H(mx('LeftArm')),'1-6':H(mx('RightArm')),'3-8':H(mx('LeftUpLeg')),'3-10':H(mx('RightUpLeg'))}
+else:
+    RJ=[(H('Head')+T('Head'))/2,H('NeckTwist01'),H('Spine01'),H('Hip'),H('L_Forearm'),H('L_Hand'),H('R_Forearm'),H('R_Hand'),H('L_Calf'),H('L_Foot'),H('R_Calf'),H('R_Foot')]
+    ROOT={'1-4':H('L_Upperarm'),'1-6':H('R_Upperarm'),'3-8':H('L_Thigh'),'3-10':H('R_Thigh')}
 # menos triángulos (en reposo, sin el modificador de esqueleto)
 for m in list(mesh.modifiers):
     if m.type=='ARMATURE':mesh.modifiers.remove(m)
@@ -61,16 +76,21 @@ for v in me.vertices:
     t=wa+wb;wa=wa/t if t>0 else 1
     ca.data[v.index].color=(a/10.0,b/10.0,wa,1.0)
 me.color_attributes.active_color=ca
-# quita texturas
-for m in bpy.data.materials:
-    if m.use_nodes:
-        for n in list(m.node_tree.nodes):
-            if n.type=='TEX_IMAGE':m.node_tree.nodes.remove(n)
-for im in list(bpy.data.images):bpy.data.images.remove(im)
+# quita texturas (o, con 'tex', las deja a 512 px)
+if keep_tex:
+    for im in bpy.data.images:
+        if im.size[0]>512:im.scale(512,512)
+else:
+    for m in bpy.data.materials:
+        if m.use_nodes:
+            for n in list(m.node_tree.nodes):
+                if n.type=='TEX_IMAGE':m.node_tree.nodes.remove(n)
+    for im in list(bpy.data.images):bpy.data.images.remove(im)
 for vg_ in list(mesh.vertex_groups):mesh.vertex_groups.remove(vg_)
 mesh.name='zombie_body';bpy.data.objects.remove(arm)
 bpy.ops.object.select_all(action='DESELECT');mesh.select_set(True)
-kw=dict(filepath=out_glb,export_format='GLB',use_selection=True,export_animations=False,export_skins=False,export_morph=False,export_materials='NONE')
+kw=dict(filepath=out_glb,export_format='GLB',use_selection=True,export_animations=False,export_skins=False,export_morph=False,export_materials='EXPORT' if keep_tex else 'NONE')
+if keep_tex:kw.update(export_image_format='JPEG',export_jpeg_quality=82)
 try:bpy.ops.export_scene.gltf(**kw,export_vertex_color='ACTIVE')
 except TypeError:bpy.ops.export_scene.gltf(**kw,export_colors=True)
 json.dump({'RJ':[g(v) for v in RJ],'root':{k:g(v) for k,v in ROOT.items()},'tris':sum(len(p.vertices)-2 for p in me.polygons),'order':[list(o) for o in ORDER]},open(out_json,'w'))
