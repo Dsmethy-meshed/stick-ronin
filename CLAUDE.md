@@ -135,6 +135,7 @@ Sustituye por completo a la forja vieja: ya no hay rarezas de armas, metal, bols
 - **Campeones tatari** (kanji flotante, `kgLabels`) y variantes nuevas: yoroi, yumi, sōhei, kagami, tanuki. Tope de 90 vivos (`KG.cap`).
 - Efectos visibles (27 nov 2026): lotes sin luz `GLS`/`GLP` (`gl`, `gp`). `kgStatusFx` dibuja cada estado (llamas, bloque de hielo, chispas, aura de herida, luna, corazones, viento); `kgZoneFx` las zonas; `kgArc` rayos en zigzag, `kgWave` ondas, `KTRAIL` estela del dash; el arma brilla con el kami de la ranura de ataque. Todo en `kgVfxDraw`, llamado desde `kgDrawFx`.
 - Especial (`waza`) y dash (`hashiri`) son poderes del kami: p. ej. Raijin hace caer 5 rayos y su dash es un relámpago; Kagutsuchi estalla y deja un anillo de fuego; Yuki-onna congela todo en 3,5 m; Inari suelta 3 fuegos de zorro.
+- Sin parry en normal, dojo ni asedio (27 nov 2026): atacar ya no abre ventana de parry. En su lugar, **esquiva perfecta 避** (`kgPerfect`, desde `hurtPlayer`): si te iban a golpear durante el dash o hasta `KG.pdWin` 0,35 s desde que empezó (×`SM.par`), cámara lenta, aturde al atacante, el siguiente golpe es crítico ×`KG.pdMul` 2,5 y se activa la ranura 返 (ahora «Esquiva perfecta», `kgParry`). Recarga `KG.pdCd` 1,2 s.
 - Todas las armas tienen especial (`specOK`). Interruptores Temblor/Destellos/Vibración/Números de daño en la armería (`KGFX`, guardados en `stickronin_fx`). Los números de daño vienen encendidos fuera de `github.io` (dev, githack, local) y apagados por defecto en la web oficial; no hay que tocar nada al fusionar en `main`.
 - La forja vieja se borró del código el 27 nov 2026, también la del asedio: bolsa, huecos, afilar, forja de sangre, fundir, metal ⛓, botín de armas y de jefe, rarezas y legendarias de arma. `genWeapon(type)` solo crea `{uid,kind,type,name}`. De `AR` solo quedan `eff` (efectos que usan los kamon Kago y el dojo) y `maxProj`.
 - La armería solo se abre en una partida normal de verdad: `startGame()` la lanza en un microtask y comprueba `!TRAIN`, así que el dojo, la sala MP, el asedio y la prueba de yokai no la ven.
@@ -143,7 +144,7 @@ Sustituye por completo a la forja vieja: ya no hay rarezas de armas, metal, bols
 - PeerJS con el anfitrión como relevo.
 - **Cacería (PvP):**
   - Armas en el suelo con menú ✔/✖ sobre el botón especial.
-  - Parry que lanza al rival, con 1 s de recarga.
+  - Parry que lanza al rival, con 1 s de recarga. Anti-machaque (27 nov 2026): ventana `HUNT.win` 0,18 s; si vuelves a pulsar antes de `HUNT.mash` (0,35 s) solo `HUNT.mashWin` 0,05 s; si la ventana se acaba sin parar nada, `P.parryLock` 0,45 s sin poder intentarlo. Solo fuera de Kago (`!kgOn()`).
   - Flechas con 0,1 s de retraso, desviables atacando (menos los ataques cargados).
 - **Asedio (cooperativo):** de momento solo con 3 bots IA (`SIEGE`, `botStep`, `siegeAI`).
   - Los enemigos atacan al objetivo más cercano.

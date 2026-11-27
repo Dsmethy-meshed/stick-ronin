@@ -1159,6 +1159,7 @@ function clearWaveLeftovers(){for(const z of zs)if(z.alive&&z.spider){z.alive=fa
  if(typeof ROCKS!=='undefined')ROCKS.length=0;P.trap=null;P.inv=Math.max(P.inv,3.2)}
 function hurtPlayer(dmg,from){
  if(P.mpSwap){siegeHurtBot(P.mpSwap,dmg,from);return}
+ if(kgOn()&&from&&!P.dead&&state==='play'&&(P.dashT>0||time-(P.dashT0??-9)<KG.pdWin*(SM.par||1))&&kgPerfect(from))return;
  if(P.inv>0||P.dead||P.dashT>0||P.grap||P.ride||P.carried||waveBreak>0||state!=='play')return;
  if(KS.on){dmg=kgHurtMod(dmg,from);if(!dmg)return;kgVib([30,40,30],true)}
  if((P.charge&&P.charge.kind==='cleave'||P.atk&&P.atk.def&&P.atk.def.armor)&&P.hp>dmg*.5+1){P.inv=.3;P.hp-=Math.round(dmg*.5);dmgFlash=.2;sfx('block');return}
@@ -1571,7 +1572,7 @@ function updatePlayer(){
  const md=moveDir(),W=weapon();bowUpdTarget();P.bowFace=Math.max(0,(P.bowFace||0)-DT);P.flipT=Math.max(0,(P.flipT||0)-DT);updSky(md);updOdDive(md);
  if(input.jumpP)P.jumpBuf=.13;if(P.sky)P.jumpBuf=0;P.shotCd=Math.max(0,(P.shotCd||0)-DT);P.shotT=Math.max(0,(P.shotT||0)-DT);P.spinFx=Math.max(0,(P.spinFx||0)-DT);
  if(input.atkP&&P.odDive&&P.odDive.ph!=='dive'){if(P.odDive.t>.05||P.odDive.ph==='apex')P.odDive.q=1;P.atkBuf=0;P.atkQ=0}
- else if(input.atkP){P.parryT=.2*(SM.par||1);if((P.atk&&P.atk.type!=='iai'||P.charge&&P.charge.t<.25)&&!weapon().tap)P.atkQ=Math.min(2,(P.atkQ||0)+1);else P.atkBuf=Math.max(.18,weapon().tap?(P.shotCd||0)+.08:0)}P.parryT=Math.max(0,(P.parryT||0)-DT);P.parryAnim=Math.max(0,(P.parryAnim||0)-DT);
+ else if(input.atkP){if(!kgOn()){const g=time-(P.lastAtkP??-9);P.lastAtkP=time;if(!(P.parryLock>0))P.parryT=(g<HUNT.mash?HUNT.mashWin:HUNT.win)*(SM.par||1)}if((P.atk&&P.atk.type!=='iai'||P.charge&&P.charge.t<.25)&&!weapon().tap)P.atkQ=Math.min(2,(P.atkQ||0)+1);else P.atkBuf=Math.max(.18,weapon().tap?(P.shotCd||0)+.08:0)}if(P.parryT>0){P.parryT-=DT;if(P.parryT<=0){P.parryT=0;P.parryLock=HUNT.lock}}P.parryLock=Math.max(0,(P.parryLock||0)-DT);P.parryAnim=Math.max(0,(P.parryAnim||0)-DT);
  if(P.guardBreak>0){P.guardBreak-=DT;P.atkBuf=0;P.charge=null}
  P.postT=(P.postT||0)-DT;if(P.postT<=0)P.post=Math.max(0,(P.post||0)-(P.charge?12:30)*DT);if(input.dashP)P.dashBuf=.13;if(input.hookP)P.hookBuf=.15;
  P.inv-=DT;P.dashCd-=DT;P.spCd=(P.spCd||0)-DT;P.jumpBuf-=DT;P.atkBuf-=DT;P.dashBuf-=DT;P.hookBuf-=DT;P.coyote-=DT;P.wallLock-=DT;P.mantleT-=DT;P.sinceDash+=DT;P.comboGap+=DT;P.kickT-=DT;
@@ -2617,7 +2618,7 @@ const AR={
  // efectos de los kamon (rango 1-4); los usan los kamon Kago y el dojo
  eff:{
   shuriken:{name:'Shuriken de sangre',ico:'✴',every:[3,3,2,2],n:[6,9,12,14],bounce:[0,0,1,2],desc:r=>`Cada ${AR.eff.shuriken.every[r-1]} muertes, el último explota en ${AR.eff.shuriken.n[r-1]} shuriken${AR.eff.shuriken.bounce[r-1]?' que rebotan':''}`},
-  rayo:{name:'Raijin',ico:'⚡',n:[3,5,8,10],desc:r=>`Cada parry suelta un rayo que salta a ${AR.eff.rayo.n[r-1]} enemigos`},
+  rayo:{name:'Raijin',ico:'⚡',n:[3,5,8,10],desc:r=>`Cada esquiva perfecta suelta un rayo que salta a ${AR.eff.rayo.n[r-1]} enemigos`},
   onibi:{name:'Oni-bi',ico:'🔥',ch:[.15,.25,.35,.45],rad:[1.3,1.5,1.8,2.1],desc:r=>`${Math.round(AR.eff.onibi.ch[r-1]*100)} % de que una muerte suelte un fuego fatuo que persigue y explota`},
   sed:{name:'Sed de sangre',ico:'♥',every:[5,4,3,3],heal:[2,2,3,4],desc:r=>`Cada ${AR.eff.sed.every[r-1]} muertes recuperas ${AR.eff.sed.heal[r-1]} de vida`},
   terremoto:{name:'Terremoto',ico:'⛰',rad:[1.6,2.1,2.6,3.1],desc:r=>`Al caer desde más de 2 m, onda que mata en ${AR.eff.terremoto.rad[r-1]} m`}
@@ -2736,6 +2737,7 @@ function updWUI(){lastSpecLbl='';const b=$('wbtn');b.textContent='⇄ '+weapon()
 /* ================= KAGO 加護 · bendiciones de los kami (Hades) + kamon Henge (Isaac) =================
    Escala: 1 unidad interna de daño/vida = 10 en pantalla. TODO lo ajustable está en KG y en las tablas de abajo. */
 const KG={
+ pdWin:.35,pdCd:1.2,pdMul:2.5, // esquiva perfecta: ventana desde que empiezas el dash (s), recarga y daño del golpe siguiente
  siegeHp:3,botHits:4, // asedio: zombis con ×3 de vida; un bot los mata en 4 golpes (sus golpes no usan tus bendiciones)
  base:1.5,                               // valor de toda bendición (sin rarezas); el {n} de los textos ya va ×base
  lvmul:[1,1.5,1.85,2.1],                 // Omiki: +50 %, +35 %, +25 % del valor base
@@ -2753,32 +2755,32 @@ const WBASE={katana:1,maza:2,nito:.6,odachi:1.4,naginata:1,yari:1.2,kusarigama:.
 // Kaishin 会心: crítico condicional de cada arma (suelo/techo de habilidad)
 const KAI={katana:{m:2,d:'3.er golpe del combo',sk:'Fácil'},maza:{m:2.5,d:'Cargado completo o enemigo aturdido',sk:'Fácil'},naginata:{m:1.8,d:'Barrido que alcanza a 3 o más',sk:'Fácil'},shuriken:{m:2,d:'Enemigo herido o quemado',sk:'Fácil'},
  yari:{m:2.5,d:'Con la punta, a distancia máxima',sk:'Media'},nito:{m:2.5,d:'Tras 8 golpes seguidos sin recibir daño',sk:'Media'},yumi:{m:2.5,d:'Flecha tensada o 2+ flechas clavadas',sk:'Media'},kama:{m:3,d:'Por la espalda',sk:'Media'},
- odachi:{m:3,d:'Carga completa',sk:'Difícil'},kusarigama:{m:2.5,d:'Enemigo en la punta de la cadena',sk:'Difícil'},tessen:{m:3,d:'1,5 s después de un parry',sk:'Difícil'},tanegashima:{m:2.5,d:'A quemarropa (menos de 2 m)',sk:'Difícil'}};
-const KSLOT=[['kiri','斬','Ataque'],['tame','溜','Cargado'],['waza','技','Especial'],['hashiri','走','Dash'],['kaeshi','返','Parry']];
+ odachi:{m:3,d:'Carga completa',sk:'Difícil'},kusarigama:{m:2.5,d:'Enemigo en la punta de la cadena',sk:'Difícil'},tessen:{m:3,d:'1,5 s después de una esquiva perfecta',sk:'Difícil'},tanegashima:{m:2.5,d:'A quemarropa (menos de 2 m)',sk:'Difícil'}};
+const KSLOT=[['kiri','斬','Ataque'],['tame','溜','Cargado'],['waza','技','Especial'],['hashiri','走','Dash'],['kaeshi','返','Esquiva perfecta']];
 const KAMI={
  raijin:{n:'Raijin',k:'雷神',ico:'⚡',c:'#ffd23a',st:'Shibire',sd:'Electrocutado: si le golpeas, un rayo salta a 2 enemigos',
-  s:{kiri:['Golpe del trueno','Cada golpe electrocuta y lanza un rayo de {8} a 3 enemigos'],tame:['Rayo celeste','El cargado hace caer un rayo de {40} en 2 m'],waza:['Ira de Raijin','El especial hace caer 5 rayos de {30} del cielo'],hashiri:['Paso de nube','El dash es un relámpago: electrocuta lo que atraviesa y deja una nube 2 s'],kaeshi:['Contra-rayo','El parry lanza un rayo a 5 enemigos ({20})']},
+  s:{kiri:['Golpe del trueno','Cada golpe electrocuta y lanza un rayo de {8} a 3 enemigos'],tame:['Rayo celeste','El cargado hace caer un rayo de {40} en 2 m'],waza:['Ira de Raijin','El especial hace caer 5 rayos de {30} del cielo'],hashiri:['Paso de nube','El dash es un relámpago: electrocuta lo que atraviesa y deja una nube 2 s'],kaeshi:['Contra-rayo','La esquiva perfecta lanza un rayo a 5 enemigos ({20})']},
   pas:['raiun','Raiun','Los rayos saltan a 3 enemigos más']},
  fujin:{n:'Fūjin',k:'風神',ico:'🌪',c:'#5fe0a0',st:'Fukitobi',sd:'Empuje ×2: si choca con otro, +100 % y aturdido',
-  s:{kiri:['Golpe vendaval','Golpes +{40}% y empuje ×2'],tame:['Ráfaga','El cargado suelta una ráfaga en cono de 5 m ({10})'],waza:['Tornado','El especial lanza un tornado gigante de 4 s que arrastra'],hashiri:['Paso de viento','El dash derriba a lo que atraviesa'],kaeshi:['Contra-viento','El parry suelta una onda de viento de 4 m']},
+  s:{kiri:['Golpe vendaval','Golpes +{40}% y empuje ×2'],tame:['Ráfaga','El cargado suelta una ráfaga en cono de 5 m ({10})'],waza:['Tornado','El especial lanza un tornado gigante de 4 s que arrastra'],hashiri:['Paso de viento','El dash derriba a lo que atraviesa'],kaeshi:['Contra-viento','La esquiva perfecta suelta una onda de viento de 4 m']},
   pas:['arashi','Arashi','Los choques entre enemigos hacen el doble']},
  kagu:{n:'Kagutsuchi',k:'迦具土',ico:'🔥',c:'#ff6a2a',st:'Moeru',sd:'Quemadura: {4}/s por pila, hasta 5 pilas',
-  s:{kiri:['Filo ígneo','+1 pila de quemadura por golpe'],tame:['Estallido','El cargado explota en 3 m (3 pilas)'],waza:['Anillo de llamas','El especial estalla en 3,5 m (3 pilas) y deja un anillo de fuego 4 s'],hashiri:['Estela de fuego','El dash deja una estela ardiente'],kaeshi:['Contra-llama','El parry prende todo en 3 m']},
+  s:{kiri:['Filo ígneo','+1 pila de quemadura por golpe'],tame:['Estallido','El cargado explota en 3 m (3 pilas)'],waza:['Anillo de llamas','El especial estalla en 3,5 m (3 pilas) y deja un anillo de fuego 4 s'],hashiri:['Estela de fuego','El dash deja una estela ardiente'],kaeshi:['Contra-llama','La esquiva perfecta prende todo en 3 m']},
   pas:['onibi','Oni-bi','El enemigo que muere quemado explota']},
  yuki:{n:'Yuki-onna',k:'雪女',ico:'❄',c:'#8fe3ff',st:'Kōri',sd:'Escarcha: −15 % de velocidad por pila; con 5 se congela y recibe ×2',
-  s:{kiri:['Golpe gélido','+1 pila de escarcha por golpe'],tame:['Estaca de hielo','El cargado lanza hielo en línea (3 pilas)'],waza:['Ventisca','El especial congela todo en 3,5 m y deja una ventisca 4 s'],hashiri:['Dash helado','El dash congela a lo que atraviesa'],kaeshi:['Contra-hielo','El parry congela al atacante']},
+  s:{kiri:['Golpe gélido','+1 pila de escarcha por golpe'],tame:['Estaca de hielo','El cargado lanza hielo en línea (3 pilas)'],waza:['Ventisca','El especial congela todo en 3,5 m y deja una ventisca 4 s'],hashiri:['Dash helado','El dash congela a lo que atraviesa'],kaeshi:['Contra-hielo','La esquiva perfecta congela al atacante']},
   pas:['hyoketsu','Hyōketsu','Los congelados reciben ×2,5 en vez de ×2']},
  hachi:{n:'Hachiman',k:'八幡',ico:'🩸',c:'#ff3048',st:'Kizu',sd:'Herida: a los 1,2 s estalla por {20} + 30 % del daño acumulado',
-  s:{kiri:['Corte de guerra','Golpes +{50}% y hieren'],tame:['Herida doble','El cargado hiere el doble'],waza:['Grito de guerra','El especial hiere a todos alrededor'],hashiri:['Paso sangriento','El dash hiere a lo que atraviesa'],kaeshi:['Venganza','El parry devuelve 200 % como herida']},
+  s:{kiri:['Corte de guerra','Golpes +{50}% y hieren'],tame:['Herida doble','El cargado hiere el doble'],waza:['Grito de guerra','El especial hiere a todos alrededor'],hashiri:['Paso sangriento','El dash hiere a lo que atraviesa'],kaeshi:['Venganza','La esquiva perfecta devuelve 200 % como herida']},
   pas:['chimatsuri','Chimatsuri','Tras matar, el siguiente golpe +100 %']},
  tsuku:{n:'Tsukuyomi',k:'月読',ico:'🌙',c:'#b48cff',st:'Marca lunar',sd:'El siguiente golpe a un marcado es crítico ×3',
-  s:{kiri:['Tercera luna','El 3.er golpe marca'],tame:['Luna llena','Carga completa = crítico seguro'],waza:['Eclipse','El especial marca a todos alrededor'],hashiri:['Paso lunar','Tras el dash, 1,5 s con +{25}% de crítico'],kaeshi:['Reflejo lunar','El parry marca a todos en 4 m']},
+  s:{kiri:['Tercera luna','El 3.er golpe marca'],tame:['Luna llena','Carga completa = crítico seguro'],waza:['Eclipse','El especial marca a todos alrededor'],hashiri:['Paso lunar','Tras el dash, 1,5 s con +{25}% de crítico'],kaeshi:['Reflejo lunar','La esquiva perfecta marca a todos en 4 m']},
   pas:['mangetsu','Mangetsu','El crítico de la marca pasa de ×3 a ×4']},
  benzai:{n:'Benzaiten',k:'弁財天',ico:'🌸',c:'#ff7ac8',st:'Miryō',sd:'Encanto: hace −40 % de daño; a veces pelea a tu lado',
-  s:{kiri:['Golpe encantador','Golpes +{50}% y encantan'],tame:['Danza','El cargado encanta en 3 m'],waza:['Canción','Los enemigos cercanos pelean por ti 3 s'],hashiri:['Pétalos','El dash deja pétalos que encantan'],kaeshi:['Seducción','El parry pone al atacante de tu lado 6 s']},
+  s:{kiri:['Golpe encantador','Golpes +{50}% y encantan'],tame:['Danza','El cargado encanta en 3 m'],waza:['Canción','Los enemigos cercanos pelean por ti 3 s'],hashiri:['Pétalos','El dash deja pétalos que encantan'],kaeshi:['Seducción','La esquiva perfecta pone al atacante de tu lado 6 s']},
   pas:['kokoro','Kokoro','−20 % de daño recibido de encantados']},
  inari:{n:'Inari',k:'稲荷',ico:'🦊',c:'#ffe7a8',st:null,sd:'Velocidad, dash y tama',
-  s:{kiri:['Zarpa rápida','Velocidad de ataque +{30}%'],tame:['Paciencia','Carga un {40}% más rápida'],waza:['Astucia','Recarga del especial −{35}% y suelta 3 fuegos de zorro'],hashiri:['Doble paso','Un dash de cada dos sin recarga'],kaeshi:['Ojo de zorro','Ventana de parry +{50}%']},
+  s:{kiri:['Zarpa rápida','Velocidad de ataque +{30}%'],tame:['Paciencia','Carga un {40}% más rápida'],waza:['Astucia','Recarga del especial −{35}% y suelta 3 fuegos de zorro'],hashiri:['Doble paso','Un dash de cada dos sin recarga'],kaeshi:['Ojo de zorro','Ventana de esquiva perfecta +{50}%']},
   pas:['megumi','Kitsune no megumi','+50 % de tama']}
 };
 const KAMI_IDS=Object.keys(KAMI);
@@ -2820,7 +2822,7 @@ const RYU={
  yari:['hozoin','Hōzōin','Punta en cruz: cada estocada hiere también a los de al lado'],nito:['niten','Niten','Cada golpe alcanza también a otro enemigo cercano'],
  yumi:['heki','Heki','Sin flechas teledirigidas, pero ×2 de daño'],kama:['kusarikama','Kusari-gama','Las kamas lanzadas traen a los enemigos hacia ti'],
  odachi:['nodachi','Nodachi','Alcance +30 %, carga −20 % más lenta'],kusarigama:['gyokko','Gyokko','El gancho rebota entre 3 enemigos'],
- tessen:['gunbai','Gunbai','El parry aturde a todos en 3 m'],tanegashima:['teppotai','Teppō-tai','El especial invoca 2 tiradores']};
+ tessen:['gunbai','Gunbai','La esquiva perfecta aturde a todos en 3 m'],tanegashima:['teppotai','Teppō-tai','El especial invoca 2 tiradores']};
 const RYU_LV=[0,100,300,700,1500]; // bajas para cada nivel de maestría
 // pactos de Shinigami (Caos): maldición 3 oleadas → premio permanente
 const CURSE={horde:['+50 % de zombis'],fast:['Enemigos un 30 % más rápidos'],noheal:['Sin curación al acabar la oleada'],champ:['Campeones ×2']};
@@ -2908,6 +2910,7 @@ function kgHitDmg(e,hit,base){
  if(src==='tame'&&P.tameFull&&KS.slot.tame&&KS.slot.tame.ka==='tsuku')crit=Math.max(crit,2);
  if(KS.duo.shinsoku&&P.sinceDash<1.2&&!P.shinsoku){crit=Math.max(crit,2);P.shinsoku=1}
  if(KS.hg.shinobi&&kgBehind(e))crit=Math.max(crit,2);
+ if(P.pdBuff>time){crit=Math.max(crit,KG.pdMul);P.pdBuff=0}
  if(e.kgMarkT>time){crit=Math.max(crit,2.5);e.kgMarkT=0}
  let cc=KS.critCh;if(KS.slot.hashiri&&KS.slot.hashiri.ka==='tsuku'&&P.sinceDash<1.5)cc+=.25*KS.slot.hashiri.v;if(cc&&Math.random()<cc)crit=Math.max(crit,2);
  if(crit&&KS.pr.critdmg)crit=1+(crit-1)*1.6;
@@ -3053,7 +3056,7 @@ function kgDashTick(){const s=KS.slot.hashiri;if(!P.kgDash)P.kgDash=new Set();
  if(s.ka==='raijin')kgNear([P.x,P.y,P.z],1.5,e=>{if(P.kgDash.has(e))return;P.kgDash.add(e);kgShock(e);kgArc([P.x,P.y+1,P.z],[e.x,e.y+1,e.z],KFX.sh,.2,.05);kgDeal(e,.6*s.v,{col:KAMI.raijin.c})});
  if(s.ka==='fujin'||s.ka==='yuki'||s.ka==='hachi')kgNear([P.x,P.y,P.z],1.4,e=>{if(P.kgDash.has(e))return;P.kgDash.add(e);
   if(s.ka==='fujin')kgKnock(e,.6*s.v,1.6);else if(s.ka==='yuki')kgFrost(e,5);else kgWound(e,0,s.v)})}
-function kgDash(dx,dz){if(!KS.on)return;P.kgDash=new Set();P.sinceDash=0;const s=KS.slot.hashiri;
+function kgDash(dx,dz){P.dashT0=time;if(!KS.on)return;P.kgDash=new Set();P.sinceDash=0;const s=KS.slot.hashiri;
  if(s){if(s.ka==='raijin'){kgZone('cloud',P.x,P.z,1.6,2,s.v);DELAY.push({t:.22,fn:()=>{if(state==='play')kgZone('cloud',P.x,P.z,1.6,2,s.v)}})}
   if(s.ka==='inari'){if(!P.xd){P.xd=1;P.dashCd=.06}else P.xd=0}}
  if(KS.dcd)P.dashCd*=1-Math.min(.5,KS.dcd);
@@ -3061,7 +3064,11 @@ function kgDash(dx,dz){if(!KS.on)return;P.kgDash=new Set();P.sinceDash=0;const s
  if(KS.hg.shinobi)kgZone('smoke',P.x,P.z,1.8,1.5,1);
  if(KS.duo.kitsunebi)addProj({k:'fire',x:P.x,y:P.y+1.2,z:P.z,vx:0,vy:2,vz:0,life:3.5,rad:1.5});
  if(KS.sp.inari)kgZone('decoy',P.x,P.z,1,2,1)}
-// parry con éxito (también desvío)
+// esquiva perfecta: te iban a golpear justo durante (o recién acabado) el dash
+function kgPerfect(f){if(time<(P.pdCd||0))return false;P.pdCd=time+KG.pdCd;slowT=Math.max(slowT,.45);hitstop=Math.max(hitstop,.06);P.pdBuff=time+2.5;P.inv=Math.max(P.inv,.45);
+ kgWave([P.x,P.y,P.z],2.6,'#bfefff',.45);kgNum([P.x,P.y+2.3,P.z],'避',1.9,'#bfefff');sfx('parry');kgVib([20,30,60],true);shake=Math.max(shake,.15);
+ if(f&&f.alive){if(!f.kind&&!f.spider)f.stun=Math.max(f.stun||0,.8);else f.atkCd=Math.max(f.atkCd||0,1.2)}if(EF.rayo)chainLightning();kgParry(f);return true}
+// tras la esquiva perfecta (antes, tras el parry): efecto de la ranura 返
 function kgParry(f){P.parryT0=time;if(!KS.on)return;const s=KS.slot.kaeshi,c=[P.x,P.y,P.z];
  if(s)switch(s.ka){
   case'raijin':kgBolt([P.x,P.y+1.3,P.z],5,2*s.v);break;
@@ -3346,7 +3353,7 @@ function kgRenderOffer(anim){const G=RUN.kg,hk=G.hok&&G.hok[G.hokSel];const kami
  if(anim){KGO.classList.add('lock');setTimeout(()=>KGO&&KGO.classList.remove('lock'),650)}
  if(KOFFK==='start')kgTip()}
 function kgTip(){try{if(localStorage.getItem('stickronin_kgtip'))return;localStorage.setItem('stickronin_kgtip','1')}catch(_){return}
- const t=document.createElement('div');t.className='ktip';t.innerHTML=`<b>加護 Bendiciones</b><span>⚔ Cada carta va a un botón: ataque, cargado, especial, dash o parry</span><span>⛩ Al acabar cada oleada, el kami de su santuario te ofrece 3</span><span>✦ 2 kami distintos = dúo · 3 del mismo = ★ legendaria</span><span>鬼 3 kamon del mismo juego = te transformas (Henge)</span><button data-k="tipx">¡Entendido!</button>`;KGO.appendChild(t)}
+ const t=document.createElement('div');t.className='ktip';t.innerHTML=`<b>加護 Bendiciones</b><span>⚔ Cada carta va a un botón: ataque, cargado, especial, dash o esquiva perfecta</span><span>避 Haz dash justo cuando te van a golpear: cámara lenta y tu siguiente golpe hace ×2,5</span><span>⛩ Al acabar cada oleada, el kami de su santuario te ofrece 3</span><span>✦ 2 kami distintos = dúo · 3 del mismo = ★ legendaria</span><span>鬼 3 kamon del mismo juego = te transformas (Henge)</span><button data-k="tipx">¡Entendido!</button>`;KGO.appendChild(t)}
 let kgLP=null;
 function kgPDown(e){const c=e.target.closest('.kcard');if(!c)return;clearTimeout(kgLP);kgLP=setTimeout(()=>{kgLP='done';kgDetail(+c.dataset.i)},450)}
 function kgPUp(){if(kgLP!=='done')clearTimeout(kgLP)}
@@ -3796,12 +3803,12 @@ function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CT
  <p>Salta sobre sus cabezas y vuelve a saltar para pisarlos</p>
  <p>Al cortarlos, sus trozos se vuelven mini zombis: acaba con todos</p>
  <p>🔄 Versión: la ves abajo en el título y en la pausa. Si hay una versión nueva en GitHub sale un aviso arriba para actualizar, y al actualizar te dice qué ha cambiado. En multijugador avisa si alguien tiene otra versión</p>
- <p>👥 Multijugador (hasta 4): uno crea la sala y los demás escriben el código de 4 letras. Cada uno tiene su cámara. Modo <b>Cacería</b>: todos contra todos, primero a 10 bajas o el que más tenga en 5 minutos; el parry (atacar justo cuando te golpean, de frente) bloquea el golpe cuerpo a cuerpo y lanza volando al atacante (1 s de recarga tras parar o desviar); los disparos apuntan con 0,1 s de retraso y se desvían atacando hacia ellos, salvo los cargados, que solo se esquivan; reapareces a los 3 s. Todos empezáis con katana y van saliendo armas por el mapa: pasa por encima y elige Coger (o el botón de cambiar arma) o Quitar (tecla X). El anfitrión lo empieza con «⚔ Empezar Cacería» (también desde la pausa). Asedio: cooperativo contra oleadas y jefes (de momento, para probarlo con 3 compañeros IA). Funciona en la versión de GitHub</p>
+ <p>👥 Multijugador (hasta 4): uno crea la sala y los demás escriben el código de 4 letras. Cada uno tiene su cámara. Modo <b>Cacería</b>: todos contra todos, primero a 10 bajas o el que más tenga en 5 minutos; el parry (atacar justo cuando te golpean, de frente) bloquea el golpe cuerpo a cuerpo y lanza volando al atacante (1 s de recarga tras parar o desviar); si machacas el botón la ventana casi desaparece y, si fallas, tardas medio segundo en poder intentarlo otra vez; los disparos apuntan con 0,1 s de retraso y se desvían atacando hacia ellos, salvo los cargados, que solo se esquivan; reapareces a los 3 s. Todos empezáis con katana y van saliendo armas por el mapa: pasa por encima y elige Coger (o el botón de cambiar arma) o Quitar (tecla X). El anfitrión lo empieza con «⚔ Empezar Cacería» (también desde la pausa). Asedio: cooperativo contra oleadas y jefes (de momento, para probarlo con 3 compañeros IA). Funciona en la versión de GitHub</p>
  <p>👹 Durante las oleadas aparecen arañas y yokai (kappa, tengu… y onis de colores: rojo mazazo, azul lanza 2 zombis, amarillo salta y suelta una onda, verde embiste, negro enorme). Desde la oleada 3 los demás yokai también salen en variantes, cada una con su color y su truco: kappa rojo (3 saltos seguidos), de río (salto largo) y dorado (acorazado); kasa gemela (se parte en dos al morir), de fuego (explota al morir) y de tormenta (más rápida); rokurokubi de cuello largo, futakuchi (muerde dos veces) y negra (dura y rápida); karasu-tengu (pica dos veces), konoha-tengu (te empuja con ráfagas de viento) y Ō-tengu (grande y duro). Desde la oleada 4 puede llegar una incursión de hasta 10 onis de golpe: esos sí hay que matarlos para pasar. El resto de yokai y arañas desaparecen al superar la oleada</p>
  <p>👑 Cada 5 oleadas sale un jefe (5: Ō-oni, 10: Karura, y se alternan) y la oleada no acaba hasta vencerlo. Tras vencerlos: martillo de Amatsumara (oleadas 5 y 10), trato del oni si no te han tocado y tienda del tanuki. Zombis, yokai y jefes tienen más vida cuanto más avanzas</p>
  <p>📱 Desde la oleada 5 (o con muchos enemigos) el juego pasa a modo ligero: la sangre ya no salpica, forma charcos en el suelo que crecen, y los cuerpos que salen volando caen con una animación sencilla, para que vaya fluido en el móvil</p>
  <p>⚡ Todas las armas tienen su habilidad especial desde el principio. El botón muestra los segundos que faltan</p>
- <p>⚔ Antes de empezar eliges 2 armas en la armería: cada una dice si es fácil o difícil y su crítico 会心 (por ejemplo, la kama hace ×3 por la espalda). Venciendo a un jefe con un arma desbloqueas su estilo 流, que sube de nivel con las bajas. Abajo puedes apagar el temblor, los destellos, la vibración y los números de daño 💥</p><p>⛩ 加護 Bendiciones: en cada oleada aparece el santuario de un kami (cada 3 oleadas, dos: toca el que quieras). Al acabarla te ofrece 1 de 3 cartas. Cada carta va a un botón (ataque, cargado, especial, dash o parry) y aplica el estado de su kami: rayo, viento, fuego, hielo, herida, marca lunar o encanto. 2 kami distintos abren dúos 結; 3 del mismo, su legendaria ★. 🎲 cambia las cartas y 🚫 destierra una. A veces aparece un pacto 💀 de Shinigami: maldición 3 oleadas y luego un premio</p><p>鬼 Kamon: los sueltan yokai y onis. 3 del mismo juego (Oni, Tengu, Kitsune, Ryū o Shinobi) te transforman (Henge). 魂 La tama se gasta en la tienda del tanuki, en cambiar cartas y en curarte en el santuario</p><p>🛡 La barra amarilla es armadura: rómpela con golpes fuertes (aturde y da tama). Los enemigos con un kanji encima son campeones 祟 con un truco y mejor botín</p><p><button class="edl" type="button" onpointerdown="event.stopPropagation()" onclick="kgShowCodex()">📖 Códice: kami, dúos, Henge, campeones y armas</button></p>
+ <p>⚔ Antes de empezar eliges 2 armas en la armería: cada una dice si es fácil o difícil y su crítico 会心 (por ejemplo, la kama hace ×3 por la espalda). Venciendo a un jefe con un arma desbloqueas su estilo 流, que sube de nivel con las bajas. Abajo puedes apagar el temblor, los destellos, la vibración y los números de daño 💥</p><p>⛩ 加護 Bendiciones: en cada oleada aparece el santuario de un kami (cada 3 oleadas, dos: toca el que quieras). Al acabarla te ofrece 1 de 3 cartas. Cada carta va a un botón (ataque, cargado, especial, dash o esquiva perfecta 避: dash justo cuando te van a golpear = cámara lenta y siguiente golpe ×2,5) y aplica el estado de su kami: rayo, viento, fuego, hielo, herida, marca lunar o encanto. 2 kami distintos abren dúos 結; 3 del mismo, su legendaria ★. 🎲 cambia las cartas y 🚫 destierra una. A veces aparece un pacto 💀 de Shinigami: maldición 3 oleadas y luego un premio</p><p>鬼 Kamon: los sueltan yokai y onis. 3 del mismo juego (Oni, Tengu, Kitsune, Ryū o Shinobi) te transforman (Henge). 魂 La tama se gasta en la tienda del tanuki, en cambiar cartas y en curarte en el santuario</p><p>🛡 La barra amarilla es armadura: rómpela con golpes fuertes (aturde y da tama). Los enemigos con un kanji encima son campeones 祟 con un truco y mejor botín</p><p><button class="edl" type="button" onpointerdown="event.stopPropagation()" onclick="kgShowCodex()">📖 Códice: kami, dúos, Henge, campeones y armas</button></p>
  <p style="opacity:.75">Teclado: ${['u','l','d','r'].map(k).join('')} mover · ${k('jump')} saltar · ${k('atk')} atacar · ${k('dash')} especial · ${k('hook')} gancho · ${k('swap')} arma · ${k('menu')} pausa · también con mando</p>
  ${best?`<p style="opacity:.75">Tu récord: ${best} bajas</p>`:''}</div><button class="edl" id="bBack" type="button">← Volver</button>`}
 /* ================= MULTIJUGADOR (fase 1: sala compartida) =================
@@ -3905,7 +3912,7 @@ function mpInfo(){const o=$('ov');o.style.display='flex';
  <div><b>🏯 Sala libre</b><span>Al entrar no hay daño: moveos y esperad a todos.</span></div>
  <div><b>⚔ Cacería</b><span>El anfitrión la empieza. Todos contra todos; gana el primero a 10 bajas o el que más tenga a los 5 min. Reapareces a los 3 s.</span></div>
  <div><b>🗡 Armas</b><span>Empezáis con katana. Salen armas por el mapa: pasa por encima y pulsa el botón que aparece sobre el especial para cogerla, o ✖ para quitarla.</span></div>
- <div><b>🛡 Parry</b><span>Ataca justo cuando te golpean, de frente: bloqueas y lanzas volando al otro. Luego 1 s de recarga.</span></div>
+ <div><b>🛡 Parry</b><span>Ataca justo cuando te golpean, de frente: bloqueas y lanzas volando al otro. Luego 1 s de recarga. No machaques: si pulsas seguido casi no sirve y, si fallas, esperas medio segundo.</span></div>
  <div><b>🏹 Disparos</b><span>Apuntan con un poco de retraso: muévete para esquivarlos o atácalos para desviarlos. Los cargados no se desvían.</span></div>
  <div><b>🏯 Asedio (prueba)</b><span>Tú y 3 compañeros IA contra oleadas de zombis duros (4 golpes, pegan fuerte), yokai y arañas. Empiezas con un arma al azar y una bendición. Llevas 2 armas en mano (cámbialas con ⇄); las del suelo se equipan con ✔ o se dejan con ✖. Al acabar cada oleada eliges una bendición de los kami, como en el modo normal: los santuarios ⛩ deciden de qué kami es. Tus bendiciones no afectan a los compañeros IA. Cada 3 oleadas sale un jefe, alternando. 迦楼羅 Karura (tengu-grifo de 4 patas y 4 alas, muy rápido): su ventarrón te aleja y, de cerca, te lanza con daño (con el gancho lanzado no te hace daño); se eleva y embiste contra uno; desde el cielo lanza una lluvia de plumas que daña a todos en un área grande (mira las marcas del suelo); y corre a por uno y se lo lleva volando (solo se le alcanza con el gancho desde un sitio alto, o enganchándole mientras agarra). Usa el gancho para subirte a su espalda y pegarle ×2 (SALTO para bajar); flechas y disparos solo le dañan desde abajo o por la espalda, y los cargados hacen poco. Si os subís los 4 se zarandea, huye a una esquina y se cura hasta un 15 % (2 veces por combate, o siempre si le quitáis más del 30 % los 4 encima). 大鬼 Ō-oni: lanza zombis, barre con el kanabō, salta y aplasta, y si estás muy cerca te agarra: machaca ATACAR o te lanza muerto. Salta para esquivar sus golpes (el barrido de frente solo si saltas muy alto) y pégale por la espalda para hacer ×2,5. Para levantar a un caído, quédate encima de su cuerpo 1,5 s. Si caéis todos, se acaba.</span></div>
  </div>
@@ -3917,7 +3924,7 @@ function mpAct(a){if(a==='siege'){siegeStart();return}if(a==='siegeExit'){goMenu
    Cada jugador detecta sus propios golpes contra los demás (los demás jugadores se meten como "objetivos" en la lista de enemigos
    solo mientras se procesa tu ataque). El golpeado aplica el daño en su móvil (y puede hacer parry). El anfitrión lleva el marcador. */
 var mpCurProj=null;
-const HUNT={parryCd:1,goal:10,time:300,dmg:20,spawns:[[-12,-12],[12,12],[-12,12],[12,-12],[0,-14],[0,14],[-15,0],[15,0]]};
+const HUNT={parryCd:1,win:.18,mash:.35,mashWin:.05,lock:.45,goal:10,time:300,dmg:20,spawns:[[-12,-12],[12,12],[-12,12],[12,-12],[0,-14],[0,14],[-15,0],[15,0]]};
 const mpHunt=()=>NET.on&&NET.match&&NET.match.mode==='hunt'&&NET.match.on;
 function mpPast(p,ms){const h=p.hist;if(!h||!h.length)return null;const t=performance.now()-ms;for(let i=h.length-1;i>=0;i--)if(h[i][0]<=t)return h[i];return h[0]}
 function mpProxyPush(phase){if(!mpHunt())return;const lag=phase!=='proj'&&weapon().tap;for(const k in NET.peers){const p=NET.peers[k],st=p.st;if(!st||!p.J||st.dead||st.inv)continue;
@@ -3934,9 +3941,9 @@ function mpTakeHit(m){NET.hIn=(NET.hIn||0)+1;if(!mpHunt()||P.dead||P.inv>0)retur
  const a=NET.peers[m.by],ax=a&&a.J?a.J[3][0]:P.x,az=a&&a.J?a.J[3][2]:P.z;
  const front=Math.abs(angDiff(Math.atan2(ax-P.x,az-P.z),P.yaw))<1.5;
  const pok=!(NET.parryCd>0);
- if(m.rk&&!m.chg&&front&&pok&&(P.parryT>0||(P.atk&&P.atk.type!=='iai'))){NET.parryCd=HUNT.parryCd;const mid=[P.x+Math.sin(P.yaw)*.7,P.y+1.2,P.z+Math.cos(P.yaw)*.7];sparks(mid,[ax-P.x,.8,az-P.z],14,[1,.95,.6]);sfx('parry');hitstop=Math.max(hitstop,.05);P.inv=Math.max(P.inv,.12);
+ if(m.rk&&!m.chg&&front&&pok&&(P.parryT>0||(P.atk&&P.atk.type!=='iai'))){NET.parryCd=HUNT.parryCd;P.parryT=0;const mid=[P.x+Math.sin(P.yaw)*.7,P.y+1.2,P.z+Math.cos(P.yaw)*.7];sparks(mid,[ax-P.x,.8,az-P.z],14,[1,.95,.6]);sfx('parry');hitstop=Math.max(hitstop,.05);P.inv=Math.max(P.inv,.12);
   banner('¡DESVIADA!');mpRoute({t:'deflect',tg:m.by,by:NET.id});return}
- if(P.parryT>0&&!m.rk&&front&&pok){NET.parryCd=HUNT.parryCd;const mid=[(P.x+ax)/2,P.y+1.25,(P.z+az)/2];sparks(mid,[ax-P.x,.6,az-P.z],18,[1,.95,.6]);sfx('parry');hitstop=Math.max(hitstop,.08);P.parryAnim=.24;P.inv=.25;P.yaw=Math.atan2(ax-P.x,az-P.z);
+ if(P.parryT>0&&!m.rk&&front&&pok){NET.parryCd=HUNT.parryCd;P.parryT=0;const mid=[(P.x+ax)/2,P.y+1.25,(P.z+az)/2];sparks(mid,[ax-P.x,.6,az-P.z],26,[1,.95,.6]);sfx('parry');hitstop=Math.max(hitstop,.12);slowT=Math.max(slowT,.25);shake=Math.max(shake,.25);ring([P.x,P.y,P.z],1.6,.3);banner('¡PARRY!');try{navigator.vibrate&&navigator.vibrate([20,30,50])}catch(_){}P.parryAnim=.24;P.inv=.25;P.yaw=Math.atan2(ax-P.x,az-P.z);
   mpRoute({t:'parried',tg:m.by,by:NET.id});return}
  P.hp-=m.dmg;P.inv=.45;P.atk=null;P.charge=null;P.wall=null;P.wallLock=.3;P.sky=null;P.odDive=null;NET.lastBy=m.by;
  P.vx=m.v[0];P.vy=Math.max(4,m.v[1]);P.vz=m.v[2];P.knockT=.3;P.kv=[P.vx,P.vz];dmgFlash=.5;shake=Math.max(shake,.18);spray([P.x,P.y+1.2,P.z],[m.v[0],1,m.v[2]],16,4,.6);sfx('hurt');hitstop=.04;

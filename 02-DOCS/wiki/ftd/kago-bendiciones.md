@@ -30,6 +30,8 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Asedio con Kago: bendición al empezar, santuarios ⛩ y cartas al acabar cada oleada; sin metal, bolsa, rarezas ni forja del asedio; bots con daño fijo. Cacería y sala MP con armas sin rareza. **Prueba:** t7 (asedio: inicio, cartas, oleada 2, recoger arma, jefe), t8 (sala MP), t1/t2/t6 sin errores.
 - [x] Fuera rarezas de carta (valor único ×1,5, niveles con Omiki). **Prueba:** t1/t7 sin errores.
 - [x] Efectos muy visibles (estados, zonas, rayos, ondas, estela del dash, brillo del arma) y especial/dash como poderes del kami. **Prueba:** t10 (capturas de los 8 kami), t3 rendimiento CPU ×4: 53,4 → 49,1 fps; t1/t2/t7/t8 sin errores.
+- [x] Interruptor de números de daño (encendido fuera de github.io). **Prueba:** t12.
+- [x] Parry fuera en normal/asedio → esquiva perfecta 避 con el dash; parry PvP con anti-machaque y bloqueo al fallar. **Prueba:** t13/t14 (esquiva: 0 daño, cámara lenta, ×2,5, recarga; PvP: 0,18 / 0,05 / bloqueo 0,45 s), t1/t2/t7/t8 sin errores.
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
