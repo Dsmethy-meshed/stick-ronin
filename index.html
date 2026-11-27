@@ -305,7 +305,7 @@ function toW(o,yaw,l){const c=Math.cos(yaw),s=Math.sin(yaw);return[o.x-c*l[0]+s*
 function dirW(yaw,l){const c=Math.cos(yaw),s=Math.sin(yaw);return[-c*l[0]+s*l[2],l[1],s*l[0]+c*l[2]]}
 
 /* ================= MALLAS INSTANCIADAS ================= */
-const Y_AX=new THREE.Vector3(0,1,0),Z_AX=new THREE.Vector3(0,0,1),tV=new THREE.Vector3(),tO=new THREE.Object3D(),qA=new THREE.Quaternion(),qB=new THREE.Quaternion();
+const tV=new THREE.Vector3();
 // Lotes dinámicos: todos los cuerpos en una sola geometría (pocas llamadas de dibujo y sin InstancedMesh)
 function mkBatch(template,maxN,mat,shadow){
  const tp=template.attributes.position.array,tn=template.attributes.normal.array,ti=template.index.array,V=tp.length/3;
@@ -667,7 +667,6 @@ const WT={
 for(const k in WT){WT[k].id=k;WT[k].blunt=!!WT[k].blunt}
 const TYPES=Object.keys(WT);
 const SPN={odive:'ASCENSO',backcut:'CONTRA',twin:'DOBLE PASO',vault:'PÉRTIGA',lunge:'ESTOCADA',grapple:'CADENA',glide:'VIENTO',recoil:'RETROCESO',backflip:'BOMBA',smoke:'HUMO',throw:'LANZAR',charge:'EMBESTIR',dashcut:'TAJO',sweep:'BARRIDO',pull:'CADENA',boomerang:'ABANICO',blink:'SOMBRA',volley:'DESCARGA',rain:'LLUVIA'};
-const WEAPONS=[WT.katana,WT.maza];
 let wIdx=0;const weapon=()=>WT[(RUN&&RUN.wpn[wIdx])?RUN.wpn[wIdx].type:(wIdx?'maza':'katana')];
 const PIVOT=[0.06,1.3,0.12];
 function dirAt(a,tilt){const ar=a*D2R,t=tilt*D2R,sa=Math.sin(ar);return[sa*Math.sin(t),sa*Math.cos(t),Math.cos(ar)]}
@@ -1164,7 +1163,6 @@ function hurtPlayer(dmg,from){
  if(KS.on){dmg=kgHurtMod(dmg,from);if(!dmg)return;kgVib([30,40,30],true)}
  if((P.charge&&P.charge.kind==='cleave'||P.atk&&P.atk.def&&P.atk.def.armor)&&P.hp>dmg*.5+1){P.inv=.3;P.hp-=Math.round(dmg*.5);dmgFlash=.2;sfx('block');return}
  const blockable=from&&from.alive!==undefined&&!P.trap&&!(from.kind==='oni'||from.kind==='tengu'||from.kind==='ooni');
- if(blockable&&P.parryT>0){deflect(from);return}
  if(blockable&&P.charge&&Math.abs(angDiff(Math.atan2(from.x-P.x,from.z-P.z),P.yaw))<1.35){
   const bl=weapon().blunt,dx=P.x-from.x,dz=P.z-from.z,d=Math.hypot(dx,dz)||1,mid=[(P.x+from.x)/2,P.y+1.2,(P.z+from.z)/2];
   P.post=(P.post||0)+dmg*(bl?1.2:2.2);P.postT=1;P.hp-=Math.round(dmg*(bl?.5:.2));P.inv=.25;P.vx=dx/d*2;P.vz=dz/d*2;
@@ -1342,11 +1340,9 @@ function poseStep(){
  if(P.flipT>0){const th=-(1-P.flipT/.55)*6.283,c=Math.cos(th),sn=Math.sin(th),cy=1;P.Jdraw=P.J.map(q=>[q[0],cy+(q[1]-cy)*c-q[2]*sn,(q[1]-cy)*sn+q[2]*c])}
 }
 function attachWall(n){P.wall=true;P.wallN=n.slice();P.yaw=Math.atan2(-n[0],-n[2]);P.vx=P.vz=0;P.speed=0;P.vy=Math.max(P.vy*.2,-1);P.airDash=1;P.airAtk=0;P.wallLeap=0;P.wallRun=null;P.hangY=undefined;P.hangT=0;P.vault=null;dust([P.x-n[0]*.3,P.y+1,P.z-n[2]*.3],4,1.5)}
-function wallSide(n,md,vx,vz){const T=[-n[2],0,n[0]],l=md.x*T[0]+md.z*T[2];if(Math.abs(l)>.15&&md.m>.2)return Math.sign(l);const v=vx*T[0]+vz*T[2];if(Math.abs(v)>.3)return Math.sign(v);return Math.sign(Math.sin(P.yaw)*T[0]+Math.cos(P.yaw)*T[2])||1}
 function startClimb(n,v,ht,lf){attachWall(n);P.anchor=null;P.wallRun={t:0,v,ht:ht||0,lf:lf||0};P.vy=v;P.climbPh=0;if(lf>.5){const T=[-n[2],0,n[0]];P.yaw=P.heading=Math.atan2(T[0]*Math.sign(ht),T[2]*Math.sign(ht))}}
 function wallApproach(n,vx,vz){const T=[-n[2],0,n[0]],ht=vx*T[0]+vz*T[2],sp=Math.hypot(vx,vz);return{ht,sp,lf:sp>2.5?Math.abs(ht)/sp:0}}
 function stabWall(){const n=P.wallN;P.wallRun=null;P.anchor={ph:'hang',t:0};P.hangT=0;P.hangY=P.y;P.vy=0;P.yaw=Math.atan2(-n[0],-n[2]);sfx('block');sparks([P.x-n[0]*.35,P.y+1.95,P.z-n[2]*.35],[n[0],.4,n[2]],10,[1,.85,.5]);dust([P.x-n[0]*.3,P.y+1.9,P.z-n[2]*.3],3,.8)}
-function startWallRun(n,side,vy,t0,v0){attachWall(n);const W=weapon(),T=[-n[2],0,n[0]];P.anchor=0;P.wallRun={t:t0||0,s:side,v:Math.max(v0||0,4.5),max:Math.max(6.5,W.spd*1.15*(SM.mov||1))};P.vy=vy;P.yaw=P.heading=Math.atan2(T[0]*side,T[2]*side);P.climbPh=0}
 // ===== parkour automático =====
 function tryVault(n,box,md){
  if(!box||box===GROUND||P.vault||P.atk||P.charge||P.grap)return false;
@@ -1462,37 +1458,6 @@ function updateTrap(){
  else return;
  P.trap={t:0,dmgT:.25,x:P.x,y:P.y,z:P.z,told:false};P.atk=null;P.charge=null;sfx('hurt');shake=Math.max(shake,.2);banner('¡ATRAPADO!');
 }
-// parry: desvía el golpe, chispas y el enemigo queda vendido
-function deflect(f){
- const mid=[(P.x+f.x)/2,P.y+1.25,(P.z+f.z)/2],dx=f.x-P.x,dz=f.z-P.z,d=Math.hypot(dx,dz)||1;
- sparks(mid,[-dx,.6,-dz],18,[1,.95,.6]);sparks(mid,[dx,.6,dz],10,[1,.7,.3]);sfx('parry');hitstop=Math.max(hitstop,.08);shake=Math.max(shake,.12);
- P.parryAnim=.24;P.atk=null;P.atkBuf=0;P.atkQ=0;P.yaw=Math.atan2(dx,dz);P.post=Math.max(0,(P.post||0)-15);P.inv=Math.max(P.inv,.08);
- if(f.inRag&&f.inRag.lunge){for(const q of f.inRag.pts){q.px=q.x+(q.x-q.px)*.7;q.pz=q.z+(q.z-q.pz)*.7}f.inRag.lunge.hit=true}
- else if(f.spider&&!f.kind){f.bite=1.3;f.pounce=2;f.vx=dx/d*7;f.vz=dz/d*7;f.vy=3;f.mode='air'}
- else if(f.kind){f.atkCd=Math.max(f.atkCd,1.8);f.vx=dx/d*4;f.vz=dz/d*4;if(f.kind==='kappa')f.st='walk';if(f.kind==='rokuro'){f.st='ret';f.stT=0;f.tgt=f.headW||[f.x,f.y+1.6,f.z]}f.hurtT=0}
- else{f.atkWind=0;f.atkCd=1.7;f.parried=1.2;f.vx=dx/d*3;f.vz=dz/d*3}
- combo++;comboT=2.4;
- counterAttack(f);
-}
-// contraataque del parry: corte/golpe en área que revienta todo lo que hay alrededor
-function counterAttack(f){kgParry(f);
- const W=weapon(),bl=W.blunt,R=(bl?3:2.7)*(SM.par||1),c=[P.x,P.y,P.z];let n=0;if(EF.rayo)chainLightning();
- // rokurokubi con el cuello estirado: contraataque a distancia, cortas por el cuello hasta ella
- if(f.kind==='rokuro'&&f.alive){const from=[P.x,P.y+1.2,P.z],to=[f.x,f.y+1.2,f.z];flashLine(from,f.headW||to,.35);flashLine(from,to,.35);
-  for(let i=1;i<=6;i++){const k=i/7,h=f.headW||to;addP({k:'s',x:lerp(from[0],h[0],k),y:lerp(from[1],h[1],k),z:lerp(from[2],h[2],k),vx:0,vy:1,vz:0,life:.3,max:.3,size:.14,c:[1,.9,.6]})}
-  f.hurtT=0;yokaiHit(f,{vel:[(f.x-P.x)*.8,5,(f.z-P.z)*.8]},99);banner('¡CONTRAATAQUE!')}
- for(const z of zs){if(!z.alive||z.iaiT>0)continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz)||1;if(d>R+(z.r||.3)||z.y>P.y+2||z.y+(z.h||1.8)<P.y-.5)continue;
-  const ox=dx/d,oz=dz/d,vel=[ox*(bl?11:7),bl?9:4,oz*(bl?11:7)];n++;
-  if(z.kind){z.hurtT=0;yokaiHit(z,{vel,blunt:bl},z===f?3:2)}
-  else if(z.spider)killSpider(z,{vel,blunt:bl});
-  else if(bl)killZombie(z,{blunt:1,impact:[z.x,z.y+1*z.s,z.z],vel,hs:.04,sh:.2});
-  else killZombie(z,{p0:[P.x,P.y+rand(.8,1.3),P.z],n:[rand(-.15,.15),1,rand(-.15,.15)],vel,mode:'waist',reach:R+.5,hs:.04,sh:.2,impact:[z.x,z.y+1*z.s,z.z]});
- }
- ring(c,R,.35);ring(c,R*.5,.25);if(bl){dust(c,24,3,true);debris(c,12)}
- for(let i=0;i<14;i++){const a=i/14*6.283;addP({k:'s',x:P.x+Math.sin(a)*R*.8,y:P.y+1.1,z:P.z+Math.cos(a)*R*.8,vx:Math.sin(a)*3,vy:0,vz:Math.cos(a)*3,life:.2,max:.2,size:.09,c:[1,.95,.7]})}
- P.parryAnim=.32;P.spinT=.25;sfx(bl?'blunt':'spin');shake=Math.max(shake,.22);hitstop=Math.max(hitstop,.1);fovKick=Math.max(fovKick,7);
- if(n>2&&f.kind!=='rokuro')banner('¡CONTRAATAQUE x'+n+'!');
-}
 function tell(e,h){addP({k:'s',x:e.x,y:e.y+(h||e.h)*1.02,z:e.z,vx:0,vy:0,vz:0,life:.22,max:.22,size:.32,c:[1,.25,.2]})}
 // 危: ataques imparables
 const bowSp=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.strokeStyle='#ff3b2a';g.lineWidth=9;g.beginPath();g.arc(64,64,40,0,7);g.stroke();g.lineWidth=7;for(const[a,b,x,y]of[[64,4,64,30],[64,98,64,124],[4,64,30,64],[98,64,124,64]]){g.beginPath();g.moveTo(a,b);g.lineTo(x,y);g.stroke()}g.fillStyle='#ff3b2a';g.beginPath();g.arc(64,64,9,0,7);g.fill();
@@ -1539,7 +1504,6 @@ function updateLocomotion(md){
  const angV=angDiff(prevH,P.heading)/DT;P.bank=lerp(P.bank,clamp(-angV*P.speed*.012,-.35,.35),.15);
  const Fy=fwdW(),accF=((P.vx-ovx)*Fy[0]+(P.vz-ovz)*Fy[2])/DT;P.leanF=lerp(P.leanF,clamp(accF*.007,-.16,.14),.15);
 }
-function skyTarget(S){const t=nearestZombie(14,S.a,.7);return t?[t.x,t.y,t.z]:[S.cx+Math.sin(S.a)*7,S.cy,S.cz+Math.cos(S.a)*7]}
 function updSky(md){const S=P.sky;if(!S)return;if(P.dead||P.trap||weapon().special!=='backflip'){P.sky=null;P.flipT=0;return}S.t+=DT;
  if(S.ph==='aim'){P.inv=Math.max(P.inv,.1);
   P.vy=Math.max(P.vy-G*(P.vy>0?1:.12)*DT,-1.6);P.vx*=.9;P.vz*=.9;P.speed=0;
@@ -1793,7 +1757,7 @@ function updateRag(r){
 }
 
 /* ================= ZOMBIS ================= */
-const MAX_MINIS=Infinity;let miniQueue=[];
+let miniQueue=[];
 function groundAt(x,y,z){let best=0;for(const b of BOXES){if(b===GROUND)continue;if(x>b.x0-.1&&x<b.x1+.1&&z>b.z0-.1&&z<b.z1+.1&&b.y1<=y+.6&&b.y1>best)best=b.y1}return best}
 function spawnMiniAt(sp){const x=clamp(sp[0],-19,19),z=clamp(sp[2],-19,19);let y=groundAt(x,sp[1],z);if(boxAt(x-.14,y+.02,z-.14,x+.14,y+1,z+.14)){const b=boxAt(x-.14,y+.02,z-.14,x+.14,y+1,z+.14);y=b.y1}addZombie(x,y,z,true)}
 const MAX_TOTAL=300,MAX_RAGS=15;let ragBornTick=-1,ragBornN=0;let delayedMinis=[];
@@ -2554,7 +2518,7 @@ const YK={
     for(let i=0;i<5;i++){const a=(i-2)*.28+fl,ln=((dv?.55:.95)-Math.abs(i-2)*.12)*k,dir=[Rr[0]*sd*Math.cos(a)-F[0]*(dv?.7:.2),Math.sin(a)+(dv?.4:0),Rr[2]*sd*Math.cos(a)-F[2]*(dv?.7:.2)];
      limb(root,[root[0]+dir[0]*ln,root[1]+dir[1]*ln,root[2]+dir[2]*ln],.03,YCOL.wing)}}}}
 };
-var ROCKS=[],ROCKC=[.42,.38,.34];
+var ROCKS=[];
 function drawTumbler(c,a,yaw,sc){const ca=Math.cos(a),sa=Math.sin(a),F=[Math.sin(yaw),Math.cos(yaw)],Rr=[Math.cos(yaw),-Math.sin(yaw)];
  const L=(u,f,w)=>{const y=u*ca-f*sa,ff=u*sa+f*ca;return[c[0]+(F[0]*ff+Rr[0]*w)*sc,c[1]+y*sc,c[2]+(F[1]*ff+Rr[1]*w)*sc]};const col=sc<.7?COL.mini:COL.z[0];
  const hd=L(.75,0,0),nk=L(.5,0,0),pl=L(-.1,0,0);limb(nk,pl,.06*sc,col);head(hd,.17*sc,col);for(const s2 of[-1,1]){const ar=L(.35,.25,.35*s2);limb(nk,ar,.045*sc,col);limb(ar,L(.6+.2*Math.sin(a*2+s2),.3,.5*s2),.04*sc,col);const kn=L(-.45,.15,.15*s2);limb(pl,kn,.05*sc,col);limb(kn,L(-.85,-.1+.2*Math.sin(a*3+s2),.18*s2),.045*sc,col)}}
@@ -2609,7 +2573,7 @@ function updateWaves(){
  if(waveQueue>0&&waveSpawnT<=0&&bigs<Math.min(maxAlive(wave),ALIVE_CAP())&&zs.length<zCap()){const burst=waveQueue>60?4:waveQueue>20?2:1;for(let i=0;i<burst&&waveQueue>0;i++){spawnZombie();waveQueue--}waveSpawnT=waveQueue>40?rand(.05,.15):rand(.3,.9)}
  for(let i=delayedMinis.length-1;i>=0;i--){const d=delayedMinis[i];d.t-=DT;if(d.t<=0){delayedMinis.splice(i,1);smoke([d.sp[0],d.sp[1],d.sp[2]],4);queueMini(d.sp)}}
  flushMiniQueue();
- if(waveQueue===0&&!zs.some(z=>!z.spider||z.alive&&(z.raid||z.kind==='ooni'||z.kind==='karura'))&&!miniQueue.length&&!delayedMinis.length&&!rags.some(r=>r.convert&&!r.dead)&&!CORPSES.some(C=>C.convert)){waveBreak=2.8;banner('¡OLEADA '+wave+' SUPERADA!');P.hp=Math.min(P.hpMax||100,P.hp+(kgNoHeal()?0:25));if(KS.on){hitstop=Math.max(hitstop,.12);slowT=Math.max(slowT,.35);kgVib([40,60,80],true)}clearWaveLeftovers()}
+ if(waveQueue===0&&!zs.some(z=>!z.spider||z.alive&&(z.raid||z.kind==='ooni'||z.kind==='karura'))&&!miniQueue.length&&!delayedMinis.length&&!rags.some(r=>r.convert&&!r.dead)&&!CORPSES.some(C=>C.convert)){waveBreak=2.8;banner('¡OLEADA '+wave+' SUPERADA!');P.hp=Math.min(P.hpMax||100,P.hp+(kgNoHeal()?0:(KS.on?KG.waveHeal:25)));if(KS.on){hitstop=Math.max(hitstop,.12);slowT=Math.max(slowT,.35);kgVib([40,60,80],true)}clearWaveLeftovers()}
 }
 
 /* ================= ARMAS, BOTÍN Y EFECTOS DE KAMON (las mejoras son las bendiciones Kago) ================= */
@@ -2656,8 +2620,8 @@ function newRun(){return{kg:kgNew(),sty:{},wpn:[genWeapon('katana'),genWeapon('m
 function refreshSM(){
  if(!RUN)RUN=newRun();
  for(const k of['dmg','spd','rng','chg','cd','spc','par','mov'])SM[k]=1;SM.def=1;
- EF={};const add=(id,rk)=>{EF[id]=EF[id]?Math.min(4,Math.max(EF[id],rk)+1):rk};
- if(TRAIN)for(const id in TRAIN.km)if(TRAIN.km[id])add(id,TRAIN.km[id]);
+ EF={};
+
  if(P)kgCalc();kgHudUpd();
 }
 // ---- muertes: botín y efectos ----
@@ -2737,17 +2701,19 @@ function updWUI(){lastSpecLbl='';const b=$('wbtn');b.textContent='⇄ '+weapon()
 /* ================= KAGO 加護 · bendiciones de los kami (Hades) + kamon Henge (Isaac) =================
    Escala: 1 unidad interna de daño/vida = 10 en pantalla. TODO lo ajustable está en KG y en las tablas de abajo. */
 const KG={
- pdWin:.35,pdCd:1.2,pdMul:2.5, // esquiva perfecta: ventana desde que empiezas el dash (s), recarga y daño del golpe siguiente
+ pdWin:.35,pdCd:1.5,pdMul:2, // esquiva perfecta: ventana desde que empiezas el dash (s), recarga y daño del golpe siguiente
  siegeHp:3,botHits:4, // asedio: zombis con ×3 de vida; un bot los mata en 4 golpes (sus golpes no usan tus bendiciones)
- base:1.5,                               // valor de toda bendición (sin rarezas); el {n} de los textos ya va ×base
+ base:1.3,                               // valor de toda bendición (sin rarezas); el {n} de los textos ya va ×base
  lvmul:[1,1.5,1.85,2.1],                 // Omiki: +50 %, +35 %, +25 % del valor base
- zhp:w=>.6+.2*(w-1),                     // vida de zombi (6, 8, 10… en pantalla)
+ zhp:w=>(.6+.2*(w-1))*1.05**(w-1),       // vida de zombi: 6, 8, 11, 14… 37 en la 10, 111 en la 20 (en pantalla)
+ edmg:.04,                               // daño que te hacen: +4 % por oleada
+ waveHeal:15,                            // vida al superar una oleada
  ykHp:.12,bossHp:.1,                     // crecimiento por oleada de yokai y jefes
  champ:w=>Math.min(.12,.02+.0055*(w-1)), // probabilidad de campeón (tatari)
  arm:{yoroi:2,oni:4,kuro:8,mini:1,boss:15},// armadura (×10 en pantalla); escala como la vida de yokai
- shop:{omiki:25,heal:20,kamon:30,hokora:15},reroll:n=>10+5*n,
+ shop:{omiki:40,omikiUp:20,heal:30,kamon:60,kamonUp:30,hokora:25},reroll:n=>15+10*n, // Omiki y kamon suben de precio con cada compra; 1 onigiri por visita
  pact:{p:.15,from:3,hp:15,waves:3},
- tama:{zombie:.25,yokai:3,oni:5,boss:25,champ:8,brk:2},
+ tama:{zombie:.12,yokai:2,oni:4,boss:20,champ:6,brk:1},
  cap:90                                  // cuerpos vivos como mucho (rendimiento móvil)
 };
 // daño base cuerpo a cuerpo de cada arma (unidades internas)
@@ -2851,7 +2817,7 @@ const KGFX=(()=>{let o={shake:true,flash:true,vib:true,num:!/github\.io$/.test(l
 function kgFxSave(){try{localStorage.setItem('stickronin_fx',JSON.stringify(KGFX))}catch(_){}}
 let vibT=0;function kgVib(p,force){if(!KGFX.vib||!('vibrate' in navigator))return;const n=performance.now();if(!force&&n-vibT<100)return;vibT=n;try{navigator.vibrate(p)}catch(_){}}
 function kgOn(){return!!RUN&&!NET.on&&!(TRAIN&&TRAIN.mp)}
-function kgNew(){return{slots:{},pas:{},duo:{},shinpo:{},ham:[],kam:{},rr:1,rrN:0,ban:3,banned:[],pact:null,boons:{},oniTaken:false,done:{},hok:null,hokSel:0,hurtBoss:false,breath:0,omikiTok:0}}
+function kgNew(){return{slots:{},pas:{},duo:{},shinpo:{},ham:[],kam:{},rr:1,rrN:0,ban:3,banned:[],pact:null,boons:{},buy:{},oniTaken:false,done:{},hok:null,hokSel:0,hurtBoss:false,breath:0,omikiTok:0}}
 const kv=c=>KG.base*KG.lvmul[Math.min(3,(c.lv||1)-1)]*(1+(c.bon||0));
 const kgTxt=(s,m)=>s.replace(/\{(\d+)\}/g,(_,n)=>Math.round(+n*m));
 function kgCount(ka){const G=RUN.kg;let n=0;for(const s in G.slots)if(G.slots[s].ka===ka)n++;if(G.pas[ka])n++;return n}
@@ -3199,7 +3165,7 @@ function kgZAI(e){
 function kgAlly(e){const t=nearestAlive(e.x,e.z,8,new Set([e]));e.allyCd=(e.allyCd||0)-DT;
  if(t){const dx=t.x-e.x,dz=t.z-e.z,d=Math.hypot(dx,dz)||1;if(d>.9){e.vx=dx/d*e.speed*1.3;e.vz=dz/d*e.speed*1.3}else{e.vx*=.5;e.vz*=.5;if(e.allyCd<=0){e.allyCd=.6;e.atkAnim=.3;kgDeal(t,.8*SM.dmg,{col:KAMI.benzai.c});if(KS.duo.mirai)kgShock(t)}}e.yaw=Math.atan2(dx,dz)}else{e.vx*=.8;e.vz*=.8}
  e.vy-=G*DT;moveBody(e);e.walkT+=DT*4;return true}
-function kgHurtMod(dmg,from){if(!KS.on)return dmg;if(from&&from.ks&&from.ks.al>0)return 0;if(from&&from.ks&&from.ks.ch>0)dmg*=KS.pas.kokoro?.48:.6;dmg*=SM.def||1;P.streak=0;RUN.kg.hurtBoss=true;return Math.max(1,Math.round(dmg))}
+function kgHurtMod(dmg,from){if(!KS.on)return dmg;if(from&&from.ks&&from.ks.al>0)return 0;if(from&&from.ks&&from.ks.ch>0)dmg*=KS.pas.kokoro?.48:.6;dmg*=(SM.def||1)*(1+KG.edmg*Math.max(0,wave-1));P.streak=0;RUN.kg.hurtBoss=true;return Math.max(1,Math.round(dmg))}
 // ---------- oleadas: hokora, maldiciones ----------
 function kgWaveStart(){if(!KS.on||horde300)return;const G=RUN.kg;
  if(G.pact&&G.pact.left>0&&G.pact.c==='horde')waveQueue=Math.round(waveQueue*1.5);
@@ -3411,16 +3377,17 @@ function kgPickOni(i,c){const o=KONI[i],G=RUN.kg;if(!o)return;G.done.oni=wave;
  if(o.t!=='skip'){kgBurst(c,o.t==='oni'?'#d1242c':'#ffe7a8');setTimeout(()=>kgEndQueue(),1800)}else kgEndQueue()}
 // tienda del tanuki (tras cada jefe)
 const KGH={};
+const kgPrice=k=>{const S=KG.shop,b=(RUN.kg.buy||{})[k]||0;return k==='omiki'?S.omiki+S.omikiUp*b:k==='kamon'?S.kamon+S.kamonUp*b:S.heal};
 function kgShop(){kgOverlay('cards shop').dataset.mode='shop';kgRenderShop()}
-function kgRenderShop(){const L=kgBlessList().filter(b=>(b.c.lv||1)<4).sort((a,b)=>(a.c.lv||1)-(b.c.lv||1)),t=RUN.tama,S=KG.shop;
+function kgRenderShop(){const L=kgBlessList().filter(b=>(b.c.lv||1)<4).sort((a,b)=>(a.c.lv||1)-(b.c.lv||1)),t=RUN.tama,S={omiki:kgPrice('omiki'),heal:kgPrice('heal'),kamon:kgPrice('kamon')},hd=RUN.kg.done.heal2===wave;
  KGO.innerHTML=`<div class="krays" style="--kc:#b08a60"></div><div class="kwrap">${kgHead('🦝 TIENDA DEL TANUKI','Gasta tus 魂')}<div class="kshop">
  <button data-k="sOmiki" class="kitem" ${t<S.omiki||!L.length?'disabled':''}><i>🍶</i><b>Omiki</b><span>${L.length?'Sube '+L[0].n+' a Nv '+((L[0].c.lv||1)+1):'Nada que subir'}</span><em>${S.omiki} 魂</em></button>
- <button data-k="sHeal" class="kitem" ${t<S.heal||P.hp>=P.hpMax?'disabled':''}><i>🍙</i><b>Onigiri</b><span>Cura 30 % de vida</span><em>${S.heal} 魂</em></button>
+ <button data-k="sHeal" class="kitem" ${t<S.heal||P.hp>=P.hpMax||hd?'disabled':''}><i>🍙</i><b>Onigiri</b><span>${hd?'Ya comiste uno':'Cura 30 % de vida (1 por visita)'}</span><em>${S.heal} 魂</em></button>
  <button data-k="sKamon" class="kitem" ${t<S.kamon?'disabled':''}><i>🎴</i><b>Kamon</b><span>Uno al azar para tu Henge</span><em>${S.kamon} 魂</em></button></div>
  <button data-k="sGo" class="kgo">Continuar ▶</button></div>`}
-KGH.sOmiki=()=>{const L=kgBlessList().filter(b=>(b.c.lv||1)<4).sort((a,b)=>(a.c.lv||1)-(b.c.lv||1));if(!L.length||RUN.tama<KG.shop.omiki)return;RUN.tama-=KG.shop.omiki;L[0].c.lv=(L[0].c.lv||1)+1;refreshSM();sfx('parry');kgVib(30);kgRenderShop()};
-KGH.sHeal=()=>{if(RUN.tama<KG.shop.heal)return;RUN.tama-=KG.shop.heal;P.hp=Math.min(P.hpMax,P.hp+P.hpMax*.3);sfx('ready');kgRenderShop()};
-KGH.sKamon=()=>{if(RUN.tama<KG.shop.kamon)return;RUN.tama-=KG.shop.kamon;kgAddKamon(pick(KAMON_IDS));sfx('ready');kgRenderShop()};
+KGH.sOmiki=()=>{const L=kgBlessList().filter(b=>(b.c.lv||1)<4).sort((a,b)=>(a.c.lv||1)-(b.c.lv||1)),c=kgPrice('omiki');if(!L.length||RUN.tama<c)return;RUN.tama-=c;const B=RUN.kg.buy=RUN.kg.buy||{};B.omiki=(B.omiki||0)+1;L[0].c.lv=(L[0].c.lv||1)+1;refreshSM();sfx('parry');kgVib(30);kgRenderShop()};
+KGH.sHeal=()=>{const c=kgPrice('heal');if(RUN.tama<c||RUN.kg.done.heal2===wave)return;RUN.tama-=c;RUN.kg.done.heal2=wave;P.hp=Math.min(P.hpMax,P.hp+P.hpMax*.3);sfx('ready');kgRenderShop()};
+KGH.sKamon=()=>{const c=kgPrice('kamon');if(RUN.tama<c)return;RUN.tama-=c;const B=RUN.kg.buy=RUN.kg.buy||{};B.kamon=(B.kamon||0)+1;kgAddKamon(pick(KAMON_IDS));sfx('ready');kgRenderShop()};
 KGH.sGo=()=>{RUN.kg.done.shop=wave;kgEndQueue()};
 // ---------- flujo de fin de oleada ----------
 function kgEndQueue(){const G=RUN.kg,d=G.done,w=wave;
@@ -3599,7 +3566,7 @@ function continueRun(){const d=savedRun();if(!d)return startGame();KGskip=1;star
  RUN=d.RUN;wave=d.wave;P.hp=d.hp;kills=d.kills||0;wIdx=d.wIdx||0;UID=Math.max(UID,d.UID||1);RUN.chestW=wave;refreshSM();updWUI();openForge()}
 /* ================= DOJO (entrenamiento) ================= */
 var TRAIN=null;
-function startDojo(){startGame();zs.length=0;miniQueue.length=0;TRAIN={god:true,freeze:false,km:{},slot:0};wave=1;waveQueue=0;waveBreak=0;banner('DOJO');hudShow(true);openDojo()}
+function startDojo(){startGame();zs.length=0;miniQueue.length=0;TRAIN={god:true,freeze:false,slot:0};wave=1;waveQueue=0;waveBreak=0;banner('DOJO');hudShow(true);openDojo()}
 function dojoSpawn(kind,n){
  for(let i=0;i<n;i++){const a=Math.random()*6.283,d=rand(5,8),x=clamp(P.x+Math.sin(a)*d,-19,19),z=clamp(P.z+Math.cos(a)*d,-19,19);
   if(kind==='zombie'||kind==='mini'){addZombie(x,groundAt(x,30,z),z,kind==='mini');const e=zs[zs.length-1];if(TRAIN.freeze){e.spd0=e.speed;e.speed=0}}
@@ -3612,7 +3579,7 @@ function renderDojo(){const T=TRAIN,W=RUN.wpn[T.slot];
  h+=`<div class="sec">Arma en ranura ${T.slot+1}: ${W.name}</div><div class="row"><button data-d="slot" data-v="0" class="${T.slot===0?'on':''}">Ranura ① ${TYPE_N[RUN.wpn[0].type]}</button><button data-d="slot" data-v="1" class="${T.slot===1?'on':''}">Ranura ② ${TYPE_N[RUN.wpn[1].type]}</button></div>`;
  h+=`<div class="sec">Elegir arma</div><div class="gr">${TYPES.map(t=>`<button class="wb${W.type===t?' on':''}" data-d="wpn" data-v="${t}"><span>${TYPE_I[t]}</span>${TYPE_N[t]}</button>`).join('')}</div><div class="sec" style="text-transform:none;opacity:.85">${WDESC[W.type]}</div>`;
  h+=`<div class="sec">Hacer aparecer</div><div class="gr">${[['zombie',1,'Zombie'],['zombie',10,'10 zombies'],['zombie',50,'50 zombies'],['mini',5,'5 minis'],['spider',1,'Araña'],['oni',1,'鬼 Oni'],['kappa',1,'河童 Kappa'],['kasa',1,'唐傘 Kasa'],['rokuro',1,'ろくろ首'],['tengu',1,'天狗 Tengu']].map(([k,n,l])=>`<button data-d="sp" data-v="${k}" data-n="${n}">${l}</button>`).join('')}</div>`;
- h+=`<div class="sec">Kamon de prueba (nivel)</div>${EFF_IDS.map(id=>`<div class="km"><span>${AR.eff[id].ico} ${AR.eff[id].name}</span>${[0,1,2,3,4].map(r=>`<button data-d="km" data-v="${id}" data-n="${r}" class="${(T.km[id]||0)===r?'on':''}">${r||'–'}</button>`).join('')}</div>`).join('')}`;
+ h+=`<div class="sec">Dar kamon (3 del mismo juego = Henge)</div><div class="gr">${KAMON_IDS.map(id=>`<button data-d="km" data-v="${id}"><span>${KAMON[id].ico}</span>${KAMON[id].n}${RUN.kg.kam[id]?' ×'+RUN.kg.kam[id]:''}</button>`).join('')}</div>`;
  h+=`<div class="sec">Opciones</div><div class="row"><button data-d="god" class="${T.god?'on':''}">Invencible</button><button data-d="freeze" class="${T.freeze?'on':''}">Enemigos quietos</button></div><div class="row" style="margin-top:6px"><button data-d="clear">Borrar enemigos</button><button data-d="forge">⛩ Probar bendiciones</button><button data-d="exit">Salir al menú</button></div>`;
  $('dojo').innerHTML=`<div class="fin">${h}</div>`}
 function openDojo(){state='dojo';hudShow(false);renderDojo();$('dojo').style.display='block'}
@@ -3622,7 +3589,7 @@ function dojoAct(e){const el=e.target.closest('[data-d]');if(!el)return;const T=
  if(a==='slot'){T.slot=+v;wIdx=T.slot}
  else if(a==='wpn'){RUN.wpn[T.slot]=genWeapon(v);wIdx=T.slot}
  else if(a==='sp'){dojoSpawn(v,+el.dataset.n);banner('+'+el.dataset.n+' '+el.textContent);return closeDojo()}
- else if(a==='km')T.km[v]=+el.dataset.n;
+ else if(a==='km')kgAddKamon(v);
  else if(a==='god')T.god=!T.god;
  else if(a==='freeze')dojoFreeze(!T.freeze);
  else if(a==='clear'){zs.length=0;miniQueue.length=0;delayedMinis.length=0;CORPSES.length=0;frags.length=0}
@@ -3664,40 +3631,6 @@ function placeCamera(){
  tV.set(-.45,.32,-.83).normalize();sunDisc.position.set(camera.position.x+tV.x*120,camera.position.y+tV.y*120,camera.position.z+tV.z*120);sunDisc.lookAt(camera.position);
 }
 
-/* ================= MASA DE CUERPOS (estilo metaballs, como superficie de alturas) ================= */
-const MG_N=49,MG_CS=.33,MG_SIZE=(MG_N-1)*MG_CS;
-const mgPos=new Float32Array(MG_N*MG_N*3),mgNor=new Float32Array(MG_N*MG_N*3),mgCol=new Float32Array(MG_N*MG_N*3),mgS=new Float32Array(MG_N*MG_N),mgH=new Float32Array(MG_N*MG_N);
-const mgIdx=[];for(let j=0;j<MG_N-1;j++)for(let i=0;i<MG_N-1;i++){const a=j*MG_N+i,b=a+1,c=a+MG_N,d=c+1;mgIdx.push(a,c,b,b,c,d)}
-const mgGeo=new THREE.BufferGeometry();
-mgGeo.setAttribute('position',new THREE.BufferAttribute(mgPos,3).setUsage(THREE.DynamicDrawUsage));
-mgGeo.setAttribute('normal',new THREE.BufferAttribute(mgNor,3).setUsage(THREE.DynamicDrawUsage));
-mgGeo.setAttribute('color',new THREE.BufferAttribute(mgCol,3).setUsage(THREE.DynamicDrawUsage));
-mgGeo.setIndex(mgIdx);
-const mgMesh=new THREE.Mesh(mgGeo,new THREE.MeshLambertMaterial({vertexColors:true}));mgMesh.frustumCulled=false;mgMesh.visible=false;
-let mgOX=0,mgOZ=0,mgOn=false;
-function updateMass(){
- mgOX=Math.round(P.x/MG_CS)*MG_CS-MG_SIZE/2;mgOZ=Math.round(P.z/MG_CS)*MG_CS-MG_SIZE/2;
- mgS.fill(0);let any=false;
- for(const z of zs){
-  const m=z.mass||0;if(!z.alive||m<.25||z.stun>0)continue;
-  const fx=(z.x-mgOX)/MG_CS,fz=(z.z-mgOZ)/MG_CS;if(fx<-3||fz<-3||fx>MG_N+2||fz>MG_N+2)continue;any=true;
-  const top=z.y+z.h*(.62+.22*m),ix=Math.round(fx),iz=Math.round(fz),w=m*m;
-  for(let gz=Math.max(0,iz-3);gz<=Math.min(MG_N-1,iz+3);gz++)for(let gx=Math.max(0,ix-3);gx<=Math.min(MG_N-1,ix+3);gx++){
-   const dx=mgOX+gx*MG_CS-z.x,dz=mgOZ+gz*MG_CS-z.z,d2=dx*dx+dz*dz;if(d2>1.05)continue;mgS[gz*MG_N+gx]+=w*Math.exp(8.5*(top-3.1*d2))}
- }
- mgOn=any;mgMesh.visible=any;if(!any)return;
- for(let k=0;k<MG_N*MG_N;k++){const v=mgS[k];const h=v>1e-9?Math.log(v)/8.5:-1;mgH[k]=h>.12?h:-.6}
- for(let gz=0;gz<MG_N;gz++)for(let gx=0;gx<MG_N;gx++){
-  const k=gz*MG_N+gx,o=k*3,x=mgOX+gx*MG_CS,z=mgOZ+gz*MG_CS,h=mgH[k];
-  mgPos[o]=x;mgPos[o+1]=h;mgPos[o+2]=z;
-  const hl=mgH[gz*MG_N+Math.max(0,gx-1)],hr=mgH[gz*MG_N+Math.min(MG_N-1,gx+1)],hd=mgH[Math.max(0,gz-1)*MG_N+gx],hu=mgH[Math.min(MG_N-1,gz+1)*MG_N+gx];
-  let nx=hl-hr,ny=2*MG_CS,nz=hd-hu;const nl=Math.hypot(nx,ny,nz);mgNor[o]=nx/nl;mgNor[o+1]=ny/nl;mgNor[o+2]=nz/nl;
-  const n=Math.sin(x*3.1+z*1.7)*Math.cos(z*2.6-x*.9),c=.13+.035*n+Math.min(.05,Math.max(0,h-1)*.012);
-  mgCol[o]=c*1.05;mgCol[o+1]=c*1.08;mgCol[o+2]=c*.92;
- }
- for(const a of['position','normal','color'])mgGeo.attributes[a].needsUpdate=true;
-}
-function massHeightAt(x,z){if(!mgOn)return-1;const gx=Math.round((x-mgOX)/MG_CS),gz=Math.round((z-mgOZ)/MG_CS);if(gx<0||gz<0||gx>=MG_N||gz>=MG_N)return-1;return mgH[gz*MG_N+gx]}
 
 /* ================= DIBUJO ================= */
 const FRUS=new THREE.Frustum(),FRM=new THREE.Matrix4(),ZSPH=new THREE.Sphere();
@@ -3861,7 +3794,7 @@ async function mpStart(host,code){mpLeave(true);NET.host=host;NET.code=(code||mp
    NET.joinTO=setTimeout(()=>{if(!NET.joined)mpFail('No se puede conectar con la sala '+NET.code)},9000)}})}
 // cliente: todo lo que envía va al anfitrión
 function mpTo(){return NET.host?'all':(NET.bc?NET.hostIdGuess||'all':'host')}
-function mpEnter(){clearTimeout(NET.joinTO);NET.match={mode:'free',on:false,score:{}};initAudio();startGame();zs.length=0;miniQueue.length=0;TRAIN={god:true,freeze:false,km:{},slot:0,mp:true};wave=1;waveQueue=0;waveBreak=0;
+function mpEnter(){clearTimeout(NET.joinTO);NET.match={mode:'free',on:false,score:{}};initAudio();startGame();zs.length=0;miniQueue.length=0;TRAIN={god:true,freeze:false,slot:0,mp:true};wave=1;waveQueue=0;waveBreak=0;
  P.x=-3+NET.slot*2;P.z=-2;camTX=P.x;scarf.forEach(s=>{s.x=P.x;s.px=P.x});banner('SALA '+NET.code);hudShow(true);sfx('ready')}
 function mpFail(msg){mpLeave(true);goMenu();mpScreen(msg,true)}
 function mpLeave(silent){if(!NET.on)return;try{if(NET.host)mpSend('all',{t:'close'});else mpSend(mpTo(),{t:'bye'})}catch(_){}
@@ -4087,7 +4020,7 @@ function mpPickGone(m){const q=NET.picks[m.id];if(!q)return;
 const SIEGE={feathers:[],on:false,wave:0,queue:[],spawnT:0,breakT:0,bots:[],revT:0,over:false,hits:[],grabReq:null,mash:0,mashNeed:9,holdT:0,held:null,boss:null};
 const BOT_N=['Kenji','Aiko','Taro'],REV_T=1.5,REV_R=1.5,Z_HP=4,Z_DMG=2.5,BOSS_EVERY=3;
 function siegeStart(){mpLeave&&NET.on&&mpLeave(true);initAudio();startGame();zs.length=0;miniQueue.length=0;delayedMinis.length=0;CORPSES.length=0;ROCKS.length=0;
- TRAIN={god:false,freeze:false,km:{},slot:0,siege:true};wave=0;waveQueue=0;waveBreak=0;kills=0;
+ TRAIN={god:false,freeze:false,slot:0,siege:true};wave=0;waveQueue=0;waveBreak=0;kills=0;
  Object.assign(SIEGE,{feathers:[],on:true,over:false,wave:0,queue:[],breakT:2.5,revT:0,hits:[],grabReq:null,mash:0,holdT:0,held:null,boss:null,prag:null});
  for(const b of SIEGE.bots)siegeBotGone(b);
  SIEGE.bots=[0,1,2].map(i=>({id:i,name:BOT_N[i],col:mpColor(i+1),slot:i+1,x:-3+i*3,z:-4,y:0,vx:0,vz:0,yaw:0,hp:100,down:false,revT:0,atkCd:rand(.3,.8),atkT:0,hitDone:false,walk:0,inv:1,hurtT:0,g:null,tag:null,rag:null,target:null,held:null,mashR:0}));
@@ -4244,7 +4177,7 @@ function karuraRideInput(){const S=P.ride;if(!S)return;P.rideCd=(P.rideCd||0)-DT
 function siegeBotGone(b){if(b.meshes)for(const k in b.meshes)scene.remove(b.meshes[k]);if(b.tag)b.tag.remove();if(b.rag)b.rag.dead=true}
 function siegeStop(){SIEGE.on=false;for(const id in NET.picks)mpPickRemove(id);mpPickUI(null);for(const b of SIEGE.bots)siegeBotGone(b);SIEGE.bots=[];if(P){P.siegeDown=false;P.held=null}siegeUI(false)}
 const siegeEnemies=()=>zs.filter(z=>z.alive&&!z.rp);
-const siegeBoss=()=>zs.find(z=>z.alive&&z.kind==='ooni');const siegeAnyBoss=()=>zs.find(z=>z.alive&&(z.kind==='ooni'||z.kind==='karura'));
+const siegeAnyBoss=()=>zs.find(z=>z.alive&&(z.kind==='ooni'||z.kind==='karura'));
 function siegeWaveList(n){const L=[];const nz=3+n*2,ny=2+Math.round(n*1.2);
  const pool=n<2?['kappa','kasa']:n<3?['kappa','kasa','rokuro','spider']:n<4?['kappa','kasa','rokuro','spider','tengu']:['kappa','kasa','rokuro','spider','tengu','oni'];
  for(let i=0;i<nz;i++)L.push('zombie');for(let i=0;i<ny;i++)L.push(pick(pool));
