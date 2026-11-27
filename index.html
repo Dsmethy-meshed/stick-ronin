@@ -329,6 +329,9 @@ const POOLB=mkBatch(new THREE.CircleGeometry(1,16).rotateX(-Math.PI/2),80,new TH
 const FIL=mkBatch(new THREE.SphereGeometry(1,8,5),1100,new THREE.MeshLambertMaterial({vertexColors:true}),false);
 const SPHL=mkBatch(new THREE.SphereGeometry(1,6,4),900,new THREE.MeshLambertMaterial({vertexColors:true}),false);
 const GHO=mkBatch(new THREE.CylinderGeometry(1,1,1,5,1,true),400,new THREE.MeshBasicMaterial({color:0xd1242c,transparent:true,opacity:.3,depthWrite:false}),false);
+// efectos Kago: rayos, llamas, hielo… (sin luz: brillan igual de día que de noche)
+const GLS=mkBatch(new THREE.CylinderGeometry(1,1,1,5,1,true),900,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.85,depthWrite:false}),false);GLS.mesh.renderOrder=3;
+const GLP=mkBatch(new THREE.SphereGeometry(1,8,6),700,new THREE.MeshBasicMaterial({vertexColors:true,transparent:true,opacity:.8,depthWrite:false}),false);GLP.mesh.renderOrder=3;
 const REDC={r:.77,g:.06,b:.12};
 function bSeg(B,a,b,r,c){
  if(B.n>=B.max)return;const dx=b[0]-a[0],dy=b[1]-a[1],dz=b[2]-a[2],l=Math.hypot(dx,dy,dz);if(l<1e-4)return;
@@ -357,8 +360,8 @@ function limb(a,b,r,col){bSeg(SEG,a,b,r,col)}
 function ghost(a,b,r){bSeg(GHO,a,b,r,null)}
 function head(p,r,col){bSph(SPH,p,r,col)}
 function red(p,r){bSph(SPH,p,r,REDC)}
-function poolBegin(){SEG.n=SPH.n=GHO.n=SEGL.n=SPHL.n=FIL.n=ZB_SEG.n=ZB_SPH.n=DSK.n=POOLB.n=0}
-function poolEnd(){bFlush(SEG);bFlush(SPH);bFlush(GHO);bFlush(SEGL);bFlush(SPHL);bFlush(FIL);bFlush(ZB_SEG);bFlush(ZB_SPH);bFlush(DSK);bFlush(POOLB)}
+function poolBegin(){SEG.n=SPH.n=GHO.n=SEGL.n=SPHL.n=FIL.n=ZB_SEG.n=ZB_SPH.n=DSK.n=POOLB.n=GLS.n=GLP.n=0}
+function poolEnd(){bFlush(SEG);bFlush(SPH);bFlush(GHO);bFlush(SEGL);bFlush(SPHL);bFlush(FIL);bFlush(ZB_SEG);bFlush(ZB_SPH);bFlush(DSK);bFlush(POOLB);bFlush(GLS);bFlush(GLP)}
 // calcomanías de sangre: una sola geometría dinámica
 const DEC_MAX=1200,DV=9;
 const decPos=new Float32Array(DEC_MAX*DV*3),decNor=new Float32Array(DEC_MAX*DV*3),decIdx=[];
@@ -2754,16 +2757,16 @@ const KAI={katana:{m:2,d:'3.er golpe del combo',sk:'Fácil'},maza:{m:2.5,d:'Carg
 const KSLOT=[['kiri','斬','Ataque'],['tame','溜','Cargado'],['waza','技','Especial'],['hashiri','走','Dash'],['kaeshi','返','Parry']];
 const KAMI={
  raijin:{n:'Raijin',k:'雷神',ico:'⚡',c:'#ffd23a',st:'Shibire',sd:'Electrocutado: si le golpeas, un rayo salta a 2 enemigos',
-  s:{kiri:['Golpe del trueno','Cada golpe electrocuta y lanza un rayo de {8} a 3 enemigos'],tame:['Rayo celeste','El cargado hace caer un rayo de {40} en 2 m'],waza:['Ira de Raijin','El especial invoca 3 rayos de {30}'],hashiri:['Paso de nube','El dash deja una nube eléctrica 2 s'],kaeshi:['Contra-rayo','El parry lanza un rayo a 5 enemigos ({20})']},
+  s:{kiri:['Golpe del trueno','Cada golpe electrocuta y lanza un rayo de {8} a 3 enemigos'],tame:['Rayo celeste','El cargado hace caer un rayo de {40} en 2 m'],waza:['Ira de Raijin','El especial hace caer 5 rayos de {30} del cielo'],hashiri:['Paso de nube','El dash es un relámpago: electrocuta lo que atraviesa y deja una nube 2 s'],kaeshi:['Contra-rayo','El parry lanza un rayo a 5 enemigos ({20})']},
   pas:['raiun','Raiun','Los rayos saltan a 3 enemigos más']},
  fujin:{n:'Fūjin',k:'風神',ico:'🌪',c:'#5fe0a0',st:'Fukitobi',sd:'Empuje ×2: si choca con otro, +100 % y aturdido',
-  s:{kiri:['Golpe vendaval','Golpes +{40}% y empuje ×2'],tame:['Ráfaga','El cargado suelta una ráfaga en cono de 5 m ({10})'],waza:['Tornado','El especial crea un tornado de 3 s que arrastra'],hashiri:['Paso de viento','El dash derriba a lo que atraviesa'],kaeshi:['Contra-viento','El parry suelta una onda de viento de 4 m']},
+  s:{kiri:['Golpe vendaval','Golpes +{40}% y empuje ×2'],tame:['Ráfaga','El cargado suelta una ráfaga en cono de 5 m ({10})'],waza:['Tornado','El especial lanza un tornado gigante de 4 s que arrastra'],hashiri:['Paso de viento','El dash derriba a lo que atraviesa'],kaeshi:['Contra-viento','El parry suelta una onda de viento de 4 m']},
   pas:['arashi','Arashi','Los choques entre enemigos hacen el doble']},
  kagu:{n:'Kagutsuchi',k:'迦具土',ico:'🔥',c:'#ff6a2a',st:'Moeru',sd:'Quemadura: {4}/s por pila, hasta 5 pilas',
-  s:{kiri:['Filo ígneo','+1 pila de quemadura por golpe'],tame:['Estallido','El cargado explota en 3 m (3 pilas)'],waza:['Rastro de llamas','El especial deja un rastro que arde'],hashiri:['Estela de fuego','El dash deja una estela ardiente'],kaeshi:['Contra-llama','El parry prende todo en 3 m']},
+  s:{kiri:['Filo ígneo','+1 pila de quemadura por golpe'],tame:['Estallido','El cargado explota en 3 m (3 pilas)'],waza:['Anillo de llamas','El especial estalla en 3,5 m (3 pilas) y deja un anillo de fuego 4 s'],hashiri:['Estela de fuego','El dash deja una estela ardiente'],kaeshi:['Contra-llama','El parry prende todo en 3 m']},
   pas:['onibi','Oni-bi','El enemigo que muere quemado explota']},
  yuki:{n:'Yuki-onna',k:'雪女',ico:'❄',c:'#8fe3ff',st:'Kōri',sd:'Escarcha: −15 % de velocidad por pila; con 5 se congela y recibe ×2',
-  s:{kiri:['Golpe gélido','+1 pila de escarcha por golpe'],tame:['Estaca de hielo','El cargado lanza hielo en línea (3 pilas)'],waza:['Ventisca','El especial crea una ventisca de 4 s'],hashiri:['Dash helado','El dash congela a lo que atraviesa'],kaeshi:['Contra-hielo','El parry congela al atacante']},
+  s:{kiri:['Golpe gélido','+1 pila de escarcha por golpe'],tame:['Estaca de hielo','El cargado lanza hielo en línea (3 pilas)'],waza:['Ventisca','El especial congela todo en 3,5 m y deja una ventisca 4 s'],hashiri:['Dash helado','El dash congela a lo que atraviesa'],kaeshi:['Contra-hielo','El parry congela al atacante']},
   pas:['hyoketsu','Hyōketsu','Los congelados reciben ×2,5 en vez de ×2']},
  hachi:{n:'Hachiman',k:'八幡',ico:'🩸',c:'#ff3048',st:'Kizu',sd:'Herida: a los 1,2 s estalla por {20} + 30 % del daño acumulado',
   s:{kiri:['Corte de guerra','Golpes +{50}% y hieren'],tame:['Herida doble','El cargado hiere el doble'],waza:['Grito de guerra','El especial hiere a todos alrededor'],hashiri:['Paso sangriento','El dash hiere a lo que atraviesa'],kaeshi:['Venganza','El parry devuelve 200 % como herida']},
@@ -2775,7 +2778,7 @@ const KAMI={
   s:{kiri:['Golpe encantador','Golpes +{50}% y encantan'],tame:['Danza','El cargado encanta en 3 m'],waza:['Canción','Los enemigos cercanos pelean por ti 3 s'],hashiri:['Pétalos','El dash deja pétalos que encantan'],kaeshi:['Seducción','El parry pone al atacante de tu lado 6 s']},
   pas:['kokoro','Kokoro','−20 % de daño recibido de encantados']},
  inari:{n:'Inari',k:'稲荷',ico:'🦊',c:'#ffe7a8',st:null,sd:'Velocidad, dash y tama',
-  s:{kiri:['Zarpa rápida','Velocidad de ataque +{30}%'],tame:['Paciencia','Carga un {40}% más rápida'],waza:['Astucia','Recarga del especial −{35}%'],hashiri:['Doble paso','Un dash de cada dos sin recarga'],kaeshi:['Ojo de zorro','Ventana de parry +{50}%']},
+  s:{kiri:['Zarpa rápida','Velocidad de ataque +{30}%'],tame:['Paciencia','Carga un {40}% más rápida'],waza:['Astucia','Recarga del especial −{35}% y suelta 3 fuegos de zorro'],hashiri:['Doble paso','Un dash de cada dos sin recarga'],kaeshi:['Ojo de zorro','Ventana de parry +{50}%']},
   pas:['megumi','Kitsune no megumi','+50 % de tama']}
 };
 const KAMI_IDS=Object.keys(KAMI);
@@ -2850,7 +2853,7 @@ const kv=c=>KG.base*KG.lvmul[Math.min(3,(c.lv||1)-1)]*(1+(c.bon||0));
 const kgTxt=(s,m)=>s.replace(/\{(\d+)\}/g,(_,n)=>Math.round(+n*m));
 function kgCount(ka){const G=RUN.kg;let n=0;for(const s in G.slots)if(G.slots[s].ka===ka)n++;if(G.pas[ka])n++;return n}
 function kgHas(ka){return kgCount(ka)>0}
-function kgReset(){ZN=[];EP=[];CLONES=[];TUR=[];KNUM=[];KST=new Set();if(P){P.hpMax=100;P.streak=0;P.dj=0}}
+function kgReset(){ZN=[];EP=[];CLONES=[];TUR=[];KNUM=[];KST=new Set();KARC=[];KWAVE=[];KTRAIL=[];if(P){P.hpMax=100;P.streak=0;P.dj=0}}
 // recalcula todo lo que dan las bendiciones, martillos, kamon y estilo (lo llama refreshSM)
 function kgCalc(){
  const K={slot:{},st:{},pas:{},duo:{},sp:{},ham:{},hg:{},kam:{},sty:null,styLv:1,pr:{},critCh:0,air:0,kb:1,tamaK:1,on:kgOn()};KS=K;if(!K.on)return;
@@ -2959,7 +2962,7 @@ function kgMark(e){if(!stOK(e))return;kgSt(e).mk=8}
 function kgCharm(e,t,ally){if(!stOK(e)||e.kind==='ooni'||e.kind==='karura')return;const k=kgSt(e);k.ch=Math.max(k.ch,t||4);if(!e.kind&&!e.spider&&(ally||Math.random()<.15))k.al=Math.max(k.al,ally?t:4)}
 function kgKnock(e,d,mul){if(e.kind||e.spider||!stOK(e)||!e.alive)return;const dx=e.x-P.x,dz=e.z-P.z,l=Math.hypot(dx,dz)||1,f=6*(mul||1)*KS.kb;launchZombie(e,[dx/l*f,4,dz/l*f]);const k=kgSt(e);k.kb=.7;k.kbD=Math.max(.3,d||.5)}
 function kgBolt(from,n,dmg,skip){const hit=skip||new Set();let f=from;n+=KS.pas.raiun?3:0;let c=0;
- for(let i=0;i<n;i++){const t=nearestAlive(f[0],f[2],6.5,hit);if(!t)break;hit.add(t);c++;const to=[t.x,t.y+1.1*(t.s||1),t.z];flashLine(f,to,.2);flashLine([to[0],to[1]+3,to[2]],to,.12);
+ for(let i=0;i<n;i++){const t=nearestAlive(f[0],f[2],6.5,hit);if(!t)break;hit.add(t);c++;const to=[t.x,t.y+1.1*(t.s||1),t.z];kgArc(f,to,KFX.sh,.25,.06);
   let d=dmg;if(KS.duo.hyorai&&t.ks&&t.ks.frz>0){d*=3;kgShatter(t)}kgShock(t);if(KS.duo.raika)kgBurn(t,2,dmg);if(KS.duo.gekko)kgMark(t);
   kgDeal(t,d,{col:KAMI.raijin.c,vel:[(t.x-f[0])*2,4,(t.z-f[2])*2]});if(KS.sp.raijin){ring([t.x,t.y,t.z],2,.25);kgAoe(to,2,dmg*.5,t,{col:KAMI.raijin.c})}f=to}
  if(c){sfx('parry');if(!goreLite())sparks(f,[0,1,0],5,[1,.95,.5])}return c}
@@ -2973,7 +2976,7 @@ function kgStep(){
  if(P.onGround)P.dj=0;P.chimaT=Math.max(0,(P.chimaT||0)-DT);if(P.iaiX&&time-(P.tameT??-9)>.8)P.iaiX=0;if(P.sinceDash>1.2)P.shinsoku=0;
  if(KS.hg.tengu&&!P.onGround&&held.jump&&P.vy<-2.2&&!P.grap)P.vy=-2.2;
  if(KS.slot.waza&&KS.slot.waza.ka==='kagu'&&P.fireT>0){P.fireT-=DT;P.fireTk=(P.fireTk||0)-DT;if(P.fireTk<=0){P.fireTk=.12;kgZone('fire',P.x,P.z,1.1,2,KS.slot.waza.v)}}
- if(P.dashT>0&&KS.slot.hashiri)kgDashTick();
+ if(P.dashT>0){kgTrailTick();if(KS.slot.hashiri)kgDashTick()}
  for(const p of PROJ)if(p.twice&&!p.tw2&&p.d>p.outD*.5){p.tw2=1;p.hit=new Set()}
  kgHokStep();
  for(const e of KST){const k=e.ks;if(!e.alive||!k){KST.delete(e);continue}let act=0;
@@ -3046,6 +3049,7 @@ function kgOnHit(e,hit,d){
 function kgDashTick(){const s=KS.slot.hashiri;if(!P.kgDash)P.kgDash=new Set();
  if(s.ka==='kagu'){P.ftk=(P.ftk||0)-DT;if(P.ftk<=0){P.ftk=.06;kgZone('fire',P.x,P.z,.9,2,s.v)}}
  if(s.ka==='benzai'){P.ftk=(P.ftk||0)-DT;if(P.ftk<=0){P.ftk=.08;kgZone('petal',P.x,P.z,1,2,s.v)}}
+ if(s.ka==='raijin')kgNear([P.x,P.y,P.z],1.5,e=>{if(P.kgDash.has(e))return;P.kgDash.add(e);kgShock(e);kgArc([P.x,P.y+1,P.z],[e.x,e.y+1,e.z],KFX.sh,.2,.05);kgDeal(e,.6*s.v,{col:KAMI.raijin.c})});
  if(s.ka==='fujin'||s.ka==='yuki'||s.ka==='hachi')kgNear([P.x,P.y,P.z],1.4,e=>{if(P.kgDash.has(e))return;P.kgDash.add(e);
   if(s.ka==='fujin')kgKnock(e,.6*s.v,1.6);else if(s.ka==='yuki')kgFrost(e,5);else kgWound(e,0,s.v)})}
 function kgDash(dx,dz){if(!KS.on)return;P.kgDash=new Set();P.sinceDash=0;const s=KS.slot.hashiri;
@@ -3086,13 +3090,14 @@ function kgSpinTick(){if(KS.ham.sharin&&weapon().id==='naginata'&&time-(P.shrT??
 // especial usado
 function kgSpecial(){P.wazaT=time;if(!KS.on)return;const s=KS.slot.waza,W=weapon().id,F=[Math.sin(P.yaw),Math.cos(P.yaw)];
  if(s)switch(s.ka){
-  case'raijin':{const hit=new Set();for(let i=0;i<3;i++){const t=nearestAlive(P.x,P.z,10,hit);if(!t)break;hit.add(t);const to=[t.x,t.y+1,t.z];flashLine([to[0],to[1]+7,to[2]],to,.3);ring([t.x,t.y,t.z],1.2,.3);kgShock(t);kgDeal(t,3*s.v,{col:KAMI.raijin.c})}sfx('boom');shake=Math.max(shake,.3);break}
-  case'fujin':kgZone('tornado',P.x+F[0]*2,P.z+F[1]*2,1.8,3,s.v,{dx:F[0]*3,dz:F[1]*3});sfx('whoosh');break;
-  case'kagu':P.fireT=1;break;
-  case'yuki':kgZone('bliz',P.x,P.z,3.5,4,s.v);sfx('whoosh');break;
-  case'hachi':DELAY.push({t:.3,fn:()=>{ring(c0(),3.5,.3);kgNear(c0(),3.5,e=>kgWound(e,0,s.v))}});break;
-  case'tsuku':DELAY.push({t:.3,fn:()=>{ring(c0(),4,.3);kgNear(c0(),4,e=>kgMark(e))}});break;
-  case'benzai':DELAY.push({t:.3,fn:()=>{ring(c0(),4,.3);kgNear(c0(),4,e=>kgCharm(e,3*s.v,true))}});break}
+  case'raijin':{const hit=new Set();for(let i=0;i<5;i++)DELAY.push({t:i*.11,fn:()=>{if(state!=='play')return;const t=nearestAlive(P.x,P.z,11,hit);if(!t)return;hit.add(t);const to=[t.x,t.y+1,t.z];kgArc([to[0]+rand(-1,1),to[1]+9,to[2]+rand(-1,1)],to,KFX.sh,.35,.14);kgWave([t.x,t.y,t.z],2.2,KAMI.raijin.c,.35);kgShock(t);kgDeal(t,3*s.v,{col:KAMI.raijin.c});kgAoe(to,1.3,1*s.v,t,{col:KAMI.raijin.c});sfx('boom');shake=Math.max(shake,.35)}});break}
+  case'fujin':kgZone('tornado',P.x+F[0]*2,P.z+F[1]*2,2.4,4,s.v,{dx:F[0]*3,dz:F[1]*3});kgWave(c0(),3,KAMI.fujin.c,.4);sfx('whoosh');break;
+  case'kagu':{P.fireT=1;const c=c0();kgWave(c,3.5,KAMI.kagu.c,.5);kgNear(c,3.5,e=>{kgBurn(e,3,s.v);kgDeal(e,1*s.v,{col:KAMI.kagu.c})});for(let i=0;i<10;i++){const a=i/10*6.283;kgZone('fire',c[0]+Math.cos(a)*3,c[2]+Math.sin(a)*3,.9,4,s.v)}sfx('boom');shake=Math.max(shake,.3);break}
+  case'yuki':{const c=c0();kgWave(c,3.5,KAMI.yuki.c,.5);kgNear(c,3.5,e=>kgFreeze(e,1.5));kgZone('bliz',P.x,P.z,3.5,4,s.v);sfx('whoosh');shake=Math.max(shake,.2);break}
+  case'hachi':DELAY.push({t:.3,fn:()=>{kgWave(c0(),3.5,KAMI.hachi.c,.4);ring(c0(),3.5,.3);kgNear(c0(),3.5,e=>kgWound(e,0,s.v))}});break;
+  case'tsuku':DELAY.push({t:.3,fn:()=>{kgWave(c0(),4,KAMI.tsuku.c,.5);ring(c0(),4,.3);kgNear(c0(),4,e=>kgMark(e))}});break;
+  case'benzai':DELAY.push({t:.3,fn:()=>{kgWave(c0(),4,KAMI.benzai.c,.5);ring(c0(),4,.3);kgNear(c0(),4,e=>kgCharm(e,3*s.v,true))}});break;
+  case'inari':for(let i=0;i<3;i++){const a=P.yaw+(i-1)*.7;addProj({k:'fire',x:P.x,y:P.y+1.3,z:P.z,vx:Math.sin(a)*4,vy:2,vz:Math.cos(a)*4,life:3.5,rad:1.4})}kgWave(c0(),2.5,KAMI.inari.c,.35);sfx('ready');break}
  if(KS.ham.tobiha&&W==='naginata')DELAY.push({t:.75,fn:()=>{ring(c0(),4,.4);kgNear(c0(),4,e=>{kgKnock(e,1,1.8);kgDeal(e,1*SM.dmg,{col:'#ffffff'})});sfx('boom')}});
  if(KS.ham.kagenui&&W==='kama')DELAY.push({t:.2,fn:()=>{const t=nearestAlive(P.x,P.z,3.5);if(t){t.kgMarkT=time+3;kgMark(t)}}});
  if(KS.sty==='teppotai'&&W==='tanegashima'){const R=[Math.cos(P.yaw),-Math.sin(P.yaw)];for(const sd of[-1,1])TUR.push({x:P.x+R[0]*1.4*sd,z:P.z+R[1]*1.4*sd,yaw:P.yaw,t:4+.4*KS.styLv,cd:.2})}
@@ -3213,16 +3218,56 @@ function kgDrawPlayer(J){if(!KS.on)return;const F=dirW(P.ryaw,[0,0,1]),R=dirW(P.
  if(KS.hg.ryu){const c=kcol('#3fd1a0');for(const[a,b]of BONES){const m=[(J[a][0]+J[b][0])/2,(J[a][1]+J[b][1])/2,(J[a][2]+J[b][2])/2];head(m,.045,c)}const eg=kcol('#ffee66');head([h[0]+F[0]*.13+R[0]*.05,h[1]+.02,h[2]+F[2]*.13+R[2]*.05],.03,eg);head([h[0]+F[0]*.13-R[0]*.05,h[1]+.02,h[2]+F[2]*.13-R[2]*.05],.03,eg)}
  for(const C of CLONES){const JJ=C.J.map(l=>toW(C,C.yaw,l));for(const[a,b]of BONES)ghost(JJ[a],JJ[b],.05*Math.min(1,C.t))}
  for(const T of TUR){const JJ=P.J.map(l=>toW(T,T.yaw,l));for(const[a,b]of BONES)ghost(JJ[a],JJ[b],.045);const hd=JJ[7];limb(hd,[hd[0]+Math.sin(T.yaw)*.8,hd[1],hd[2]+Math.cos(T.yaw)*.8],.03,kcol('#3b3f45'))}}
+// ---------- efectos visibles: estados, rayos, ondas, estelas y zonas (lotes GLS/GLP, sin luz) ----------
+const KFX={bn:kcol('#ff7a1a'),bn2:kcol('#ffe14a'),ice:kcol('#bdf1ff'),ice2:kcol('#5fc8ff'),sh:kcol('#fff27a'),wd:kcol('#ff2a40'),mk:kcol('#c9a2ff'),ch:kcol('#ff8fd2'),wind:kcol('#d8fff0'),smk:kcol('#9a96a6')};
+let KARC=[],KWAVE=[],KTRAIL=[];
+function gl(a,b,r,c){bSeg(GLS,a,b,r,c)}
+function gp(p,r,c){bSph(GLP,p,r,c)}
+// rayo en zigzag (grueso, se apaga solo)
+function kgArc(a,b,col,dur,w){if(KARC.length>24)KARC.shift();KARC.push({a,b,col:col||KFX.sh,t:dur||.25,max:dur||.25,w:w||.07})}
+// onda expansiva en el suelo
+function kgWave(c,r,col,dur){if(KWAVE.length>10)KWAVE.shift();KWAVE.push({x:c[0],y:c[1],z:c[2],r,col:kcol(col),t:dur||.45,max:dur||.45})}
+function kgZig(a,b,w,col,n){let p=a;n=n||6;for(let i=1;i<=n;i++){const f=i/n,j=i<n?.35:0,q=[a[0]+(b[0]-a[0])*f+rand(-j,j),a[1]+(b[1]-a[1])*f+rand(-j,j)*.6,a[2]+(b[2]-a[2])*f+rand(-j,j)];gl(p,q,w,col);p=q}}
+function kgTrailTick(){const s=KS.slot.hashiri,c=s?KAMI[s.ka].c:'#ffd04a';if(KTRAIL.length>40)KTRAIL.shift();KTRAIL.push({x:P.x,y:P.y+.9,z:P.z,t:.45,col:kcol(c),ka:s&&s.ka})}
+function kgStatusFx(e){const k=e.ks,s=e.s||1,h=(e.h||1.8)*s,x=e.x,y=e.y,z=e.z,T=time,sd=e.seed||0;
+ if(k.bn>0){const n=1+Math.min(4,k.bn|0);for(let i=0;i<n;i++){const a=T*3+i*2.4+sd,fl=.5+.5*Math.sin(T*18+i*1.7),px=x+Math.cos(a)*.24*s,pz=z+Math.sin(a)*.24*s,py=y+h*(.35+i*.14)+fl*.12;
+   gp([px,py,pz],(.12+.05*fl)*s,KFX.bn);gp([px,py+.11*s,pz],.06*s,KFX.bn2)}
+  if(tick%3===0&&!goreLite())addP({k:'s',x:x+rand(-.2,.2),y:y+h*.95,z:z+rand(-.2,.2),vx:0,vy:2.4,vz:0,life:.4,max:.4,size:.13,c:[1,.5,.1]})}
+ if(k.frz>0){for(let i=0;i<5;i++){const a=i/5*6.283+sd,ox=Math.cos(a)*.34*s,oz=Math.sin(a)*.34*s;gl([x+ox,y,z+oz],[x+ox*.45,y+h*1.08,z+oz*.45],.1*s,KFX.ice)}gp([x,y+h*.6,z],.3*s,KFX.ice2)}
+ else if(k.fr>0){const n=Math.min(5,k.fr|0);for(let i=0;i<n;i++){const a=i/5*6.283+T,ox=Math.cos(a)*.38*s,oz=Math.sin(a)*.38*s;gl([x+ox,y,z+oz],[x+ox*1.2,y+.38*s,z+oz*1.2],.06*s,KFX.ice)}}
+ if(k.sh>0){for(let i=0;i<2;i++){const a=[x+rand(-.3,.3)*s,y+rand(.2,1)*h,z+rand(-.3,.3)*s],b=[x+rand(-.4,.4)*s,y+rand(.2,1)*h,z+rand(-.4,.4)*s];kgZig(a,b,.03*s,KFX.sh,3)}if(tick%2===0)gp([x+rand(-.3,.3),y+rand(.3,1)*h,z+rand(-.3,.3)],.09,KFX.sh)}
+ const top=y+h+.3;
+ if(k.wd>0){const f=1-k.wd/1.2,pl=.5+.5*Math.sin(T*(10+f*20));gp([x,top+.1,z],(.1+.16*f)*(.85+.3*pl),KFX.wd);for(let i=0;i<8;i++){const a=i/8*6.283,b=(i+1)/8*6.283,r=(.55-.25*f)*s;gl([x+Math.cos(a)*r,y+h*.55,z+Math.sin(a)*r],[x+Math.cos(b)*r,y+h*.55,z+Math.sin(b)*r],.035,KFX.wd)}}
+ if(k.mk>0){const b=top+.25+Math.sin(T*3+sd)*.06;gp([x,b,z],.17,KFX.mk);gp([x+.08,b+.04,z],.13,kcol('#2a1a40'));for(let i=0;i<6;i++){const a=T*2+i/6*6.283;gp([x+Math.cos(a)*.42*s,y+h*.85,z+Math.sin(a)*.42*s],.05,KFX.mk)}}
+ if(k.ch>0){for(let i=0;i<(k.al>0?2:1);i++){const b=top+.25+i*.32+Math.sin(T*4+i)*.08,ox=(i?.18:0);const c=[x+ox,b,z];gp([c[0]-.07,c[1]+.05,c[2]],.09,KFX.ch);gp([c[0]+.07,c[1]+.05,c[2]],.09,KFX.ch);gl([c[0],c[1]+.03,c[2]],[c[0],c[1]-.16,c[2]],.07,KFX.ch)}
+  if(k.al>0)for(let i=0;i<10;i++){const a=i/10*6.283,b=(i+1)/10*6.283,r=.6*s;gl([x+Math.cos(a)*r,y+.05,z+Math.sin(a)*r],[x+Math.cos(b)*r,y+.05,z+Math.sin(b)*r],.04,KFX.ch)}}
+ if(k.kb>0){for(let i=0;i<3;i++){const a=T*14+i*2.1,r=.45*s,py=y+h*(.3+i*.25);gl([x+Math.cos(a)*r,py,z+Math.sin(a)*r],[x+Math.cos(a+1.2)*r,py+.1,z+Math.sin(a+1.2)*r],.035,KFX.wind)}}}
+function kgZoneFx(Z){const y=P.y,T=time,r=Z.r;
+ switch(Z.k){
+  case'fire':for(let i=0;i<4;i++){const a=i*1.57+Z.x*3,fl=.5+.5*Math.sin(T*16+i*2+Z.z),p=[Z.x+Math.cos(a)*r*.45,y+.2+fl*.25,Z.z+Math.sin(a)*r*.45];gp(p,.16+.08*fl,KFX.bn);gp([p[0],p[1]+.15,p[2]],.08,KFX.bn2)}break;
+  case'cloud':{const c=[Z.x,y+1.7,Z.z];gp(c,r*.42,KFX.sh);gp([c[0]+.35,c[1]+.1,c[2]],r*.3,KFX.sh);if(tick%3===0)kgZig(c,[Z.x+rand(-r,r)*.6,y,Z.z+rand(-r,r)*.6],.045,KFX.sh,4);break}
+  case'bliz':for(let i=0;i<10;i++){const a=T*2.2+i/10*6.283,rr=r*(.55+.4*((i%3)/2));const p=[Z.x+Math.cos(a)*rr,y+.15+(i%4)*.35,Z.z+Math.sin(a)*rr];gl(p,[p[0]+Math.cos(a+1.6)*.35,p[1]+.05,p[2]+Math.sin(a+1.6)*.35],.05,KFX.ice)}break;
+  case'tornado':case'whirl':{const n=Z.k==='tornado'?14:8;for(let i=0;i<n;i++){const f=i/n,a=T*9+f*12,rr=r*(.25+.75*f)*.8,p=[Z.x+Math.cos(a)*rr,y+.1+f*(Z.k==='tornado'?3:1),Z.z+Math.sin(a)*rr];gl(p,[Z.x+Math.cos(a+.7)*rr,p[1]+.12,Z.z+Math.sin(a+.7)*rr],.06,KFX.wind)}break}
+  case'petal':for(let i=0;i<6;i++){const a=T*3+i/6*6.283,p=[Z.x+Math.cos(a)*r*.6,y+.3+.25*Math.sin(T*5+i),Z.z+Math.sin(a)*r*.6];gp(p,.07,KFX.ch)}break;
+  case'smoke':for(let i=0;i<4;i++){const a=i*1.57+T*.6;gp([Z.x+Math.cos(a)*r*.35,y+.6+.2*i,Z.z+Math.sin(a)*r*.35],r*.32*Math.min(1,Z.t*1.5),KFX.smk)}break}}
+function kgVfxDraw(){
+ for(const A of KARC){A.t-=1/60;if(A.t>0)kgZig(A.a,A.b,A.w*(.4+.6*A.t/A.max),A.col,7)}KARC=KARC.filter(A=>A.t>0);
+ for(const W of KWAVE){W.t-=1/60;if(W.t<=0)continue;const f=1-W.t/W.max,r=W.r*(.25+.75*f),n=20,w=.12*(1-f)+.03;for(let i=0;i<n;i++){const a=i/n*6.283,b=(i+1)/n*6.283;gl([W.x+Math.cos(a)*r,W.y+.12,W.z+Math.sin(a)*r],[W.x+Math.cos(b)*r,W.y+.12,W.z+Math.sin(b)*r],w,W.col)}}KWAVE=KWAVE.filter(W=>W.t>0);
+ for(let i=0;i<KTRAIL.length;i++){const q=KTRAIL[i];q.t-=1/60;const n=KTRAIL[i+1];if(n&&q.t>0&&n.t>0&&Math.hypot(n.x-q.x,n.z-q.z)<3){gl([q.x,q.y,q.z],[n.x,n.y,n.z],.14*q.t/.45+.02,q.col);if(q.ka==='raijin'&&tick%2===0)kgZig([q.x,q.y,q.z],[n.x,n.y,n.z],.03,KFX.sh,3)}}KTRAIL=KTRAIL.filter(q=>q.t>0);
+ for(const Z of ZN)kgZoneFx(Z);
+ // arma con el brillo de su kami (ranura de ataque)
+ const s=KS.slot.kiri;if(s&&P&&!P.dead&&P.Jdraw){const c=kcol(KAMI[s.ka].c),hd=toW(P,P.ryaw,P.Jdraw[7]),pl=.5+.5*Math.sin(time*6);gp(hd,.1+.04*pl,c);
+  if(P.atk&&tick%2===0)addP({k:'s',x:hd[0],y:hd[1],z:hd[2],vx:rand(-1,1),vy:rand(.5,2),vz:rand(-1,1),life:.35,max:.35,size:.1,c:c.toArray()});
+  else if(tick%8===0)addP({k:'s',x:hd[0],y:hd[1],z:hd[2],vx:0,vy:1,vz:0,life:.4,max:.4,size:.07,c:c.toArray()})}}
 // barras de armadura, santuarios, flechas enemigas, señuelos
-function kgDrawFx(){if(!KS.on)return;
- for(const e of zs){if(!e.alive)continue;const top=e.y+(e.h||1.8)+.35;
+function kgDrawFx(){if(!KS.on)return;kgVfxDraw();
+ for(const e of zs){if(!e.alive)continue;const top=e.y+(e.h||1.8)+.35;if(e.ks&&Math.abs(e.x-P.x)<22&&Math.abs(e.z-P.z)<22)kgStatusFx(e);
   if(e.yr>0&&e.yrMax){const w=.9*Math.max(.6,e.s||1),f=e.yr/e.yrMax,F=[Math.cos(camYaw),0,-Math.sin(camYaw)],a=[e.x-F[0]*w/2,top,e.z-F[2]*w/2];limb(a,[a[0]+F[0]*w,top,a[2]+F[2]*w],.035,kcol('#2a2418'));limb(a,[a[0]+F[0]*w*f,top,a[2]+F[2]*w*f],.05,kcol('#ffd23a'))}
   if(e.zt==='yoroi'||e.zt==='sohei'||e.zt==='kagami'||e.zt==='tanuki'){const hp=[e.x,e.y+1.62*e.s,e.z];
    if(e.zt==='yoroi')head([hp[0],hp[1]+.05,hp[2]],.19*e.s,kcol('#5a6068'));
    else if(e.zt==='sohei')head([hp[0],hp[1]+.08,hp[2]],.2*e.s,kcol('#f4efe2'));
    else if(e.zt==='kagami'&&e.glow)head([e.x,e.y+1.1*e.s,e.z],.32*e.s,kcol('#ffffff'));
    else if(e.zt==='tanuki'){head([e.x,e.y+.8*e.s,e.z],.3*e.s,kcol('#b08a60'));limb([e.x,e.y+.6,e.z],[e.x-Math.sin(e.yaw)*.6,e.y+.5,e.z-Math.cos(e.yaw)*.6],.09,kcol('#5a3f28'))}}
-  if(e.ks&&e.ks.mk>0)head([e.x,top+.15,e.z],.09,KTC.mk);
   if(e.champ&&!goreLite()&&tick%10===0){const T=TATARI[e.champ];addP({k:'s',x:e.x+rand(-.3,.3),y:e.y+rand(.4,1.8)*e.s,z:e.z+rand(-.3,.3),vx:0,vy:1,vz:0,life:.4,max:.4,size:.08,c:kcol(T.c).toArray()})}}
  const G=RUN.kg;if(G&&G.hok&&state==='play')G.hok.forEach((h,i)=>{const c=kcol(KAMI[h.ka].c),sel=i===G.hokSel,y=h.y,wd=kcol('#7a1b14');
   limb([h.x-.55,y,h.z],[h.x-.55,y+1.7,h.z],.06,wd);limb([h.x+.55,y,h.z],[h.x+.55,y+1.7,h.z],.06,wd);limb([h.x-.8,y+1.75,h.z],[h.x+.8,y+1.75,h.z],.07,wd);limb([h.x-.65,y+1.45,h.z],[h.x+.65,y+1.45,h.z],.045,wd);

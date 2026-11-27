@@ -28,6 +28,8 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Borrar la forja vieja del modo normal (código, números de `AR` y ~120 reglas CSS sin uso) sin tocar la del asedio. **Prueba:** t1 (flujo normal), t2 (combinaciones), t5 (asedio: botín del jefe, forja ⛓ y mejora) y t6, todo con `{"n":0}`; `node --check` correcto.
 - [x] Arreglo: la armería ya no se abre al entrar al dojo, la sala MP, el asedio o la prueba de yokai. **Prueba:** t5/t6 (dojo → estado `dojo` sin armería; normal → armería).
 - [x] Asedio con Kago: bendición al empezar, santuarios ⛩ y cartas al acabar cada oleada; sin metal, bolsa, rarezas ni forja del asedio; bots con daño fijo. Cacería y sala MP con armas sin rareza. **Prueba:** t7 (asedio: inicio, cartas, oleada 2, recoger arma, jefe), t8 (sala MP), t1/t2/t6 sin errores.
+- [x] Fuera rarezas de carta (valor único ×1,5, niveles con Omiki). **Prueba:** t1/t7 sin errores.
+- [x] Efectos muy visibles (estados, zonas, rayos, ondas, estela del dash, brillo del arma) y especial/dash como poderes del kami. **Prueba:** t10 (capturas de los 8 kami), t3 rendimiento CPU ×4: 53,4 → 49,1 fps; t1/t2/t7/t8 sin errores.
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
