@@ -165,6 +165,7 @@ Sustituye por completo a la forja vieja: ya no hay rarezas de armas, metal, bols
 - Cortes sin tocar la malla: un tramo cortado guarda su punto de unión con `[3][3]=0`; en el shader, el vértice que es sobre todo de ese tramo se encoge ahí y el resto se queda entero con el tramo unido (corte limpio). Vivos, ragdolls (`rags`, `frags`) y cadáveres (`CORPSES`). Los muñones rojos se siguen dibujando.
 - `ZM.begin/add/end` en `draw()`. Interruptor «🧟 Modelos 3D» (`KGFX.model`, encendido por defecto); si el GLB no carga (p. ej. abriendo como archivo) se dibujan palos.
 - Rendimiento (CPU ×4, oleada 6): ~43 fps con 64 modelos, igual que con palos.
+- Cuerpos caídos: la dirección (`r.yaw`, `C.yaw`) se fija al morir (la del zombi) y no se recalcula cada fotograma; recalcularla por las rodillas hacía girar 180° el cuerpo y retorcía la malla.
 - Ojo r128: los colores de vértice normalizados de 16 bits no se convierten solos (se dividen entre 65535 al cargar).
 - Nuevos modelos de Tripo: Blender 5.2 + `models/tools/prep_tripo.py entrada.glb salida.glb salida_rig.json [triángulos]` (baja triángulos, quita texturas, guarda los tramos de cada vértice según los pesos del rig de Tripo y exporta la malla + el JSON).
 

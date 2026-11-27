@@ -468,7 +468,7 @@ function updDism(){
   if(C.dead||!C.convert&&C.t>GORE.MINI_LIFE+GORE.SINK_T)CORPSES.splice(k,1)}}
 function drawDism(zmOn){for(const C of CORPSES){const sink=C.convert?0:clamp((C.t-GORE.MINI_LIFE)/GORE.SINK_T,0,1),dy=-sink*.35,k=1-sink*.6;
  const cI=zmOn&&ZM.ready;if(cI){const J=[],st=[];for(const ch of C.chunks){ch.ids.forEach((id,i)=>{J[id]=[ch.W[i][0],ch.W[i][1]+dy,ch.W[i][2]]});st.push(...ch.sticks)}for(let i=0;i<12;i++)if(!J[i])J[i]=J[3]||[0,0,0];
-  C.yaw=zmYaw(J,C.yaw);if(!ZM.add(J,C.yaw,C.hr<.15?.55:1,zmVis(st),C.col))continue;for(const ch of C.chunks)for(const i of ch.stumps){const p=ch.W[ch.ids.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}continue}
+  if(C.yaw==null)C.yaw=zmYaw(J,0);if(!ZM.add(J,C.yaw,C.hr<.15?.55:1,zmVis(st),C.col))continue;for(const ch of C.chunks)for(const i of ch.stumps){const p=ch.W[ch.ids.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}continue}
  for(const ch of C.chunks){const W=ch.W,ix=ch.ids;
   for(const s of ch.sticks){const A=W[ix.indexOf(s.a)],B=W[ix.indexOf(s.b)];bSeg(ZB_SEG,[A[0],A[1]+dy,A[2]],[B[0],B[1]+dy,B[2]],C.rad*k,C.col)}
   const h=ix.indexOf(0);if(h>=0)bSph(ZB_SPH,[W[h][0],W[h][1]+dy,W[h][2]],C.hr*k,C.col);
@@ -1878,7 +1878,7 @@ function killZombie(e,hit){
   if(!hit.quiet)sfx(hit.blunt?'blunt':'slice');hitstop=Math.max(hitstop,hit.hs?hit.hs*.5:0);shake=Math.max(shake,(hit.sh||.08)*.6);return;
  }
  ragBornN++;
- const r=e.inRag?takeFrag(e):makeRag(zombieWorld(e),[e.vx*.3,Math.max(0,e.vy)*.3,e.vz*.3],e.col);
+ const r=e.inRag?takeFrag(e):makeRag(zombieWorld(e),[e.vx*.3,Math.max(0,e.vy)*.3,e.vz*.3],e.col);if(r.yaw==null)r.yaw=e.yaw;
  if(e.mini){r.pts[0].r=.09;r.hr=.15*e.s}
  for(const p of r.pts)addVel(p,mul3(hit.vel,rand(.35,.6)));
  if(hit.blunt){
@@ -3750,12 +3750,12 @@ function draw(){
  for(const r of rags){
   const k=r.keep||r.convert?1:clamp(1-(r.life-7)/1,0,1);if(k<=0)continue;
   const rad=r.hr<.15?.035:.05;
-  let zI=false;if(zmOn&&ZM.ready&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y-(1-k)*.4,q.z]);r.yaw=zmYaw(J,r.yaw);zI=ZM.add(J,r.yaw,(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),r.col)}
+  let zI=false;if(zmOn&&ZM.ready&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y-(1-k)*.4,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);zI=ZM.add(J,r.yaw,(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),r.col)}
   if(!zI)for(const s of r.sticks){const A=r.pts[s.a],B=r.pts[s.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],rad*k,r.col)}
   const h=r.pts[0];if(!zI)bSph(ZB_SPH,[h.x,h.y,h.z],r.hr*k,r.col);
   for(let i=1;i<r.pts.length;i++){const p=r.pts[i];if(p.stump)bSph(ZB_SPH,[p.x,p.y,p.z],(r.hr<.15?.04:.058)*k,REDC)}
  }
- for(const r of frags){if(zmOn&&ZM.ready){const J=r.pts.map(q=>[q.x,q.y,q.z]);r.yaw=zmYaw(J,r.zombie?r.zombie.yaw:0);if(ZM.add(J,r.yaw,r.zombie?r.zombie.s:1,zmVis(r.sticks),r.col))continue}for(const s2 of r.sticks){const A=r.pts[s2.a],B=r.pts[s2.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],r.hr<.15?.035:.05,r.col)}const h=r.pts[0];bSph(ZB_SPH,[h.x,h.y,h.z],r.hr,r.col)}
+ for(const r of frags){if(zmOn&&ZM.ready){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);if(ZM.add(J,r.yaw,r.zombie?r.zombie.s:1,zmVis(r.sticks),r.col))continue}for(const s2 of r.sticks){const A=r.pts[s2.a],B=r.pts[s2.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],r.hr<.15?.035:.05,r.col)}const h=r.pts[0];bSph(ZB_SPH,[h.x,h.y,h.z],r.hr,r.col)}
  camera.updateMatrixWorld();FRM.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);FRUS.setFromProjectionMatrix(FRM);
  let nNear=0;
  for(const e of zs){if(e.spider)continue;
