@@ -45,7 +45,7 @@ Versión publicada: **v1.6 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmeth
 | `version.json` | Versión publicada (`v`, `date`, `notes`) para el aviso de actualización. |
 | `editor.html` | Editor de animaciones por fotogramas clave. Está también en GitHub como copia. |
 | `README.md` | README público corto. |
-| `models/` | Modelos 3D (desde el 27 nov 2026): `zombie.glb` (zombi samurái de Tripo partido en 11 piezas rígidas, 1500 triángulos, sin textura), `zombie_rig.json` (12 puntos de reposo y raíces de brazos/piernas), `zmodel.js` (código compartido por juego y editor), `src/` (GLB original de Tripo) y `tools/prep_tripo.py` (script de Blender para preparar más modelos). |
+| `models/` | Modelos 3D (desde el 27 nov 2026): `zombie.glb` (zombi samurái de Tripo, una malla de 1500 triángulos sin textura; cada vértice guarda en su color sus 2 tramos y la proporción), `zombie_rig.json` (12 puntos de reposo y raíces de brazos/piernas), `zmodel.js` (código compartido por juego y editor), `src/` (GLB original de Tripo) y `tools/prep_tripo.py` (script de Blender para preparar más modelos). |
 
 Servicios externos que usa el juego:
 - **PeerJS 1.5.4** (jsdelivr) para el multijugador WebRTC. Con `?bc=1` usa BroadcastChannel para probar en local.
@@ -160,19 +160,19 @@ Sustituye por completo a la forja vieja: ya no hay rarezas de armas, metal, bols
 ---
 
 ## Modelos 3D (`models/`)
-- **Piezas rígidas, sin esqueleto** (decisión del 27 nov 2026: el esqueleto con huesos costaba ~8-10 fps). El modelo se parte en 11 piezas, una por tramo de `BONES` (`seg_a_b`); cada pieza se pega a sus puntos `J[a]→J[b]` y gira con ellos (`ZM.add(J,yaw,s,vis,col)`), con estirado a lo largo del tramo. Hombros y caderas van pegados al tramo padre (`root` en el JSON).
-- Todas las piezas iguales se dibujan juntas (`InstancedMesh`, tope `ZM.cap` 120 cuerpos): 11 llamadas de dibujo en total. Color por cuerpo con `instanceColor` (`e.col`, `r.col`, `C.col`; estados con `kgTint`).
-- Cortes: `vis` = tramos que siguen unidos (`zmVis(r.sticks)`); un tramo cortado no se dibuja. Lo usan zombis vivos, ragdolls (`rags`, `frags`) y cadáveres desmembrados (`CORPSES`). Los muñones rojos se siguen dibujando.
+- **Deformación en la tarjeta gráfica, sin esqueleto de three.js** (27 nov 2026; el esqueleto costaba ~8-10 fps y las piezas rígidas dejaban costuras). Una sola malla; cada vértice tiene sus 2 tramos de `BONES` y la proporción (`zmSeg`). Cada fotograma `ZM.add(J,yaw,s,vis,col)` calcula 11 matrices por cuerpo (cada una pegada a `J[a]→J[b]`, con estirado; hombros y caderas pegados al tramo padre) y las escribe en una `DataTexture` (fila = cuerpo, 4 texels por tramo). Un shader (`onBeforeCompile` sobre Lambert) mezcla las dos matrices de cada vértice: articulaciones suaves.
+- Todos los cuerpos en UNA llamada de dibujo (`InstancedMesh`, atributo `zmBody`, tope `ZM.cap` 120). Color por cuerpo con `instanceColor` (`e.col`, `r.col`, `C.col`; estados con `kgTint`).
+- Cortes sin tocar la malla: un tramo cortado guarda su punto de unión con `[3][3]=0`; en el shader, el vértice que es sobre todo de ese tramo se encoge ahí y el resto se queda entero con el tramo unido (corte limpio). Vivos, ragdolls (`rags`, `frags`) y cadáveres (`CORPSES`). Los muñones rojos se siguen dibujando.
 - `ZM.begin/add/end` en `draw()`. Interruptor «🧟 Modelos 3D» (`KGFX.model`, encendido por defecto); si el GLB no carga (p. ej. abriendo como archivo) se dibujan palos.
-- Rendimiento (CPU ×4, oleada 6): ~42 fps con modelos, igual que con palos (39-43).
-- Sin animaciones propias ni reverencia: todo sale de los 12 puntos. Se nota algo la unión entre piezas en las articulaciones.
-- Nuevos modelos de Tripo: Blender 5.2 + `models/tools/prep_tripo.py entrada.glb salida.glb salida_rig.json [triángulos]` (baja triángulos, quita texturas, reparte cada cara en el tramo de su hueso dominante del rig de Tripo y exporta las 11 piezas + el JSON).
+- Rendimiento (CPU ×4, oleada 6): ~43 fps con 64 modelos, igual que con palos.
+- Ojo r128: los colores de vértice normalizados de 16 bits no se convierten solos (se dividen entre 65535 al cargar).
+- Nuevos modelos de Tripo: Blender 5.2 + `models/tools/prep_tripo.py entrada.glb salida.glb salida_rig.json [triángulos]` (baja triángulos, quita texturas, guarda los tramos de cada vértice según los pesos del rig de Tripo y exporta la malla + el JSON).
 
 ## Editor de animaciones (`editor.html`)
 - Genera clips de referencia desde el `ATK` del juego (`GEN_V`, `GEN_ATK`) y los guarda en localStorage, en ranuras `arma:tecla`.
 - Deslizadores `we` (separación arma–mano) y `wox/woy/woz`. La kusarigama dibuja la cadena hasta el arma.
 - La estela del editor sigue la posición del arma.
-- Botón «🧟 Modelo zombi» (ver el modelo de piezas en vez de los palos). Necesita abrirse desde un servidor para cargar el GLB.
+- Botón «🧟 Modelo zombi» (ver el modelo en vez de los palos). Necesita abrirse desde un servidor para cargar el GLB.
 
 ---
 

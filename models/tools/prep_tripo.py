@@ -1,7 +1,7 @@
 # Stick Ronin · prepara un modelo de Tripo (con rig) como PIEZAS RÍGIDAS pegadas a los 12 puntos del juego.
 # Uso: blender -b --factory-startup --python prep_tripo.py -- entrada.glb salida.glb salida_rig.json [triangulos]
 # - Baja la malla a N triángulos y quita las texturas (el juego pone el color de cada enemigo).
-# - Reparte cada cara en el tramo (a-b) de su hueso dominante y exporta 11 mallas "seg_a_b" sin esqueleto.
+# - Una sola malla: cada vértice guarda en su color (zm) sus 2 tramos y la proporción (se deforma en el shader del juego).
 # - Guarda en el JSON los 12 puntos de reposo y los puntos raíz de brazos y piernas (en coordenadas Y-arriba del juego).
 import bpy,bmesh,sys,json,mathutils
 a=sys.argv[sys.argv.index('--')+1:]
@@ -43,39 +43,35 @@ bpy.context.view_layer.objects.active=mesh;mesh.select_set(True)
 d=mesh.modifiers.new('dec','DECIMATE');d.ratio=min(1,target/tris);d.use_collapse_triangulate=True
 bpy.ops.object.modifier_apply(modifier='dec')
 mesh.data.transform(mesh.matrix_world);mesh.matrix_world=mathutils.Matrix()
-# tramo de cada cara = tramo con más peso sumado en sus vértices
+# tramos de cada vértice: los dos con más peso (del rig de Tripo) y la proporción entre ellos
+ORDER=[(3,2),(2,1),(1,0),(1,4),(4,5),(1,6),(6,7),(3,8),(8,9),(3,10),(10,11)]
 gname={vg.index:vg.name for vg in mesh.vertex_groups}
-def vseg(v):
-    best=None;bw=-1;acc={}
-    for ge in v.groups:
-        s=segOf(gname[ge.group]);acc[s]=acc.get(s,0)+ge.weight
-    for s,w in acc.items():
-        if w>bw:bw=w;best=s
-    return best or (3,2)
-vs=[vseg(v) for v in mesh.data.vertices]
-faceSeg=[]
-for p in mesh.data.polygons:
+me=mesh.data
+if 'zm' in me.color_attributes:me.color_attributes.remove(me.color_attributes['zm'])
+ca=me.color_attributes.new(name='zm',type='FLOAT_COLOR',domain='POINT')
+for v in me.vertices:
     acc={}
-    for vi in p.vertices:acc[vs[vi]]=acc.get(vs[vi],0)+1
-    faceSeg.append(max(acc,key=acc.get))
-segs=sorted(set(faceSeg))
+    for ge in v.groups:
+        sg=segOf(gname[ge.group]);acc[sg]=acc.get(sg,0)+ge.weight
+    if not acc:acc={(3,2):1}
+    top=sorted(acc.items(),key=lambda kv:-kv[1])[:2]
+    a=ORDER.index(top[0][0]);wa=top[0][1]
+    if len(top)>1:b=ORDER.index(top[1][0]);wb=top[1][1]
+    else:b=a;wb=0
+    t=wa+wb;wa=wa/t if t>0 else 1
+    ca.data[v.index].color=(a/10.0,b/10.0,wa,1.0)
+me.color_attributes.active_color=ca
 # quita texturas
 for m in bpy.data.materials:
     if m.use_nodes:
         for n in list(m.node_tree.nodes):
             if n.type=='TEX_IMAGE':m.node_tree.nodes.remove(n)
 for im in list(bpy.data.images):bpy.data.images.remove(im)
-# una malla por tramo
-outs=[]
-for sg in segs:
-    o=mesh.copy();o.data=mesh.data.copy();o.name='seg_%d_%d'%sg;bpy.context.scene.collection.objects.link(o)
-    bm=bmesh.new();bm.from_mesh(o.data);bm.faces.ensure_lookup_table()
-    bmesh.ops.delete(bm,geom=[f for f in bm.faces if faceSeg[f.index]!=sg],context='FACES')
-    bm.to_mesh(o.data);bm.free();o.vertex_groups.clear();o.data.name=o.name;outs.append(o)
-    print('PIEZA',o.name,len(o.data.polygons),'caras')
-bpy.data.objects.remove(mesh);bpy.data.objects.remove(arm)
-bpy.ops.object.select_all(action='DESELECT')
-for o in outs:o.select_set(True)
-bpy.ops.export_scene.gltf(filepath=out_glb,export_format='GLB',use_selection=True,export_animations=False,export_skins=False,export_morph=False,export_materials='NONE')
-json.dump({'RJ':[g(v) for v in RJ],'root':{k:g(v) for k,v in ROOT.items()},'tris':sum(len(o.data.polygons) for o in outs)},open(out_json,'w'))
-print('OK',out_glb,'piezas',len(outs))
+for vg_ in list(mesh.vertex_groups):mesh.vertex_groups.remove(vg_)
+mesh.name='zombie_body';bpy.data.objects.remove(arm)
+bpy.ops.object.select_all(action='DESELECT');mesh.select_set(True)
+kw=dict(filepath=out_glb,export_format='GLB',use_selection=True,export_animations=False,export_skins=False,export_morph=False,export_materials='NONE')
+try:bpy.ops.export_scene.gltf(**kw,export_vertex_color='ACTIVE')
+except TypeError:bpy.ops.export_scene.gltf(**kw,export_colors=True)
+json.dump({'RJ':[g(v) for v in RJ],'root':{k:g(v) for k,v in ROOT.items()},'tris':sum(len(p.vertices)-2 for p in me.polygons),'order':[list(o) for o in ORDER]},open(out_json,'w'))
+print('OK',out_glb,'vertices',len(me.vertices))
