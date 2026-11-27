@@ -134,7 +134,8 @@ Sustituye a la forja (que solo sigue en el asedio). Inspirado en Hades e Isaac; 
 - **Kamon/Henge:** caen de yokai y onis (`LOOT` con `kid`); 3 del mismo juego → Henge (Oni, Tengu, Kitsune, Ryū, Shinobi) con cambio visual (`kgDrawPlayer`).
 - **Campeones tatari** (kanji flotante, `kgLabels`) y variantes nuevas: yoroi, yumi, sōhei, kagami, tanuki. Tope de 90 vivos (`KG.cap`).
 - Todas las armas tienen especial (`specOK`); en el asedio sigue `SPEC_RAR`. Interruptores Temblor/Destellos/Vibración en la armería (`KGFX`).
-- Lo viejo de `AR` (`stats`, `bloodT`, `eff`, rarezas) sigue porque lo usa el asedio y los efectos de kamon.
+- La forja vieja del modo normal se borró del código el 27 nov 2026 (bolsa, huecos, afilar, forja de sangre, fundir, botín de armas, cartas y estilos de la forja). De `AR` solo queda lo que usan el asedio y los efectos de kamon: `stats`, rarezas, `rarRange`, `oniChance`, `lvStep`, `bloodT`, `eff` y `maxProj`.
+- La armería solo se abre en una partida normal de verdad: `startGame()` la lanza en un microtask y comprueba `!TRAIN`, así que el dojo, la sala MP, el asedio y la prueba de yokai no la ven.
 
 ### Multijugador (`NET`)
 - PeerJS con el anfitrión como relevo.

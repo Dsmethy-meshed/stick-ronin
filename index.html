@@ -25,47 +25,13 @@ canvas{display:block;touch-action:none}
 #forge .fh b{font-size:18px}#forge .fh span{flex:1;font-size:12px;opacity:.8}
 #forge button{min-height:40px;padding:0 12px;border-radius:10px;border:1px solid #4a434f;background:#2c2832;color:#fff;font:700 13px system-ui,sans-serif}
 #forge button[disabled]{opacity:.4}#forge .fh button{background:#d1242c;border-color:#d1242c}
-#forge .fsec{margin:12px 0 6px;font-size:12px;opacity:.7;text-transform:uppercase;letter-spacing:.05em}
-#forge .frow{display:flex;gap:8px}#forge .frow>.fc{flex:1}
-#forge .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
 .radial{position:fixed;inset:0;z-index:60;background:rgba(8,6,10,.55);animation:rfade .12s ease-out}
 .radial .rc{position:fixed;transform:translate(-50%,-50%);width:62px;height:62px;border-radius:50%;background:#1e1a21;border:2px solid #fff;display:flex;align-items:center;justify-content:center;font-size:26px}
-#forge .radial .rb{position:fixed;min-height:0;transform:translate(-50%,-50%);width:70px;height:70px;border-radius:50%;border:2px solid #d1242c;background:#241e28;color:#fff;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;padding:0;animation:rpop .16s ease-out both;box-shadow:0 6px 16px rgba(0,0,0,.5)}
-#forge .radial .rb b{font-size:20px;line-height:1}.radial .rb span{font:700 9.5px/1.1 system-ui;max-width:64px;text-align:center}
-#forge .radial .rb[disabled]{opacity:.35}#forge .radial .rb:active{background:#d1242c}
-@keyframes rpop{from{transform:translate(-50%,-50%) scale(.3);opacity:0}to{transform:translate(-50%,-50%) scale(1);opacity:1}}@keyframes rfade{from{opacity:0}}
+@keyframes rfade{from{opacity:0}}
 @media (prefers-reduced-motion:reduce){.radial,.radial .rb{animation:none}}
-#forge .coach{display:flex;gap:10px;align-items:center;background:linear-gradient(90deg,#3a1418,#1c1519);border:1px solid #d1242c;border-radius:12px;padding:9px 10px;margin:8px 0 2px;font:13px/1.35 system-ui}
-#forge .coach i{flex:0 0 26px;height:26px;border-radius:50%;background:#d1242c;color:#fff;font:900 14px system-ui;display:flex;align-items:center;justify-content:center;font-style:normal}
-#forge .gbtn{background:#2c2832!important}
-#forge .anvw{position:relative;display:flex;justify-content:center}#forge .anvw em{position:absolute;top:-14px;left:50%;transform:translateX(-50%) rotate(-30deg)}
-#forge .mbar{position:relative;width:86%;height:8px;border-radius:4px;background:#2c2631;overflow:hidden;margin:4px 0 2px}#forge .mbar i,#forge .mbar b{position:absolute;left:0;top:0;bottom:0}#forge .mbar i{background:#ffd04a;opacity:.55}#forge .mbar b{background:#ffd04a}
-#forge .tbtn{margin-top:4px;min-height:34px!important;padding:0 14px!important;background:#d1242c!important;border-color:#d1242c!important;border-radius:10px;font-weight:900}
-#forge .pulse{animation:zpulse 1.4s ease-in-out infinite}@keyframes zpulse{50%{border-color:#ffd04a;box-shadow:0 0 0 4px rgba(255,208,74,.18)}}
-#forge .sug{position:absolute;top:-6px;right:-4px;font-size:18px;animation:zbob 1s ease-in-out infinite}@keyframes zbob{50%{transform:translateY(-4px)}}
-@media (prefers-reduced-motion:reduce){#forge .pulse,#forge .sug{animation:none}}
 #forge .guide{position:fixed;inset:0;z-index:70;background:rgba(8,6,10,.82);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:14px 10px}
 #forge .gcard{width:min(460px,100%);background:#17131a;border:1px solid #3a333f;border-radius:16px;padding:10px 12px 12px}
-#forge .gh{display:flex;align-items:center;gap:8px;position:sticky;top:-14px;background:#17131a;padding:6px 0}#forge .gh b{flex:1;font:900 17px system-ui;color:#fff}
-#forge .gh button{background:#d1242c!important;border-color:#d1242c!important;min-height:40px}
-#forge .gstep{border-top:1px solid #2c2631;padding:10px 0}
-#forge .gill{display:flex;align-items:center;justify-content:center;gap:4px;min-height:58px;background:#0f0c11;border-radius:12px;padding:8px;flex-wrap:wrap}
-#forge .gtx b{display:block;color:#ffd04a;font:900 14px system-ui;margin:8px 0 2px}#forge .gtx span{font:13px/1.45 system-ui;color:#d8cfc4}
-#forge .gan{position:relative;display:flex;justify-content:center}#forge .gan em{position:absolute;top:-18px;left:50%;transform:translateX(-50%) rotate(-30deg)}
-#forge .gbar{position:relative;width:110px;height:16px;border-radius:8px;background:#2c2631;overflow:hidden}#forge .gbar i{position:absolute;inset:0 auto 0 0;background:#ffd04a}#forge .gbar span{position:relative;font:800 10px/16px system-ui;color:#111;padding-left:6px}
-#forge .gplus{font:900 26px system-ui;color:#ffd04a;text-shadow:0 0 10px rgba(255,208,74,.6)}
-#forge .gdice{font-size:28px}#forge .gab{display:flex;align-items:center;gap:6px}#forge .gab s{opacity:.5}#forge .gab b{color:#7dff9a}
-#forge .gdrop{display:flex;flex-direction:column;align-items:center;font-size:26px;line-height:1}#forge .gdrop small{font:800 11px system-ui;color:#ff6a6a}
-#forge .fhint{font-size:12px;opacity:.75;margin:6px 2px 8px;line-height:1.35}
-#forge .zones{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#forge .zone{position:relative;border-radius:14px;padding:4px;background:#17131a;border:2px solid #2c2631;transition:border-color .12s,background .12s}
-#forge .zone>i{position:absolute;top:-9px;left:-6px;z-index:3;font-style:normal;background:#d1242c;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font:800 13px system-ui}
-#forge .zone .fc{border-width:2px;min-height:96px}
-#forge .zone.tool{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:78px;text-align:center;border-style:dashed;border-color:#a8763a}
-#forge .zone.tool.fire{border-color:#c4472b}#forge .zone.tool.idle{opacity:.85}
-#forge .zone .big{font-size:26px;line-height:1}#forge .zone.tool .nm{font-weight:800;font-size:13px}
 #forge .can{border-color:#ffd04a!important;background:#231d12!important}
-#forge .hot{border-color:#fff!important;background:#3a2a14!important;transform:scale(1.03)}
 #forge .fc{isolation:isolate}
 #mpPick{position:fixed;inset:0;z-index:7;display:none;pointer-events:none}
 #mpPick button{pointer-events:auto;position:absolute;border:0;color:#fff;font:800 13px system-ui;display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:0 4px 14px #0009;animation:fxpop .25s cubic-bezier(.2,1.7,.4,1) both;touch-action:none}
@@ -86,62 +52,23 @@ canvas{display:block;touch-action:none}
 #forge .fc.can{border-color:#ffd04a!important;box-shadow:0 0 18px rgba(255,208,74,.55)}
 #forge .fc.can::before{content:'';position:absolute;inset:-16px;border-radius:24px;z-index:-1;pointer-events:none;background:radial-gradient(closest-side,rgba(255,224,120,.75),rgba(255,170,40,.35) 55%,transparent);animation:halo 1.1s ease-in-out infinite alternate}
 #forge .fc.can::after{content:'✦';position:absolute;right:6px;top:4px;color:#fff6c8;font-size:14px;text-shadow:0 0 8px #ffd04a;pointer-events:none;animation:twk 1.2s ease-in-out infinite}
-#forge .fc.hot{transform:scale(1.12);box-shadow:0 0 0 3px #fff,0 0 30px #ffd04a}
-#forge .fc.hot::before{inset:-24px;animation-duration:.4s}
 @keyframes halo{0%{opacity:.55;transform:scale(.94)}100%{opacity:1;transform:scale(1.06)}}
 @keyframes twk{0%,100%{opacity:.2;transform:scale(.6) rotate(0)}50%{opacity:1;transform:scale(1.2) rotate(90deg)}}
-#forge .zone.fire{overflow:visible}
-#forge .zone.fire .flames{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .25s;border-radius:14px}
-#forge .zone.fire .flames i{position:absolute;bottom:-6px;width:18px;height:30px;border-radius:50% 50% 35% 35%/65% 65% 35% 35%;background:radial-gradient(ellipse at 50% 80%,#fff3b0 0,#ffb020 30%,#e2552b 60%,rgba(226,85,43,0) 75%);filter:blur(.6px);transform-origin:50% 100%;animation:flick .45s ease-in-out infinite alternate}
-#forge .zone.fire.can .flames,#forge .zone.fire.burning .flames{opacity:1}
-#forge .zone.fire.can{background:radial-gradient(ellipse at 50% 100%,rgba(226,85,43,.35),#17131a 70%)!important;box-shadow:0 0 20px rgba(226,85,43,.45)}
-#forge .zone.fire.hot{background:radial-gradient(ellipse at 50% 100%,rgba(255,150,40,.6),#2a1410 75%)!important;box-shadow:0 0 34px rgba(255,120,40,.8);transform:scale(1.04)}
-#forge .zone.fire.hot .flames i{height:44px;animation-duration:.25s}
-#forge .zone.fire.burning .flames{opacity:.6}#forge .zone.fire.burning .flames i{height:18px}
-#forge .zone.fire.burning{box-shadow:0 0 14px rgba(226,85,43,.4)}
-@keyframes flick{0%{transform:scaleY(.8) scaleX(1.05) rotate(-4deg)}100%{transform:scaleY(1.15) scaleX(.9) rotate(4deg)}}
-.burnfx{position:fixed;z-index:85;pointer-events:none;display:flex;flex-direction:column;align-items:center}
-.burnfx .bw{animation:bburn 1s ease-in forwards}
-.burnfx .emb{position:absolute;left:50%;top:50%;width:4px;height:4px;border-radius:50%;background:#ffb020;box-shadow:0 0 6px #ff7a20;animation:bemb 1.2s var(--d) ease-out both}
-.burnfx .bi{position:absolute;top:10px;display:flex;align-items:center;gap:4px;font:900 20px system-ui;color:#dfe5ec;text-shadow:0 2px 0 #000;animation:bing .6s .8s cubic-bezier(.2,1.7,.4,1) both,fxout .4s 1.8s forwards}
-@keyframes bburn{0%{filter:none;transform:translateY(0) scale(1)}40%{filter:brightness(1.6) sepia(1) saturate(4) hue-rotate(-20deg)}100%{filter:brightness(0) ;transform:translateY(16px) scale(.5);opacity:0}}
-@keyframes bemb{0%{transform:translate(-50%,-50%);opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% - var(--y)));opacity:0}}
-@keyframes bing{0%{transform:scale(0) translateY(20px);opacity:0}100%{transform:scale(1) translateY(-20px);opacity:1}}
-#ffx .mg{position:relative;width:240px;height:110px}
 #ffx .ma,#ffx .mb{position:absolute;top:20px}
 #ffx .ma{left:0;animation:mga .5s cubic-bezier(.6,0,1,1) both}
 #ffx .mb{right:0;animation:mgb .5s cubic-bezier(.6,0,1,1) both,mgres .5s .5s both}
-#ffx .mflash{position:absolute;left:50%;top:50%;width:20px;height:20px;margin:-10px;border-radius:50%;background:#fff;opacity:0;animation:mfl .6s .45s ease-out both}
-#ffx.fx2 .mflash{background:#ffd04a;box-shadow:0 0 80px 40px #ffb020}
-#ffx.fx1 .mflash{box-shadow:0 0 50px 20px #fff}
-#ffx.fx0 .mflash{background:#666;box-shadow:0 0 30px 10px #555}
-#ffx.fx2{animation:shake .35s .5s 2}
-#ffx.fx0 .mb{animation:mgb .5s cubic-bezier(.6,0,1,1) both,mgdull .6s .5s both}
-#ffx .mbar2{position:relative;width:200px;height:14px;border-radius:7px;background:#2a2530;overflow:hidden;animation:fxpop .3s .6s both,fxout .3s 1.9s forwards}
-#ffx .mbar2 i{position:absolute;left:0;top:0;bottom:0;background:#c9a14a;animation:mbf .7s .8s ease-out forwards}
 @keyframes mga{0%{transform:translateX(-60px) rotate(-30deg)}100%{transform:translateX(85px) rotate(0);opacity:0}}
 @keyframes mgb{0%{transform:translateX(60px) rotate(30deg)}100%{transform:translateX(-85px) rotate(0)}}
 @keyframes mgres{0%{transform:translateX(-85px) scale(1)}50%{transform:translateX(-85px) scale(1.5)}100%{transform:translateX(-85px) scale(1.2)}}
-@keyframes mgdull{0%{transform:translateX(-85px)}100%{transform:translateX(-85px) scale(.9);filter:grayscale(.7) brightness(.7)}}
-@keyframes mfl{0%{opacity:1;transform:scale(.2)}100%{opacity:0;transform:scale(6)}}
-@keyframes mbf{to{width:var(--w)}}
 @keyframes shake{0%,100%{transform:translate(0)}25%{transform:translate(-8px,4px)}75%{transform:translate(8px,-4px)}}
-#forge .wc .wi{position:relative;display:flex;justify-content:center;height:46px}#forge .wc .wi sup{position:absolute;top:-2px;right:6px;font-size:13px;color:#ffd75a;font-weight:900;text-shadow:0 1px 2px #000}
-#forge .wc .nm{font-weight:800;font-size:12px}#forge .wc .rk{font-size:11px;opacity:.85}
 #forge .fc[data-drag]{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;cursor:grab}
 #forge .fc.lift{opacity:.3}
-.fc.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(-4deg) scale(1.08);box-shadow:0 10px 30px rgba(0,0,0,.6);background:#2a2330;border:2px solid #fff;border-radius:12px;padding:8px 6px;text-align:center;color:#eadfd2;font:12px system-ui;opacity:.95}
-.fc.ghost .wi{display:flex;justify-content:center}.fc.ghost sup{color:#ffd75a;font-weight:900}
+.fc.ghost{position:fixed;z-index:100;pointer-events:none;transform:rotate(-4deg) scale(1.08);box-shadow:0 10px 30px rgba(0,0,0,.6);background:#2a2330;border:2px solid #fff;border-radius:12px;padding:8px 6px;text-align:center;color:#eadfd2;font:12px system-ui;opacity:.95}.fc.ghost sup{color:#ffd75a;font-weight:900}
 #forge .fc{position:relative;border:2px solid #555;border-radius:12px;padding:8px 6px;background:#1e1a21;text-align:center;min-height:84px;box-sizing:border-box}
 #forge .fc.sel{box-shadow:0 0 0 3px #fff inset}#forge .fc.on{background:#2a2316}
-#forge .fc.empty{border-style:dashed;opacity:.45;display:flex;align-items:center;justify-content:center;font-size:12px}
-#forge .ic{font-size:24px}#forge .ic sup{font-size:12px;color:#ffd75a;font-weight:800}
 #forge .nm{font-size:11px;line-height:1.2;margin-top:2px}#forge .rk{font-size:11px;margin-top:2px;opacity:.9}
 #forge .tag{position:absolute;top:-8px;right:-4px;background:#d1242c;border-radius:8px;font-size:10px;padding:1px 6px}
-#forge .fdet,#forge .fanv{margin-top:12px;background:#1e1a21;border:1px solid #3a3440;border-radius:12px;padding:10px}
-#forge .fanv{border-color:#a8763a}
 #forge .dt{font-weight:800;font-size:15px}#forge .dd{font-size:12px;opacity:.9;margin:6px 0}
-#forge .fb{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 #forge .fs{display:grid;grid-template-columns:34px 1fr auto;gap:8px;align-items:center;padding:4px 6px;border-radius:10px;position:relative}
 #forge .fs.tap{background:#2a2530;cursor:pointer}#forge .fs.tap:active{transform:scale(.98)}
 .sico{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--sc);box-shadow:0 0 0 2px rgba(255,255,255,.12) inset}
@@ -154,24 +81,10 @@ canvas{display:block;touch-action:none}
 #forge .fs .dz{opacity:.75;font-size:16px}
 #forge .fs.hit{animation:shit 1.4s ease-out}
 #forge .fs.hit .sico{animation:sbump .6s cubic-bezier(.2,1.8,.4,1)}
-#forge .fs.rolling{background:#3a2f18;box-shadow:0 0 0 2px #ffd04a inset}
 #forge .fs .fl{position:absolute;left:40px;top:-4px;font:900 18px system-ui;color:#fff;text-shadow:0 0 8px var(--sc);animation:sfl 1.3s ease-out forwards;pointer-events:none}
 @keyframes shit{0%{background:var(--sc)}100%{background:transparent}}
 @keyframes sbump{0%{transform:scale(1)}40%{transform:scale(1.6)}100%{transform:scale(1)}}
 @keyframes sfl{0%{opacity:0;transform:translateY(8px)}20%{opacity:1}100%{opacity:0;transform:translateY(-22px)}}
-.gmg{display:flex;align-items:center;position:relative}.gmg .g1{transform:translate(14px,-8px) rotate(-12deg);opacity:.85}.gmg .ghand{position:absolute;left:30px;top:14px;font-size:18px}
-.gout{display:flex;gap:8px;align-items:stretch}.gout span{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:10px;padding:6px 9px;font:900 18px system-ui;min-width:62px}.gout small{font:600 10px system-ui;opacity:.8}
-.gout .o0{background:#2b2b2e;color:#999;font-size:10px}.gout .o0 .gbar{width:50px}.gout .o1{background:#3a3a44;color:#fff;box-shadow:0 0 12px rgba(255,255,255,.35)}.gout .o2{background:#4a3510;color:#ffd04a;box-shadow:0 0 16px rgba(255,208,74,.6)}
-.gbl{display:flex;flex-direction:column;align-items:center;font-size:11px}.gbl b{color:#ffd04a}
-.gleg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.gleg div{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;opacity:.9}.gab{display:flex;align-items:center;gap:6px}
-.bbtn{display:flex!important;align-items:center;gap:8px;background:#3a0f14!important;border-color:#a50d1c!important}
-.bbtn .bdrop{display:flex;align-items:center;gap:2px;font-size:18px}.bbtn .bdrop b{font-size:14px}
-.bbtn .bgain{font:900 18px system-ui;color:#ffd04a}.bbtn .baff{display:flex;gap:2px}.bbtn .baff .sico{width:22px;height:22px}.bbtn .baff svg{width:14px;height:14px}.bbtn .bcost{opacity:.8;font-size:12px}
-.sharpc{display:flex;gap:10px;justify-content:center;margin:8px 0}
-#forge .sharpc button{flex:1;max-width:170px;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 6px;border-radius:14px;min-height:0}
-#forge .sharpc button.up{box-shadow:0 0 0 3px #4be36b inset,0 0 18px rgba(75,227,107,.4)}
-#forge .sharpc button.dn{box-shadow:0 0 0 3px #e24b4b inset}
-.sharpc .big{font:900 26px system-ui}
 #ffx{position:fixed;inset:0;z-index:80;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
 #ffx .bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 50%,rgba(0,0,0,.75),rgba(0,0,0,.25));animation:fxbg 1.9s forwards}
 #ffx .row{display:flex;gap:16px;position:relative;flex-wrap:wrap;justify-content:center}
@@ -183,9 +96,7 @@ canvas{display:block;touch-action:none}
 #ffx .spk{position:absolute;left:50%;top:50%;width:6px;height:6px;border-radius:50%;background:#ffd04a;box-shadow:0 0 8px #ffb020;animation:fxspk .7s var(--d,0s) ease-out both}
 #ffx .drop{position:relative;font-size:70px;animation:fxdrop .5s cubic-bezier(.5,0,1,1) both,fxout .3s 1.4s forwards}
 #ffx .die{position:relative;width:96px;height:96px;border-radius:18px;background:#f3ece0;box-shadow:0 6px 0 #a89c8a,0 0 30px rgba(255,208,74,.6);display:grid;grid-template:repeat(3,1fr)/repeat(3,1fr);padding:12px;gap:4px}
-#ffx .die.roll{animation:fxroll .12s linear infinite}
 #ffx .die u{border-radius:50%;background:#1a1418;margin:3px}
-#ffx .die.num{display:flex;align-items:center;justify-content:center;font:900 52px system-ui;color:#1a1418}
 #ffx .die.land{animation:fxland .4s cubic-bezier(.2,1.8,.4,1),fxout .3s 1.2s forwards}
 @keyframes fxbg{0%{opacity:0}12%{opacity:1}80%{opacity:1}100%{opacity:0}}
 @keyframes fxpop{0%{transform:scale(0) rotate(-30deg);opacity:0}100%{transform:scale(1);opacity:1}}
@@ -193,10 +104,7 @@ canvas{display:block;touch-action:none}
 @keyframes fxham{0%{transform:rotate(-70deg) translate(-30px,-40px)}70%{transform:rotate(8deg)}100%{transform:rotate(0)}}
 @keyframes fxspk{0%{transform:translate(-50%,-50%);opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y)));opacity:0}}
 @keyframes fxdrop{0%{transform:translateY(-220px) scale(.6)}80%{transform:translateY(0) scale(1,1)}90%{transform:scale(1.4,.7)}100%{transform:scale(1)}}
-@keyframes fxroll{0%{transform:rotate(0) translateY(0)}50%{transform:rotate(20deg) translateY(-10px)}100%{transform:rotate(-15deg) translateY(0)}}
 @keyframes fxland{0%{transform:scale(1.5) rotate(30deg)}100%{transform:scale(1)}}
-#forge .bar{position:relative;height:22px;background:#2a2530;border-radius:8px;overflow:hidden;margin:8px 0}#forge .bar i{position:absolute;left:0;top:0;bottom:0;background:#a8763a}#forge .bar span{position:relative;font-size:11px;line-height:22px;padding-left:8px}
-#forge .fmsg{background:#3d2a2e;border-radius:10px;padding:8px;margin:6px 0;font-size:13px}#forge .fempty{grid-column:1/-1;opacity:.5;font-size:12px;padding:10px}
 #bDojo{position:absolute;left:16px;top:132px;pointer-events:auto;min-height:44px;padding:0 14px;border:0;border-radius:12px;background:rgba(168,118,58,.85);color:#fff;font:800 14px system-ui,sans-serif;display:none}
 #keys{position:fixed;inset:0;display:none;z-index:60;background:rgba(14,11,15,.96);color:#eadfd2;font:14px system-ui,sans-serif;overflow-y:auto}
 #keys .fin{max-width:560px;margin:0 auto;padding:12px 12px 40px}#keys h3{margin:14px 0 6px;font:800 15px system-ui;color:#e0404a}
@@ -1127,7 +1035,7 @@ function resetGame(){if(typeof ROCKS!=='undefined')ROCKS.length=0;if(typeof BPOO
  camYaw=0;camTX=P.x;camTY=1.5;camTZ=P.z;
 }
 let horde300=false;
-function startGame(horde){TRAIN=null;loadKF();resetGame();updWUI();horde300=horde===true;if(horde===true){wave=8;waveQueue=300;banner('HORDA: 300')}state='play';$('ov').style.display='none';hudShow(true);kgReset();refreshSM();if(kgOn()&&!horde300&&!KGskip)kgArmeria()}
+function startGame(horde){TRAIN=null;loadKF();resetGame();updWUI();horde300=horde===true;if(horde===true){wave=8;waveQueue=300;banner('HORDA: 300')}state='play';$('ov').style.display='none';hudShow(true);kgReset();refreshSM();if(!horde300&&!KGskip)Promise.resolve().then(()=>{if(kgOn()&&!TRAIN&&state==='play')kgArmeria()})}
 function fwdW(){return[Math.sin(P.yaw),0,Math.cos(P.yaw)]}
 function nearestZombie(maxD,dir,maxAng){let best=null,bd=1e9;for(const z of zs){if(!z.alive||z.iaiT>0)continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz);if(d>maxD||Math.abs(z.y-P.y)>2.2)continue;const a=Math.abs(angDiff(dir,Math.atan2(dx,dz)));if(a>maxAng)continue;const s=d+a*1.5;if(s<bd){bd=s;best=z}}return best}
 function canAct(){if(P&&(P.whirl||P.kHold||P.khook&&P.khook.ph==='out'))return false;const a=P.atk;if(!a)return true;if(a.type==='iai')return false;if(a.kf)return kfCanAct(a);const d=a.def,T2=d.wind+d.strike,T3=T2+d.hold;return(d.slam||d.plunge||d.spin||d.wave)?a.t>=T3+d.rec*.4:a.t>=T2+d.hold*.6}
@@ -2749,25 +2657,11 @@ const AR={
  rarRange:[[1,3],[2,4],[2,5],[3,5]],   // niveles de estadística posibles por rareza
  oniChance:[0,0,.4,.55],               // probabilidad de stat desbordada (pagada con otras)
  lvStep:.12,                           // cada nivel de stat = ±12 %
- tope:[2,4,6,8],                       // máximo de + por rareza
- sacri:[1,2,3,6],                      // puntos de temple que da cada rareza al sacrificarla
- cost:(b)=>2+b.plus+2*b.rar,           // puntos para el siguiente +
- ascendMul:2,                          // ascender de rareza cuesta el doble
- masterChance:.15,                     // golpe maestro: +1 extra
- sharpCost:(n)=>2+n,                   // acero por afilado (sube en la partida)
- blood:{base:.35,pity:.1,cost:(n)=>6+2*n,gain:2,over:2}, // (valores por defecto)
- // forja de sangre PROPIA de cada arma: prob. base, + que da, stats que prefiere (75 %), coste base
+ // stats que prefiere cada arma al mejorarla en la forja del asedio (75 %)
  bloodT:{katana:{p:.35,g:2,st:['dmg','spd','spc'],c:5},maza:{p:.2,g:3,st:['dmg','chg','par'],c:6},nito:{p:.5,g:1,st:['spd','dmg','mov'],c:3},
   odachi:{p:.22,g:3,st:['dmg','chg','rng'],c:6},naginata:{p:.35,g:2,st:['rng','spd','par'],c:5},yari:{p:.4,g:2,st:['rng','dmg','spd'],c:5},
   kusarigama:{p:.35,g:2,st:['rng','spc','cd'],c:5},tessen:{p:.45,g:2,st:['par','mov','cd'],c:5},kama:{p:.4,g:2,st:['spd','mov','dmg'],c:5},
   tanegashima:{p:.22,g:3,st:['dmg','chg','cd'],c:6},yumi:{p:.4,g:2,st:['spd','spc','mov'],c:5},shuriken:{p:.5,g:1,st:['spd','cd','spc'],c:3}},
- bloodAff:.75,
- meltMul:2,                            // acero al fundir = sacri*2 (+ los +)
- bag:10,
- drop:{zombie:.012,mini:.004,spider:.25,yokai:.4,oni:1,kamonShare:.2,kamonShareYokai:.5},
- dropRar:(w)=>[Math.max(25,70-3*w),25+w,Math.min(18,2+w*1.2),0], // sin legendarias en el suelo
- chest:{every:5,leg:(w)=>Math.min(.5,.04*w),epic:.45},
- kamonSlots:(w)=>w>=10?3:w>=5?2:1,
  // efectos (efecto propio del arma y emblemas kamon). Rango 1-4
  eff:{
   shuriken:{name:'Shuriken de sangre',ico:'✴',every:[3,3,2,2],n:[6,9,12,14],bounce:[0,0,1,2],desc:r=>`Cada ${AR.eff.shuriken.every[r-1]} muertes, el último explota en ${AR.eff.shuriken.n[r-1]} shuriken${AR.eff.shuriken.bounce[r-1]?' que rebotan':''}`},
@@ -2776,7 +2670,6 @@ const AR={
   sed:{name:'Sed de sangre',ico:'♥',every:[5,4,3,3],heal:[2,2,3,4],desc:r=>`Cada ${AR.eff.sed.every[r-1]} muertes recuperas ${AR.eff.sed.heal[r-1]} de vida`},
   terremoto:{name:'Terremoto',ico:'⛰',rad:[1.6,2.1,2.6,3.1],desc:r=>`Al caer desde más de 2 m, onda que mata en ${AR.eff.terremoto.rad[r-1]} m`}
  },
- legend:{katana:'Parry: el contraataque lanza 8 tajos de viento',maza:'La embestida termina en terremoto'},
  maxProj:70
 };
 const EFF_IDS=Object.keys(AR.eff),AR_RC=AR.rarCol.map(c=>new THREE.Color(c)),PCOL={wood:new THREE.Color(0x6b4a2a),dark:new THREE.Color(0x3a3a40),red:new THREE.Color(0xb3261e)};
@@ -2805,7 +2698,6 @@ const WDESC={katana:'Equilibrada. Mantener: desenvaine. Especial: lanzar y telet
  kusarigama:'Arcos rápidos y largos con la cadena. Mantener: torbellino de 3 s a tu alrededor (arco corto, largo, corto, largo…), luego vuelve a empezar. Especial: lanza la hoz hacia donde apuntas y te arrastras tras ella; mantenlo para lanzarla más lejos (la que más llega de todas).',tessen:'Abanico, el más rápido. Mantener: ráfaga de viento. Especial: planeo de viento que aparta a todos.',
  kama:'Dos hoces muy rápidas. Mantener: lanzar las hoces. Especial: aparecer a su espalda.',tanegashima:'Mosquete pesado: bala perforante, recarga lenta. Mantener: apuntar. Especial: descarga que te lanza hacia atrás.',
  yumi:'Apunta solo al enemigo más cercano (marca roja) y puedes disparar corriendo hacia atrás. Toque: ráfaga de 3 flechas (recarga 0,4 s). Mantener: flecha gigante que atraviesa toda la línea (tarda en cargar). Especial: bomba de humo y saltas; flotando apuntas un círculo en el suelo (stick para moverlo, mantén para apuntar más), disparas una flecha explosiva ahí y sales despedido con una voltereta; luego flotas. En el aire: disparar te mantiene flotando; a la 3ª flecha caes clavando el gancho con onda de choque.',shuriken:'Shuriken que rebotan, muy ágil. Toque en combo: 1 shuriken, luego 2 seguidos y luego 3 de golpe en abanico (tras ese, espera un poco más). Mantener: abanico de kunai. Especial: bomba de humo y desapareces.'};
-const legendText=t=>t==='maza'?'La embestida termina en terremoto':'Parry: el contraataque lanza 8 tajos de viento';
 var RUN=null;let SM={},EF={},LOOT=[],PROJ=[],UID=1,DELAY=[];
 const ri=(a,b)=>a+((Math.random()*(b-a+1))|0);
 function genWeapon(type,rar,plain){
@@ -2814,29 +2706,22 @@ function genWeapon(type,rar,plain){
  return{uid:UID++,kind:'arma',type,rar,lv,plus:0,plusS:{},tp:0,oni,eff:rar>=1&&!plain?{id:pick(EFF_IDS),rk:Math.min(3,rar)}:null,legend:rar===3,
   name:(plain?TYPE_N[type]+' del Rōnin':TYPE_N[type]+' '+pick(NAMES))};
 }
-function genKamon(rk){return{uid:UID++,kind:'kamon',eff:pick(EFF_IDS),rk:rk||1}}
-function newRun(){return{kg:kgNew(),sty:{},wpn:[genWeapon('katana',0,true),genWeapon('maza',0,true)],bag:[],slots:[],tama:0,sharpN:0,bloodN:0,pity:0,kc:0,sedC:0,anvil:{base:null,sac:[]},sel:null,sharp:null}}
+function newRun(){return{kg:kgNew(),sty:{},wpn:[genWeapon('katana',0,true),genWeapon('maza',0,true)],tama:0,kc:0,sedC:0}}
 const power=w=>Object.values(w.lv).reduce((s,v)=>s+v,0)+w.plus;
 function refreshSM(){
  if(!RUN)RUN=newRun();const it=RUN.wpn[wIdx];
  const kon=kgOn();for(const[k]of AR.stats)SM[k]=kon?1:Math.max(.4,1+(it.lv[k]-3)*AR.lvStep);SM.def=1;
  EF={};const add=(id,rk)=>{EF[id]=EF[id]?Math.min(4,Math.max(EF[id],rk)+1):rk};
- if(it.eff)add(it.eff.id,it.eff.rk);let nk=0;for(const u of(it.kam||[])){const k=RUN.bag.find(x=>x.uid===u);if(k){add(k.eff,k.rk);nk++}}SM.dmg*=1+.1*nk;if(TRAIN)for(const id in TRAIN.km)if(TRAIN.km[id])add(id,TRAIN.km[id]);for(const u of RUN.slots){const k=RUN.bag.find(x=>x.uid===u);if(k)add(k.eff,k.rk)}
+ if(it.eff)add(it.eff.id,it.eff.rk);if(TRAIN)for(const id in TRAIN.km)if(TRAIN.km[id])add(id,TRAIN.km[id]);
  SM.legend=it.legend&&!kon?it.type:null;if(P)kgCalc();kgHudUpd();
 }
-// botín de jefe: un arma muy buena (a menudo legendaria, casi siempre de tu tipo para fusionar)
+// botín de jefe del asedio: un arma muy buena (a menudo legendaria)
 function bossLoot(e){const leg=Math.random()<Math.min(.65,.2+.03*wave),rar=leg?3:2,type=Math.random()<.65?weapon().id:pick(TYPES);
- if(SIEGE.on){mpPickAdd({id:'b'+(UID++),x:e.x,y:groundAt(e.x,e.y+1,e.z),z:e.z,item:genWeapon(type,Math.max(rar-1,siegeRar()))});return}
- LOOT.push({x:e.x,y:groundAt(e.x,e.y+1,e.z),z:e.z,item:genWeapon(type,rar),t:0});if(leg)banner('★ ¡LEGENDARIA EN EL SUELO!')}
+ mpPickAdd({id:'b'+(UID++),x:e.x,y:groundAt(e.x,e.y+1,e.z),z:e.z,item:genWeapon(type,Math.max(rar-1,siegeRar()))})}
 // ---- muertes: botín y efectos ----
 function onKill(e,hit){
  if(!RUN)return;
- if((e.kind==='ooni'||e.kind==='karura')&&!kgOn())bossLoot(e);kgOnKill(e,hit);
- const D=AR.drop,ch=(e.kind==='ooni'||e.kind==='karura')?0:e.kind==='oni'?D.oni:e.kind?D.yokai:e.spider?D.spider:e.mini?D.mini:D.zombie;
- if(!SIEGE.on&&!kgOn()&&LOOT.length<14&&Math.random()<ch){const km=Math.random()<(e.kind?D.kamonShareYokai:D.kamonShare);
-  const w=AR.dropRar(wave),rar=km?0:(()=>{let s=w.reduce((a,b)=>a+b,0),r=Math.random()*s;for(let i=0;i<4;i++){r-=w[i];if(r<0)return i}return 0})();
-  const item=km?genKamon(wave>=5&&Math.random()<.12?2:1):genWeapon(Math.random()<.35?RUN.wpn[ri(0,1)].type:pick(TYPES),rar);
-  LOOT.push({x:e.x,y:groundAt(e.x,e.y+1,e.z),z:e.z,item,t:0})}
+ if((e.kind==='ooni'||e.kind==='karura')&&SIEGE.on)bossLoot(e);kgOnKill(e,hit);
  if(hit&&hit.proc)return;
  RUN.kc++;
  const S=EF.shuriken;if(S&&RUN.kc%AR.eff.shuriken.every[S-1]===0){const n=AR.eff.shuriken.n[S-1];for(let i=0;i<n;i++){const a=i/n*6.283+Math.random()*.3;addProj({k:'shur',x:e.x,y:(e.y||0)+1,z:e.z,vx:Math.sin(a)*14,vy:0,vz:Math.cos(a)*14,life:.7,bounce:AR.eff.shuriken.bounce[S-1]})}sfx('swish')}
@@ -2879,8 +2764,7 @@ function legendCounter(){if(!SM.legend||weapon().blunt)return;for(let i=0;i<8;i+
 // ---- botín en el suelo ----
 function updateLoot(){
  for(const L of LOOT){L.t+=DT;if(P.dead)continue;if(Math.hypot(L.x-P.x,L.z-P.z)<1.15&&Math.abs(L.y-P.y)<1.6){L.got=true;
-  if(L.item.kid)kgAddKamon(L.item.kid);else if(RUN.bag.length<AR.bag){RUN.bag.push(L.item);banner(L.item.kind==='kamon'?AR.eff[L.item.eff].ico+' Kamon: '+AR.eff[L.item.eff].name:(TYPE_I[L.item.type]+' '+L.item.name+' ('+AR.rarName[L.item.rar]+')'))}
-  else{const g=meltValue(L.item);RUN.tama+=g;banner('Bolsa llena: +'+g+' acero')}sfx('ready');sparks([L.x,L.y+1,L.z],[0,1,0],10,[1,.9,.5])}}
+  if(L.item.kid)kgAddKamon(L.item.kid);sfx('ready');sparks([L.x,L.y+1,L.z],[0,1,0],10,[1,.9,.5])}}
  LOOT=LOOT.filter(L=>!L.got&&L.t<60);
 }
 function drawArsenal(){
@@ -2895,7 +2779,7 @@ function drawArsenal(){
   else{const l=Math.hypot(p.vx,p.vz)||1,nx=-p.vz/l*.6,nz=p.vx/l*.6;limb([p.x-nx,p.y,p.z-nz],[p.x+nx,p.y,p.z+nz],.04,AR_RC[0])}}
 }
 // ---- fin de oleada: bendiciones de los kami (la forja vieja solo queda para el asedio) ----
-function openForge(){if(!kgOn())return;try{submitScore(true)}catch(e){}state='forge';hudShow(false);RUN.msg='';if(TRAIN)RUN.kg.done={};refreshSM();kgEndQueue()}
+function openForge(){if(!kgOn())return;try{submitScore(true)}catch(e){}state='forge';hudShow(false);if(TRAIN)RUN.kg.done={};refreshSM();kgEndQueue()}
 function closeForge(){$('forge').style.display='none';hudShow(true);refreshSM();state='play';P.inv=Math.max(P.inv,1.5);P.trap=null;if(TRAIN){updWUI();return}wave++;waveQueue=waveCount(wave);waveSpawnT=.5;raidT=rand(8,20);banner('OLEADA '+wave);if(wave%5===0){waveQueue=Math.round(waveQueue*.5);DELAY.push({t:2,fn:()=>{if(state==='play'&&!P.dead)spBoss()}})}
  updWUI()}
 // ---- habilidad especial: en el modo normal todas las armas la tienen; en el asedio sigue dependiendo de la rareza ----
@@ -2921,40 +2805,20 @@ const SV={
  mov:{c:'#e07a2a',p:'<ellipse cx="8" cy="9" rx="3.2" ry="5" fill="#fff"/><ellipse cx="16" cy="15" rx="3.2" ry="5" fill="#fff"/>'}};
 const sIco=(k,cls)=>`<div class="${cls||'sico'}" style="--sc:${SV[k].c}"><svg viewBox="0 0 24 24">${SV[k].p}</svg></div>`;
 function pipsHTML(k,v,p,oni){const base=Math.max(0,v-p),n=Math.max(5,v);let h='';for(let i=0;i<n;i++)h+=`<i class="${i<base?(oni&&i>=5?'o':'f'):i<v?'p':''}"></i>`;return`<div class="pips" style="--sc:${SV[k].c}">${h}</div>`}
-function statBars(w,tap){const H=RUN&&RUN.hit&&RUN.hit.u===w.uid?RUN.hit:null,S=RUN&&RUN.sharp;
- return AR.stats.map(([k,n])=>{const v=w.lv[k],p=w.plusS[k]||0,oni=k===w.oni,hc=H&&H.k[k],can=tap&&!oni;
-  return`<div class="fs${can?' tap':''}${hc?' hit':''}${S&&S.k===k&&RUN.anvil.base===w.uid?' rolling':''}" style="--sc:${SV[k].c}" title="${n}" ${can?`data-act="sharp" data-k="${k}"`:''}>${sIco(k)}${pipsHTML(k,v,p,oni)}<span class="dz">${oni?'👹':can?'🎲':''}</span>${hc?`<span class="fl">+${hc}</span>`:''}</div>`}).join('')}
+function statBars(w){
+ return AR.stats.map(([k,n])=>{const v=w.lv[k],p=w.plusS[k]||0,oni=k===w.oni;
+  return`<div class="fs" style="--sc:${SV[k].c}" title="${n}">${sIco(k)}${pipsHTML(k,v,p,oni)}<span class="dz">${oni?'👹':''}</span></div>`}).join('')}
 // efectos visuales de forja (capa encima de todo, no se borra al redibujar)
 function forgeFX(kind,o){o=o||{};let fx=document.getElementById('ffx');if(fx)fx.remove();fx=document.createElement('div');fx.id='ffx';
  const spk=(n)=>Array.from({length:n},()=>{const a=Math.random()*6.28,r=60+Math.random()*90;return`<span class="spk" style="--x:${Math.cos(a)*r}px;--y:${Math.sin(a)*r}px;--d:${(.25+Math.random()*.15).toFixed(2)}s"></span>`}).join('');
  const icons=(ks,d0)=>`<div class="row">${ks.map((k,i)=>`<div class="fxi" style="--sc:${SV[k].c};animation-delay:${d0+i*.12}s,1.5s"><svg viewBox="0 0 24 24">${SV[k].p}</svg><b>+1</b></div>`).join('')}</div>`;
  let h='<div class="bg"></div>';
  if(kind==='temper'){h+=`<div class="ham">${ANVIL_SVG(110)}${spk(14)}</div>`;
-  if(o.master)h+=`<div class="ttl" style="--tc:#ffd04a">¡GOLPE MAESTRO!</div>`;
   if(o.asc!=null)h+=`<div class="ttl" style="color:${AR.rarCol[o.asc]};--tc:${AR.rarCol[o.asc]}">▲ ${AR.rarName[o.asc]}</div>`;
   if(o.ks&&o.ks.length)h+=icons(o.ks,.35)}
- else if(kind==='merge'){const T=o.tier,col=AR.rarCol[o.b.rar];fx.className='fx'+T;
-  h+=`<div class="mg"><div class="ma">${wIcon(o.a.type,AR.rarCol[o.a.rar],70)}</div><div class="mb">${wIcon(o.b.type,col,70)}</div><div class="mflash"></div>${spk(T===2?26:T===1?14:5)}</div>`;
-  if(T===2)h+=`<div class="ttl" style="color:${col};--tc:${col};animation-delay:.55s,1.9s">${o.asc!=null?'▲ '+AR.rarName[o.asc]:'¡GOLPE MAESTRO!'}</div>`;
-  if(o.ks.length)h+=icons(o.ks,.65);
-  else h+=`<div class="mbar2"><i style="width:${Math.min(100,(o.tp-o.pts)/o.need*100)}%;--w:${Math.min(100,o.tp/o.need*100)}%"></i></div><div class="ttl" style="color:#aaa;--tc:#444;font-size:22px;animation-delay:.6s,1.9s">+${o.pts} temple</div>`}
- else if(kind==='blood'){h+=`<div class="drop">${o.ok?'🩸':'💧'}</div>`;
-  h+=o.ok?icons(o.ks,.45):`<div class="ttl" style="color:#bbb;--tc:#555">✖</div>`}
- else if(kind==='dice'){h+=`<div class="row">${sIco(o.k,'fxi')}<div class="die roll"></div></div>`}
  fx.innerHTML=h;document.body.appendChild(fx);
- if(kind==='dice'){const d=fx.querySelector('.die'),face=n=>{const P={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
-   if(n>6){d.className='die num';d.innerHTML=n;return}d.className='die';d.innerHTML=Array.from({length:9},(_,i)=>P[n].includes(i)?'<u></u>':'<span></span>').join('')};
-  const fxi=fx.querySelector('.fxi');fxi.style.animation='fxpop .4s cubic-bezier(.2,1.7,.4,1) both,fxout .3s 1.4s forwards';fxi.style.width=fxi.style.height='78px';
-  let t=0;face(1);d.classList.add('roll');const iv=setInterval(()=>{t++;face(1+Math.floor(Math.random()*6));d.classList.add('roll');if(t>8){clearInterval(iv);face(o.v);d.classList.remove('roll');d.classList.add('land');sfx('blunt')}},70);
-  setTimeout(()=>fx.remove(),1700)}
- else setTimeout(()=>fx.remove(),kind==='merge'?2400:2000)}
-function card(it,extra){if(!it)return'<div class="fc empty">vacío</div>';const sel=RUN.sel===it.uid?' sel':'';
- if(it.kind==='kamon'){const E=AR.eff[it.eff];return`<div class="fc${sel}${RUN.slots.includes(it.uid)?' on':''}" data-act="sel" data-u="${it.uid}" data-drag="${it.uid}" style="border-color:${AR.rarCol[Math.min(3,it.rk-1)]}"><div class="ic">${E.ico}</div><div class="nm">${E.name}</div><div class="rk">Rango ${'I II III IV'.split(' ')[it.rk-1]}</div>${extra||''}</div>`}
- return`<div class="fc wc${sel}" data-act="sel" data-u="${it.uid}" data-drag="${it.uid}" data-drop="w:${it.uid}" style="border-color:${AR.rarCol[it.rar]};--rc:${AR.rarCol[it.rar]}"><div class="wi">${wIcon(it.type,AR.rarCol[it.rar])}${it.plus?`<sup>+${it.plus}</sup>`:''}</div><div class="nm">${TYPE_N[it.type]}</div><div class="rk"><span style="color:${AR.rarCol[it.rar]}">${AR.rarName[it.rar]}</span> ${power(it)}</div>${extra||''}</div>`}
+ setTimeout(()=>fx.remove(),2000)}
 const ANVIL_SVG=(w)=>`<svg viewBox="0 0 64 40" width="${w}" height="${w*40/64}"><path d="M6 8 H50 Q60 8 62 14 Q52 14 48 18 V22 H40 L44 30 H50 V36 H14 V30 H20 L24 22 H16 Q8 22 6 14 Z" fill="#4a4550" stroke="#8d8794" stroke-width="1.5"/><path d="M8 9 H48" stroke="#b9b3c0" stroke-width="1.5"/></svg>`;
-const FIRE_SVG=(w)=>`<svg viewBox="0 0 40 48" width="${w}" height="${w*1.2}"><path d="M20 2 C24 14 36 18 34 32 C33 42 26 46 20 46 C12 46 6 40 6 31 C6 22 14 20 14 10 C18 14 18 18 20 20 C22 14 20 8 20 2 Z" fill="#e2552b"/><path d="M20 20 C24 28 28 30 27 37 C26 42 23 44 20 44 C16 44 13 41 13 36 C13 31 18 30 20 20 Z" fill="#ffb23a"/></svg>`;
-const INGOT_SVG=(w)=>`<svg viewBox="0 0 48 28" width="${w}" height="${w*28/48}"><path d="M4 22 L12 6 H38 L44 22 Z" fill="#9aa4ae" stroke="#dfe5ec" stroke-width="1.5"/><path d="M12 6 L16 12 H34 L38 6" fill="none" stroke="#dfe5ec" stroke-width="1.2"/></svg>`;
-const ARROW_SVG=`<svg viewBox="0 0 40 20" width="34" height="17"><path d="M2 10 H30 M24 4 L32 10 L24 16" stroke="#ffd04a" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 /* ================= KAGO 加護 · bendiciones de los kami (Hades) + kamon Henge (Isaac) =================
    Escala: 1 unidad interna de daño/vida = 10 en pantalla. TODO lo ajustable está en KG y en las tablas de abajo. */
 const KG={
