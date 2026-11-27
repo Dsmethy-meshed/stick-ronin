@@ -25,16 +25,23 @@ ZM.load=async function(url,scene){
   for(let i=0;i<n;i++){seg[i*3]=Math.round(C.getX(i)/nd*10);seg[i*3+1]=Math.round(C.getY(i)/nd*10);seg[i*3+2]=C.getZ(i)/nd}
   g.deleteAttribute('color');g.setAttribute('zmSeg',new THREE.BufferAttribute(seg,3));
   const body=new Float32Array(ZM.cap);for(let i=0;i<ZM.cap;i++)body[i]=i;g.setAttribute('zmBody',new THREE.InstancedBufferAttribute(body,1));
+  // disuelto en ceniza por cuerpo (0 = entero, 1 = desaparecido)
+  ZM.dis=new THREE.InstancedBufferAttribute(new Float32Array(ZM.cap),1);ZM.dis.setUsage(THREE.DynamicDrawUsage);g.setAttribute('zmDis',ZM.dis);
   // textura de matrices: cada fila = un cuerpo, 4 texels (columnas) por tramo
   ZM.data=new Float32Array(TW*ZM.cap*4);ZM.tex=new THREE.DataTexture(ZM.data,TW,ZM.cap,THREE.RGBAFormat,THREE.FloatType);ZM.tex.magFilter=ZM.tex.minFilter=THREE.NearestFilter;ZM.tex.needsUpdate=true;
   ZM.base=new THREE.Color(0x7d8c6a);
   const mat=new THREE.MeshLambertMaterial({color:0xffffff,emissive:new THREE.Color(ZM.glow,ZM.glow,ZM.glow),side:THREE.DoubleSide});
   mat.onBeforeCompile=sh=>{sh.uniforms.zmTex={value:ZM.tex};sh.uniforms.zmH={value:ZM.cap};
-   sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform sampler2D zmTex;uniform float zmH;attribute vec3 zmSeg;attribute float zmBody;\nmat4 zmM(float s){float y=(zmBody+.5)/zmH,x=s*4.;return mat4(texture2D(zmTex,vec2((x+.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+1.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+2.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+3.5)/'+TW+'.,y)));}')
+   sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform sampler2D zmTex;uniform float zmH;attribute vec3 zmSeg;attribute float zmBody;attribute float zmDis;varying vec3 zmP;varying float zmD;\nmat4 zmM(float s){float y=(zmBody+.5)/zmH,x=s*4.;return mat4(texture2D(zmTex,vec2((x+.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+1.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+2.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+3.5)/'+TW+'.,y)));}')
     .replace('#include <beginnormal_vertex>','mat4 zmA=zmM(zmSeg.x),zmB=zmM(zmSeg.y);float zmHA=zmA[3][3],zmHB=zmB[3][3],zmWA=zmSeg.z*zmHA,zmWB=(1.-zmSeg.z)*zmHB,zmV=zmWA+zmWB;\nvec3 objectNormal=normalize(mat3(zmA)*normal*zmWA+mat3(zmB)*normal*zmWB+1e-6);\n#ifdef USE_TANGENT\nvec3 objectTangent=vec3(tangent.xyz);\n#endif')
     // tramo cortado: su matriz lleva [3][3]=0 y en la columna 3 su punto de unión. El vértice que es sobre todo de ese tramo se encoge ahí;
     // el que es sobre todo del tramo que sigue unido se queda entero con él (corte limpio, sin pinchos)
-    .replace('#include <begin_vertex>','vec3 transformed=zmV<.5?(zmHA<.5?zmA[3].xyz:zmB[3].xyz):(zmA*vec4(position,1.)*zmWA+zmB*vec4(position,1.)*zmWB).xyz/zmV;')};
+    .replace('#include <begin_vertex>','zmP=position;zmD=zmDis;vec3 transformed=zmV<.5?(zmHA<.5?zmA[3].xyz:zmB[3].xyz):(zmA*vec4(position,1.)*zmWA+zmB*vec4(position,1.)*zmWB).xyz/zmV;');
+   /* disuelto con borde de brasa (idea: Codrops «dissolve effect with shaders and particles»): ruido 3D fijo en la malla de reposo;
+      se quita lo que queda por debajo del umbral y justo encima hay una franja incandescente (blanco-amarillo → naranja) y luego carbón.
+      Arde de arriba abajo, con ruido, como papel. */
+   sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nvarying vec3 zmP;varying float zmD;\nfloat zmH3(vec3 p){p=fract(p*.3183099+.1);p*=17.;return fract(p.x*p.y*p.z*(p.x+p.y+p.z));}\nfloat zmN3(vec3 x){vec3 i=floor(x),f=fract(x);f=f*f*(3.-2.*f);return mix(mix(mix(zmH3(i),zmH3(i+vec3(1,0,0)),f.x),mix(zmH3(i+vec3(0,1,0)),zmH3(i+vec3(1,1,0)),f.x),f.y),mix(mix(zmH3(i+vec3(0,0,1)),zmH3(i+vec3(1,0,1)),f.x),mix(zmH3(i+vec3(0,1,1)),zmH3(i+vec3(1,1,1)),f.x),f.y),f.z);}')
+    .replace('#include <fog_fragment>','if(zmD>.001){float zn=.62*(.65*zmN3(zmP*9.)+.35*zmN3(zmP*23.))+.38*(1.-clamp(zmP.y/.95,0.,1.));float th=zmD*1.25-.12,e=.055;if(zn<th)discard;float u=(zn-th)/e;\n vec3 em=u<1.?mix(vec3(1.6,1.35,.7),vec3(1.3,.32,.04),u):vec3(.55,.13,.02)*(1.-smoothstep(1.,2.2,u));float ch=1.-smoothstep(1.,3.6,u);gl_FragColor.rgb=mix(gl_FragColor.rgb,vec3(.07,.05,.045),ch*.92)+em;}\n#include <fog_fragment>')};
   const mesh=new THREE.InstancedMesh(g,mat,ZM.cap);mesh.frustumCulled=false;
   for(let i=0;i<ZM.cap;i++)mesh.setMatrixAt(i,new THREE.Matrix4());
   mesh.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(ZM.cap*3),3);mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);mesh.count=0;
@@ -48,8 +55,8 @@ function segRot(out,ra,rb,ja,jb){_a.subVectors(rb,ra).applyQuaternion(_qy);const
  _b.set(jb[0]-ja[0],jb[1]-ja[1],jb[2]-ja[2]);const l1=_b.length();if(l1<1e-6){out.copy(_qy);return}_b.multiplyScalar(1/l1);
  out.setFromUnitVectors(_a,_b).multiply(_qy)}
 ZM.begin=function(){ZM.n=0};
-/* añade un cuerpo: J = 12 puntos en el mundo, yaw = hacia dónde mira, s = escala, vis = Set de tramos visibles (null = todos), col = THREE.Color */
-ZM.add=function(J,yaw,s,vis,col){if(!ZM.ready||ZM.n>=ZM.cap)return false;
+/* añade un cuerpo: J = 12 puntos en el mundo, yaw = hacia dónde mira, s = escala, vis = Set de tramos visibles (null = todos), col = THREE.Color, dis = ceniza 0..1 */
+ZM.add=function(J,yaw,s,vis,col,dis){if(!ZM.ready||ZM.n>=ZM.cap)return false;
  for(let i=0;i<12;i++){const j=J[i];if(!j||j[0]!==j[0]){const b=J[3]&&J[3][0]===J[3][0]?J[3]:null;if(!b)return false;J=J.map(x=>x&&x[0]===x[0]?x:b);break}}
  const row=ZM.n++,k=ZM.K*(s||1),RJ=ZM.RJ,D=ZM.data;_qy.setFromAxisAngle(YAX,yaw||0);
  for(let si=0;si<NS;si++){const [a,b,par]=SEGS[si],off=(row*TW+si*4)*4;
@@ -66,8 +73,8 @@ ZM.add=function(J,yaw,s,vis,col){if(!ZM.ready||ZM.n>=ZM.cap)return false;
   _m.compose(_z,_q,_k.set(k,k,k));_t.makeTranslation(-ra.x,-ra.y,-ra.z);_m.multiply(_t);
   if(Math.abs(f-1)>.02){const u=_d,g=f-1;_s.set(1+g*u.x*u.x,g*u.x*u.y,g*u.x*u.z,0,g*u.y*u.x,1+g*u.y*u.y,g*u.y*u.z,0,g*u.z*u.x,g*u.z*u.y,1+g*u.z*u.z,0,0,0,0,1);_m.premultiply(_s)}
   const e=_m.elements;e[12]+=anchor.x;e[13]+=anchor.y;e[14]+=anchor.z;D.set(e,off)}
- ZM.mesh.setColorAt(row,col||ZM.base);return true};
-ZM.end=function(){if(!ZM.ready)return;ZM.mesh.count=ZM.n;ZM.tex.needsUpdate=true;ZM.mesh.instanceColor.needsUpdate=true};
+ ZM.mesh.setColorAt(row,col||ZM.base);ZM.dis.array[row]=dis||0;return true};
+ZM.end=function(){if(!ZM.ready)return;ZM.mesh.count=ZM.n;ZM.tex.needsUpdate=true;ZM.mesh.instanceColor.needsUpdate=true;ZM.dis.needsUpdate=true};
 ZM.segKey=segKey;
 window.ZM=ZM;
 })();
