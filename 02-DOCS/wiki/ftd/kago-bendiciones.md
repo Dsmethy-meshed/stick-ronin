@@ -42,6 +42,7 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Modelo 3D del zombi (Tripo) siguiendo los 12 puntos: vivos, ragdolls, cortes y cadáveres desmembrados; reverencia al morir; modelo y clips en el editor. **Prueba:** t22 (capturas vivos y cortes), t25 (3 cadáveres con modelo, 4 reverencias), t26 rendimiento (37,8 vs 43,8 fps), t27 editor (clips y modelo); t1/t2/t7 sin errores (sin servidor vuelven los palos).
 - [x] Modelo del zombi pasado a piezas rígidas (sin esqueleto ni reverencia), dibujadas por instancias; editor adaptado. **Prueba:** t22 (vivos y cortes), t25 (3 cadáveres), t27 (editor), t26 rendimiento: ~42 fps con modelos frente a 39-43 sin ellos.
 - [x] Modelo deformado en la GPU (malla entera, articulaciones suaves, cortes limpios sin pinchos). **Prueba:** t22/t25 (capturas de vivos, ragdoll cortado y cadáveres), t27 (editor), t26: 43,4 fps con 64 modelos frente a 42,6-44,6 sin modelos.
+- [x] Muerte en ceniza rehecha: el modelo arde con borde de brasa (shader con ruido), brasas aditivas y copos; los minis brotan sin humo. **Prueba:** t34 (8 capturas de 0,5 a 1,6 s y zoom del borde), t26: 45,7 fps con 115 modelos (CPU ×4).
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
