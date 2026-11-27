@@ -2912,13 +2912,7 @@ function kgFxSave(){try{localStorage.setItem('stickronin_fx',JSON.stringify(KGFX
    el rojo queda para el jugador, la sangre, los ojos y el peligro; los colores de los kami solo en los brillos; 5) protagonista 3D en tinta
    aguada (ZMP, ver zmodel.js). Interruptor «🖌 Estilo tinta» (KGFX.ink). */
 const INK={orig:null};
-function inkPatch(m){if(!m||m.__ink||!m.isMeshLambertMaterial)return;m.__ink=1;const ob=m.onBeforeCompile,key=m.customProgramCacheKey();
- m.onBeforeCompile=function(sh,r){ob.call(this,sh,r);sh.uniforms.inkOn=INKS.u.on;sh.uniforms.inkTones=INKS.u.tones;sh.uniforms.inkTh=INKS.u.th;if(sh.fragmentShader.indexOf('inkOn')>=0)return;
-  sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float inkOn;uniform vec3 inkTones,inkTh;').replace('#include <aomap_fragment>','#include <aomap_fragment>\n'+
-  // li = cuánta luz recibe (1 = luz de cielo normal); se pasa a 3 tonos (sombra, medio, iluminado) con dos cortes nítidos (inkTh.z = suavidad)
-  'if(inkOn>.5){vec3 lt=(reflectedLight.directDiffuse+reflectedLight.indirectDiffuse)/max(BRDF_Diffuse_Lambert(diffuseColor.rgb),vec3(1e-4));float li=dot(lt,vec3(.299,.587,.114))/PI;'+
-  'float q=mix(inkTones.x,inkTones.y,smoothstep(inkTh.x-inkTh.z,inkTh.x+inkTh.z,li));q=mix(q,inkTones.z,smoothstep(inkTh.y-inkTh.z,inkTh.y+inkTh.z,li));reflectedLight.directDiffuse=diffuseColor.rgb*q;reflectedLight.indirectDiffuse=vec3(0.);}')};
- m.customProgramCacheKey=()=>key+'|ink';m.needsUpdate=true}
+function inkPatch(m){INKS.patch(m)} // sombreado en 3 tonos: models/inkstyle.js
 function inkScan(){scene.traverse(o=>{const m=o.material;if(Array.isArray(m))m.forEach(inkPatch);else inkPatch(m)})}
 const INKOUT=new THREE.MeshBasicMaterial({color:0x0e0c0b,side:THREE.BackSide});
 INKOUT.onBeforeCompile=sh=>{sh.uniforms.inkW=INKS.u.wSticks;sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float inkW;').replace('#include <begin_vertex>','vec3 transformed=position+normalize(normal+1e-6)*inkW;')};
@@ -2948,7 +2942,7 @@ function drawRibbon(){const n=RIB.n,Rv=dirW(P.ryaw,[1,0,0]);
  ribG.attributes.position.needsUpdate=true;ribG.computeVertexNormals();ribM.visible=true}
 const INKT=new THREE.Color();
 // enemigo en tinta: conserva un poco su luminosidad (variedad) pero casi negro (INKS: eBase, eVar)
-const inkTone=c=>{if(!KGFX.ink||!c)return c;const l=c.r*.3+c.g*.59+c.b*.11,v=INKS.v,b=v.eBase,k=v.eVar;return INKT.setRGB(b+k*l,b*.93+k*.9*l,b*.87+k*.85*l)};
+const inkTone=c=>!KGFX.ink||!c?c:INKS.tone(c,INKT);
 function inkApply(){const on=!!KGFX.ink,v=INKS.v;INKS.u.on.value=on?1:0;for(const m of INK_B)m.visible=on;if(window.ZM)ZM.ink=on;if(window.ZMP)ZMP.ink=on;
  const hemi=scene.children.find(o=>o.isHemisphereLight),lines=scene.children.find(o=>o.isLineSegments),pag=INK.pag||(INK.pag=[]);if(!pag.length)scene.traverse(o=>{const m=o.material;if(o.isMesh&&m&&m.isMeshBasicMaterial&&m.color&&m.color.getHex()===0xa27e6c&&!pag.includes(m))pag.push(m)});
  if(!INK.orig)INK.orig={fog:scene.fog.color.getHex(),fn:scene.fog.near,ff:scene.fog.far,hs:hemi.color.getHex(),hg:hemi.groundColor.getHex(),hi:hemi.intensity,sc:sun.color.getHex(),si:sun.intensity,side:matSide.color.getHex(),top:matTop.color.getHex(),ground:matGround.color.getHex(),tiles:lines?lines.material.color.getHex():0,pag:pag.length?pag[0].color.getHex():0,disc:sunDisc.material.color.getHex()};

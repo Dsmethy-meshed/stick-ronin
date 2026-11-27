@@ -48,6 +48,8 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Protagonista 3D en tinta aguada (`ZMP`, `models/player.glb`). **Prueba:** t36 (capturas con y sin tinta, zoom del fajín rojo), t38: ~45 fps con y sin tinta (CPU ×4, oleada 6).
 - [x] Editor de shaders en el editor (pestaña «🖌 Shader», ajustes en `models/inkstyle.js`). **Prueba:** t40 (25 deslizadores, 11 colores, 1 interruptor; cambios en vivo en el editor y en el juego abierto en otra pestaña; probar ceniza; valores por defecto).
 - [x] Tira de tela con física en el protagonista 3D y zombis grises con tinta negra. **Prueba:** t41 (jugador corriendo: tira visible ondeando, zombis grises), t38: 46,4 / 44,4 fps sin / con tinta.
+- [x] Protagonista: análisis (cabeza ×0,66, torso ×1,27/×0,72, hombros desde pose en T) y arreglo en Blender (`apose=50 fist=75 fit`, clavícula con el brazo). **Prueba:** t42 (todo el torso ×0,96), t43 (capturas antes/después de frente y de lado).
+- [x] `modelo.html` (pesos y esqueleto a mano) y `shaders.html` (estilo tinta) aparte; fuera la pestaña del editor. **Prueba:** t44 (pintar 45 vértices, guardar, el juego los carga, volver al original), t45 (7 grupos, 25 deslizadores, 11 colores, el juego lee el cambio, editor sin la pestaña y con los enlaces), t41 (juego sin cambios).
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia

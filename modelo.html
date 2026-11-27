@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#17151b">
+<title>Modelo y pesos</title>
+<style>
+/* Taller de modelos: pintar los pesos (a qué tramo del esqueleto de palos pertenece cada vértice) y ajustar el esqueleto de referencia.
+   Misma estética que el editor: grafito, papel hueso, rojo bufanda. Pensado para el móvil (vista arriba, panel abajo). */
+:root{color-scheme:dark;--bg:#17151b;--panel:#211e26;--line:#3a3540;--ink:#ece6dd;--dim:#a49b92;--acc:#d1242c;--acc2:#f0c35a}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+#app{position:fixed;inset:0;display:flex;flex-direction:column;height:100dvh}
+#view{position:relative;flex:1 1 55%;min-height:200px;touch-action:none}
+#view canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+#top{position:absolute;left:6px;right:6px;top:6px;display:flex;gap:6px;flex-wrap:wrap;z-index:3}
+#top a,#top button{min-height:40px;padding:0 10px;border-radius:10px;border:1px solid var(--line);background:rgba(33,30,38,.9);color:var(--ink);font:650 14px system-ui;display:inline-flex;align-items:center;text-decoration:none}
+#top .on,.chips .on,.btns .on{background:#3d2a2e;border-color:var(--acc);color:#fff}
+#mode{position:absolute;right:8px;bottom:8px;z-index:3;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--acc);background:var(--acc);color:#fff;font:800 14px system-ui}
+#mode.rot{background:rgba(33,30,38,.92);border-color:var(--line)}
+#info{position:absolute;left:8px;bottom:8px;z-index:3;font-size:12px;color:var(--dim);background:rgba(23,21,27,.75);padding:4px 8px;border-radius:8px;max-width:60%}
+#dock{flex:0 0 auto;max-height:45dvh;display:flex;flex-direction:column;background:var(--panel);border-top:1px solid var(--line)}
+nav{display:flex}
+nav button{flex:1;min-height:44px;border:0;background:transparent;color:var(--dim);font:650 14px system-ui}
+nav button.on{color:#fff;box-shadow:inset 0 -3px 0 var(--acc)}
+#panel{overflow:auto;padding:8px 12px 18px}
+button,select,textarea{font:inherit;color:var(--ink);background:#2c2832;border:1px solid var(--line);border-radius:10px}
+button{min-height:40px;padding:0 10px;font-weight:650}
+button:active{background:#3a3540}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--acc2);outline-offset:1px}
+select{min-height:40px;padding:0 8px;font-size:15px}
+.row{display:flex;gap:8px;align-items:center;margin:6px 0}
+.row>label{flex:0 0 7.5em;color:var(--dim);font-size:13px}
+.row input[type=range]{flex:1;accent-color:var(--acc);height:30px}
+.val{min-width:3.4em;text-align:right;font-variant-numeric:tabular-nums;font-size:13px}
+.chips,.btns{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chips button{min-height:36px;font-size:13px;padding:0 8px;display:inline-flex;align-items:center;gap:6px}
+.dot{width:12px;height:12px;border-radius:50%;display:inline-block;flex:0 0 auto}
+h3{margin:10px 0 4px;font-size:14px}
+.hint{color:var(--dim);font-size:13px;margin:4px 0}
+textarea{width:100%;min-height:80px;padding:8px;font:12px/1.4 ui-monospace,monospace}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:8px 14px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none;z-index:9}
+</style>
+</head>
+<body>
+<div id="app">
+ <div id="view">
+  <canvas id="cv"></canvas>
+  <div id="top">
+   <a href="editor.html">← Editor</a>
+   <button id="mP" class="on">🥷 Protagonista</button><button id="mZ">🧟 Zombi</button>
+   <button data-v="front">Frente</button><button data-v="side">Lado</button><button data-v="back">Espalda</button>
+  </div>
+  <div id="info">Cargando…</div>
+  <button id="mode">🖌 Pintar</button>
+ </div>
+ <div id="dock">
+  <nav><button data-tab="w" class="on">🖌 Pesos</button><button data-tab="r">🦴 Esqueleto</button><button data-tab="s">💾 Guardar</button></nav>
+  <section id="panel"></section>
+ </div>
+</div>
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="models/inkstyle.js"></script>
+<script src="models/zmodel.js"></script>
+<script>
+{
+'use strict';
+const $=id=>document.getElementById(id);
+const toast=t=>{const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1600)};
+/* tramos (mismo orden que zmodel.js / prep_tripo.py) y su espejo izquierda ↔ derecha */
+const SEGN=['Cadera → pecho','Pecho → cuello','Cuello → cabeza','Brazo izq.','Antebrazo izq.','Brazo der.','Antebrazo der.','Muslo izq.','Pierna izq.','Muslo der.','Pierna der.'];
+const SEGC=[0x8d8d8d,0xd9a441,0xe8e0d0,0x3f8fe0,0x7cc4ff,0xd1242c,0xff8a7a,0x3fae5a,0x9be07a,0x9b59d0,0xd9a0ff].map(c=>new THREE.Color(c));
+const MIRS=[0,1,2,5,6,3,4,9,10,7,8];
+const JN=['Cabeza','Cuello','Pecho','Pelvis','Codo izq.','Mano izq.','Codo der.','Mano der.','Rodilla izq.','Pie izq.','Rodilla der.','Pie der.'];
+const RN={'1-4':'Hombro izq. (raíz del brazo)','1-6':'Hombro der. (raíz del brazo)','3-8':'Cadera izq. (raíz de la pierna)','3-10':'Cadera der. (raíz de la pierna)'};
+/* poses de prueba en coordenadas del juego (las del stickman de pie, medidas en el juego) */
+const IDLE=[[0,1.59,.06],[0,1.44,.04],[0,1.21,.02],[0,.89,0],[-.17,1.2,.04],[-.1,1.03,.28],[.18,1.2,.04],[.15,1,.26],[-.08,.46,.17],[-.16,0,.16],[.08,.43,.05],[.16,0,-.12]];
+const POSES={
+ rest:'Reposo del modelo',idle:'De pie (juego)',fwd:'Katana al frente',up:'Brazos arriba',tpose:'En T',anim:'▶ En movimiento'};
+function poseJ(k,t){const J=IDLE.map(p=>p.slice());
+ const set=(i,v)=>{J[i]=v};
+ if(k==='fwd'){set(4,[-.16,1.27,.18]);set(5,[-.04,1.25,.45]);set(6,[.16,1.27,.18]);set(7,[.04,1.25,.45])}
+ if(k==='up'){set(4,[-.22,1.72,0]);set(5,[-.24,2.0,.02]);set(6,[.22,1.72,0]);set(7,[.24,2.0,.02])}
+ if(k==='tpose'){set(4,[-.3,1.44,.02]);set(5,[-.6,1.44,.02]);set(6,[.3,1.44,.02]);set(7,[.6,1.44,.02])}
+ if(k==='anim'){const a=(Math.sin(t*1.6)+1)/2,b=(Math.sin(t*1.1+1)+1)/2,A=poseJ('up'),F=poseJ('fwd');
+  for(const i of[4,5])for(let c=0;c<3;c++)J[i][c]=IDLE[i][c]+(A[i][c]-IDLE[i][c])*a;
+  for(const i of[6,7])for(let c=0;c<3;c++)J[i][c]=IDLE[i][c]+(F[i][c]-IDLE[i][c])*b;
+  J[0][2]+=Math.sin(t*2)*.05;J[8][2]+=Math.sin(t*1.3)*.15;J[9][2]+=Math.sin(t*1.3)*.2}
+ return J.map(l=>[-l[0],l[1],l[2]])}  // local → mundo con yaw 0 (como toW del juego)
+
+/* ---------- escena ---------- */
+const cv=$('cv'),renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x1b1920);
+const camera=new THREE.PerspectiveCamera(40,1,.02,50);
+scene.add(new THREE.HemisphereLight(0xfff2e2,0x3a3030,.95));const dl=new THREE.DirectionalLight(0xffffff,.6);dl.position.set(2,4,3);scene.add(dl);
+scene.add(new THREE.GridHelper(4,16,0x5a5260,0x302b36));
+const orb={th:0,ph:1.35,r:2.6,tg:new THREE.Vector3(0,1,0)};
+function placeCam(){camera.position.set(orb.tg.x+orb.r*Math.sin(orb.ph)*Math.sin(orb.th),orb.tg.y+orb.r*Math.cos(orb.ph),orb.tg.z+orb.r*Math.sin(orb.ph)*Math.cos(orb.th));camera.lookAt(orb.tg)}
+const jointG=new THREE.SphereGeometry(.022,10,8),jointM=new THREE.MeshBasicMaterial({color:0xd1242c,depthTest:false}),selM=new THREE.MeshBasicMaterial({color:0xf0c35a,depthTest:false});
+const joints=Array.from({length:16},()=>{const m=new THREE.Mesh(jointG,jointM);m.renderOrder=5;scene.add(m);return m});
+const brush=new THREE.Mesh(new THREE.RingGeometry(.9,1,40),new THREE.MeshBasicMaterial({color:0xf0c35a,depthTest:false,side:THREE.DoubleSide,transparent:true,opacity:.9}));brush.renderOrder=6;brush.visible=false;scene.add(brush);
+
+/* ---------- estado ---------- */
+const S={kind:'player',Z:null,mesh:null,pos:null,col:null,rest:null,n:0,pose:'idle',view:'tex',seg:3,tool:'add',rad:.06,str:.35,sym:true,paint:true,
+ RJ:null,root:null,showJ:true,selP:'1-4',dirty:false,changed:new Set(),undo:[],weld:null,mir:null,nb:null};
+const models={};
+async function loadModel(kind){
+ if(!models[kind]){const Z=mkZM({cap:1,glow:0,wash:kind==='player'});$('info').textContent='Cargando modelo…';
+  const ok=await Z.load('models/'+kind+'.glb',scene);if(!ok){$('info').textContent='No se pudo cargar (ábrelo desde un servidor)';return}
+  Z.mesh.visible=false;Z.outline.visible=false;Z.mesh.count=0;Z.end=()=>{};models[kind]=Z}
+ const Z=models[kind];S.kind=kind;S.Z=Z;S.n=Z.geo.attributes.position.count;S.rest=Z.geo.attributes.position.array;
+ S.RJ=(Z.fix&&Z.fix.RJ||Z.rig.RJ).map(v=>v.slice());S.root=JSON.parse(JSON.stringify(Object.assign({},Z.rig.root,Z.fix&&Z.fix.root||{})));
+ S.changed=new Set(Object.keys(Z.fix&&Z.fix.w||{}).map(Number));S.undo=[];S.dirty=false;
+ if(S.mesh){scene.remove(S.mesh);S.mesh.geometry.dispose()}
+ const g=new THREE.BufferGeometry();S.pos=new Float32Array(S.n*3);S.col=new Float32Array(S.n*3);
+ g.setAttribute('position',new THREE.BufferAttribute(S.pos,3));g.setAttribute('color',new THREE.BufferAttribute(S.col,3));
+ if(Z.geo.attributes.uv)g.setAttribute('uv',Z.geo.attributes.uv);g.setIndex(Z.geo.index);
+ S.matTex=new THREE.MeshLambertMaterial({map:Z.map||null,color:Z.map?0xffffff:0x7d8c6a,side:THREE.DoubleSide});
+ S.matCol=new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide});
+ S.mesh=new THREE.Mesh(g,S.matTex);S.mesh.frustumCulled=false;scene.add(S.mesh);
+ buildTopo();recolor();$('mP').classList.toggle('on',kind==='player');$('mZ').classList.toggle('on',kind==='zombie');buildPanel();
+ $('info').textContent=(kind==='player'?'Protagonista':'Zombi')+' · '+S.n+' vértices';}
+/* vértices soldados (mismas coordenadas, partidos por las UV), vecinos para suavizar y espejo izquierda/derecha */
+function buildTopo(){const n=S.n,R=S.rest,key=i=>Math.round(R[i*3]*2000)+','+Math.round(R[i*3+1]*2000)+','+Math.round(R[i*3+2]*2000),grp=new Map();
+ for(let i=0;i<n;i++){const k=key(i);if(!grp.has(k))grp.set(k,[]);grp.get(k).push(i)}
+ S.weld=new Int32Array(n);for(const l of grp.values())for(const i of l)S.weld[i]=l[0];
+ const nb=Array.from({length:n},()=>new Set()),I=S.Z.geo.index.array;
+ for(let t=0;t<I.length;t+=3)for(let k=0;k<3;k++){const a=S.weld[I[t+k]],b=S.weld[I[t+(k+1)%3]];if(a!==b){nb[a].add(b);nb[b].add(a)}}
+ S.nb=nb;
+ // espejo: vértice más cercano a (-x, y, z) con una rejilla
+ const cs=.01,G=new Map(),ck=(x,y,z)=>Math.floor(x/cs)+','+Math.floor(y/cs)+','+Math.floor(z/cs);
+ for(let i=0;i<n;i++){const k=ck(R[i*3],R[i*3+1],R[i*3+2]);if(!G.has(k))G.set(k,[]);G.get(k).push(i)}
+ S.mir=new Int32Array(n).fill(-1);
+ for(let i=0;i<n;i++){const x=-R[i*3],y=R[i*3+1],z=R[i*3+2],cx=Math.floor(x/cs),cy=Math.floor(y/cs),cz=Math.floor(z/cs);let best=-1,bd=4e-4;
+  for(let a=-1;a<=1;a++)for(let b=-1;b<=1;b++)for(let c=-1;c<=1;c++){const l=G.get((cx+a)+','+(cy+b)+','+(cz+c));if(!l)continue;for(const j of l){const d=(R[j*3]-x)**2+(R[j*3+1]-y)**2+(R[j*3+2]-z)**2;if(d<bd){bd=d;best=j}}}
+  S.mir[i]=best}}
+/* ---------- deformación en el procesador: las mismas cuentas que el shader de zmodel.js ---------- */
+function curJ(t){if(S.pose==='rest'){const K=S.Z.K;return S.RJ.map(v=>[v[0]*K,v[1]*K,v[2]*K])}return poseJ(S.pose,t)}
+function deform(J){const Z=S.Z;Z.begin();Z.add(J,0,1,null,null);const D=Z.data,TW=Z.TW,R=S.rest,sg=Z.seg,P=S.pos;
+ for(let i=0;i<S.n;i++){const a=sg[i*3],b=sg[i*3+1],w=sg[i*3+2],oa=a*16,ob=b*16,x=R[i*3],y=R[i*3+1],z=R[i*3+2];
+  const ha=D[oa+15],hb=D[ob+15],wa=w*ha,wb=(1-w)*hb,v=wa+wb;
+  if(v<.5){const o=ha<.5?oa:ob;P[i*3]=D[o+12];P[i*3+1]=D[o+13];P[i*3+2]=D[o+14];continue}
+  for(let c=0;c<3;c++)P[i*3+c]=((D[oa+c]*x+D[oa+4+c]*y+D[oa+8+c]*z+D[oa+12+c])*wa+(D[ob+c]*x+D[ob+4+c]*y+D[ob+8+c]*z+D[ob+12+c])*wb)/v}
+ const g=S.mesh.geometry;g.attributes.position.needsUpdate=true;g.computeVertexNormals();g.computeBoundingSphere();
+ // puntos del esqueleto
+ joints.forEach(m=>m.visible=false);if(!S.showJ)return;
+ for(let i=0;i<12;i++){joints[i].visible=true;joints[i].position.set(...J[i]);joints[i].material=jointM}
+ let k=12;for(const r in RN){const si=Z.SEGS.findIndex(s=>s[0]+'-'+s[1]===r),o=si*16,q=Z.roots[si];joints[k].visible=true;joints[k].position.set(D[o]*q.x+D[o+4]*q.y+D[o+8]*q.z+D[o+12],D[o+1]*q.x+D[o+5]*q.y+D[o+9]*q.z+D[o+13],D[o+2]*q.x+D[o+6]*q.y+D[o+10]*q.z+D[o+14]);joints[k].material=S.tab==='r'&&S.selP===r?selM:jointM;k++}
+ if(S.tab==='r'&&/^\d+$/.test(S.selP))joints[+S.selP].material=selM}
+/* pesos de un vértice como mapa {tramo: peso} */
+const wmap=i=>{const s=S.Z.seg,a=s[i*3],b=s[i*3+1],w=s[i*3+2],m={};m[a]=w;m[b]=(m[b]||0)+(1-w);return m};
+function setW(i,m){let e=Object.entries(m).filter(x=>x[1]>1e-4).sort((p,q)=>q[1]-p[1]);if(!e.length)return;const a=+e[0][0],wa=e[0][1],b=e[1]?+e[1][0]:a,wb=e[1]?e[1][1]:0,t=wa+wb,s=S.Z.seg;
+ s[i*3]=a;s[i*3+1]=b;s[i*3+2]=t>0?wa/t:1;S.changed.add(i)}
+function colorOf(i,out){const s=S.Z.seg,a=s[i*3],b=s[i*3+1],w=s[i*3+2];
+ if(S.view==='heat'){const m=wmap(i),h=m[S.seg]||0;out.setRGB(h,.12+.5*h*(1-h)*2,1-h);return out}
+ out.copy(SEGC[a]).lerp(SEGC[b],1-w);return out}
+const tc=new THREE.Color();
+function recolor(){if(!S.mesh)return;if(S.view==='tex'){S.mesh.material=S.matTex;return}S.mesh.material=S.matCol;
+ for(let i=0;i<S.n;i++){colorOf(i,tc);S.col[i*3]=tc.r;S.col[i*3+1]=tc.g;S.col[i*3+2]=tc.b}S.mesh.geometry.attributes.color.needsUpdate=true}
+/* ---------- pincel ---------- */
+const ray=new THREE.Raycaster(),mv=new THREE.Vector2();
+function hitAt(e){const r=cv.getBoundingClientRect();mv.set((e.clientX-r.left)/r.width*2-1,-(e.clientY-r.top)/r.height*2+1);ray.setFromCamera(mv,camera);const h=ray.intersectObject(S.mesh,false);return h[0]||null}
+function stroke(h){const p=h.point,R2=S.rad*S.rad,P=S.pos,hit=new Map();
+ for(let i=0;i<S.n;i++){const d=(P[i*3]-p.x)**2+(P[i*3+1]-p.y)**2+(P[i*3+2]-p.z)**2;if(d<R2){const f=(1-Math.sqrt(d)/S.rad);hit.set(i,f*f*S.str)}}
+ const apply=(i,f,seg)=>{const m=wmap(i);
+  if(S.tool==='add'){m[seg]=(m[seg]||0)+f;const t=Object.values(m).reduce((x,y)=>x+y,0);for(const k in m)m[k]/=t}
+  else if(S.tool==='sub'){if(!m[seg])return;const take=Math.min(m[seg],f);m[seg]-=take;const rest=Object.keys(m).filter(k=>+k!==seg);if(!rest.length){m[S.Z.SEGS.findIndex(s=>s[0]===3&&s[1]===2)]=take}else for(const k of rest)m[k]+=take/rest.length}
+  else{const acc={};let c=0;for(const j of S.nb[S.weld[i]]){const mj=wmap(j);for(const k in mj)acc[k]=(acc[k]||0)+mj[k];c++}if(!c)return;for(const k in acc)acc[k]/=c;for(const k of new Set([...Object.keys(m),...Object.keys(acc)]))m[k]=(m[k]||0)*(1-f)+(acc[k]||0)*f}
+  setW(i,m)};
+ for(const [i,f] of hit){apply(i,f,S.seg);if(S.sym&&S.mir[i]>=0&&!hit.has(S.mir[i]))apply(S.mir[i],f,MIRS[S.seg])}
+ // los vértices soldados (partidos por las UV) llevan el mismo peso
+ for(const i of hit.keys())for(const j of [i,S.mir[i]]){if(j<0)continue;const w0=S.weld[j];if(w0!==j){const s=S.Z.seg;s[w0*3]=s[j*3];s[w0*3+1]=s[j*3+1];s[w0*3+2]=s[j*3+2];S.changed.add(w0)}}
+ syncWeldAll();S.dirty=true;recolor()}
+function syncWeldAll(){const s=S.Z.seg;for(let i=0;i<S.n;i++){const w0=S.weld[i];if(w0!==i&&S.changed.has(w0)){s[i*3]=s[w0*3];s[i*3+1]=s[w0*3+1];s[i*3+2]=s[w0*3+2];S.changed.add(i)}}}
+function pushUndo(){S.undo.push(S.Z.seg.slice());if(S.undo.length>25)S.undo.shift()}
+
+/* ---------- entrada: pintar o girar la vista ---------- */
+const ptrs=new Map();let drag=null,pinch=null;
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(ptrs.size===2){const [a,b]=[...ptrs.values()];pinch={d:Math.hypot(a.x-b.x,a.y-b.y),r:orb.r};drag=null;return}
+ if(S.paint&&S.tab==='w'){const h=hitAt(e);if(h){pushUndo();stroke(h);drag={paint:true};return}}
+ drag={x:e.clientX,y:e.clientY}});
+cv.addEventListener('pointermove',e=>{if(ptrs.has(e.pointerId))ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
+ if(pinch&&ptrs.size===2){const [a,b]=[...ptrs.values()];orb.r=Math.min(8,Math.max(.6,pinch.r*pinch.d/Math.max(1,Math.hypot(a.x-b.x,a.y-b.y))));return}
+ const h=S.mesh&&S.tab==='w'&&S.paint?hitAt(e):null;brush.visible=!!h;if(h){brush.position.copy(h.point);brush.scale.setScalar(S.rad);brush.lookAt(camera.position)}
+ if(!drag)return;if(drag.paint){if(h)stroke(h);return}
+ orb.th-=(e.clientX-drag.x)*.008;orb.ph=Math.min(3.0,Math.max(.15,orb.ph-(e.clientY-drag.y)*.008));drag.x=e.clientX;drag.y=e.clientY});
+const up=e=>{ptrs.delete(e.pointerId);if(ptrs.size<2)pinch=null;drag=null};cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{orb.r=Math.min(8,Math.max(.6,orb.r*(1+Math.sign(e.deltaY)*.1)))},{passive:true});
+$('mode').onclick=()=>{S.paint=!S.paint;$('mode').textContent=S.paint?'🖌 Pintar':'✋ Girar vista';$('mode').classList.toggle('rot',!S.paint)};
+document.querySelectorAll('#top [data-v]').forEach(b=>b.onclick=()=>{const v=b.dataset.v;orb.ph=1.45;orb.th=v==='front'?0:v==='side'?Math.PI/2:Math.PI});
+$('mP').onclick=()=>switchModel('player');$('mZ').onclick=()=>switchModel('zombie');
+function switchModel(k){if(S.dirty&&!confirm('Hay cambios sin guardar en este modelo. ¿Cambiar igualmente?'))return;loadModel(k)}
+
+/* ---------- panel ---------- */
+S.tab='w';document.querySelectorAll('nav [data-tab]').forEach(b=>b.onclick=()=>{S.tab=b.dataset.tab;document.querySelectorAll('nav [data-tab]').forEach(x=>x.classList.toggle('on',x===b));$('mode').style.display=S.tab==='w'?'':'none';buildPanel()});
+const sl=(id,lab,v,mn,mx,st)=>`<div class="row"><label for="${id}">${lab}</label><input type="range" id="${id}" min="${mn}" max="${mx}" step="${st}" value="${v}"><span class="val" id="${id}_v">${(+v).toFixed(3)}</span></div>`;
+const bindSl=(id,f)=>{const el=$(id);el.addEventListener('input',()=>{$(id+'_v').textContent=(+el.value).toFixed(3);f(+el.value)})};
+const poseChips=()=>`<h3>Pose de prueba</h3><div class="chips">${Object.entries(POSES).map(([k,n])=>`<button data-pose="${k}" class="${S.pose===k?'on':''}">${n}</button>`).join('')}</div>`;
+function bindPose(){document.querySelectorAll('[data-pose]').forEach(b=>b.onclick=()=>{S.pose=b.dataset.pose;buildPanel()})}
+function buildPanel(){const p=$('panel');if(!S.Z){p.innerHTML='<p class="hint">Cargando…</p>';return}
+ if(S.tab==='w'){
+  p.innerHTML=`<div class="chips"><button data-view="tex" class="${S.view==='tex'?'on':''}">Textura</button><button data-view="seg" class="${S.view==='seg'?'on':''}">Colores por tramo</button><button data-view="heat" class="${S.view==='heat'?'on':''}">Peso del tramo elegido</button></div>
+  <h3>Tramo que pintas</h3><div class="chips">${SEGN.map((n,i)=>`<button data-seg="${i}" class="${S.seg===i?'on':''}"><span class="dot" style="background:#${SEGC[i].getHexString()}"></span>${n}</button>`).join('')}</div>
+  <h3>Pincel</h3><div class="chips"><button data-tool="add" class="${S.tool==='add'?'on':''}">＋ Añadir</button><button data-tool="sub" class="${S.tool==='sub'?'on':''}">－ Quitar</button><button data-tool="smooth" class="${S.tool==='smooth'?'on':''}">≈ Suavizar</button><button id="bSym" class="${S.sym?'on':''}">⇋ Simetría izq./der.</button><button id="bUndo">↶ Deshacer</button></div>
+  ${sl('wRad','Tamaño',S.rad,.01,.25,.005)}${sl('wStr','Fuerza',S.str,.02,1,.01)}
+  ${poseChips()}
+  <p class="hint">Arrastra sobre el modelo para pintar (botón de abajo a la derecha: pintar o girar la vista; dos dedos: acercar). Cada vértice pertenece a 2 tramos como mucho: «Colores por tramo» muestra la mezcla. Prueba con «▶ En movimiento» para ver cómo se deforman hombros y caderas.</p>`;
+  document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{S.view=b.dataset.view;recolor();buildPanel()});
+  document.querySelectorAll('[data-seg]').forEach(b=>b.onclick=()=>{S.seg=+b.dataset.seg;if(S.view==='tex')S.view='heat';recolor();buildPanel()});
+  document.querySelectorAll('[data-tool]').forEach(b=>b.onclick=()=>{S.tool=b.dataset.tool;buildPanel()});
+  $('bSym').onclick=()=>{S.sym=!S.sym;buildPanel()};$('bUndo').onclick=()=>{const u=S.undo.pop();if(!u)return toast('Nada que deshacer');S.Z.seg.set(u);recolor();toast('Deshecho')};
+  bindSl('wRad',v=>S.rad=v);bindSl('wStr',v=>S.str=v);bindPose()}
+ else if(S.tab==='r'){const isR=!/^\d+$/.test(S.selP),pt=isR?S.root[S.selP]:S.RJ[+S.selP],o=(isR?(S.Z.rig.root[S.selP]):S.Z.rig.RJ[+S.selP]);
+  p.innerHTML=`${poseChips()}
+  <h3>Escala y estiramiento</h3>${sl('rK','Escala del modelo',S.Z.K,1,3,.01)}${sl('rMin','Encoger como mucho',S.Z.smin,.3,1,.01)}${sl('rMax','Estirar como mucho',S.Z.smax,1,2.5,.01)}
+  <h3>Punto del esqueleto</h3><div class="row"><select id="rSel">${JN.map((n,i)=>`<option value="${i}"${S.selP==i?' selected':''}>${n}</option>`).join('')}${Object.entries(RN).map(([k,n])=>`<option value="${k}"${S.selP===k?' selected':''}>${n}</option>`).join('')}</select></div>
+  ${sl('rX','X (izq. / der.)',pt[0],o[0]-.3,o[0]+.3,.002)}${sl('rY','Y (altura)',pt[1],o[1]-.3,o[1]+.3,.002)}${sl('rZ','Z (delante / detrás)',pt[2],o[2]-.3,o[2]+.3,.002)}
+  <div class="btns"><button id="rFit">📐 Proporciones del stickman (pecho y cabeza)</button><button id="rJ" class="${S.showJ?'on':''}">● Ver puntos</button></div>
+  <p class="hint">Los puntos rojos son el esqueleto de palos del juego; el amarillo es el elegido. Cambiar un punto mueve la parte del modelo que se pega a él: sube la «Cabeza» si se hunde, mueve los «Hombros» si el brazo sale de sitio. El modelo se mide en sus propias unidades (≈ 1 de alto).</p>`;
+  bindPose();bindSl('rK',v=>{S.Z.K=v;S.dirty=true});bindSl('rMin',v=>{S.Z.smin=v;S.dirty=true});bindSl('rMax',v=>{S.Z.smax=v;S.dirty=true});
+  $('rSel').onchange=e=>{S.selP=e.target.value;buildPanel()};
+  for(const [id,c] of [['rX',0],['rY',1],['rZ',2]])bindSl(id,v=>{pt[c]=v;S.Z.setRig(S.RJ,S.root);S.dirty=true});
+  $('rFit').onclick=()=>{const H=S.RJ[3],N=S.RJ[1],L=Math.hypot(N[0]-H[0],N[1]-H[1],N[2]-H[2]);S.RJ[2]=[H[0]+(N[0]-H[0])*.58,H[1]+(N[1]-H[1])*.58,H[2]+(N[2]-H[2])*.58];S.RJ[0]=[N[0],N[1]+L*.274,N[2]];S.Z.setRig(S.RJ,S.root);S.dirty=true;buildPanel();toast('Pecho y cabeza con las proporciones del stickman')};
+  $('rJ').onclick=()=>{S.showJ=!S.showJ;buildPanel()}}
+ else{p.innerHTML=`<p class="hint">${S.dirty?'<b>Hay cambios sin guardar.</b> ':''}«Guardar en este dispositivo» y el juego (abierto desde el mismo sitio) los usa la próxima vez que cargue. Para dejarlos fijos para todos, copia el JSON y pásamelo.</p>
+  <div class="btns"><button id="sSave" class="on">💾 Guardar en este dispositivo</button><button id="sCopy">📋 Copiar JSON</button><button id="sPaste">📥 Pegar JSON</button><button id="sClear">↺ Volver al original</button></div>
+  <textarea id="sJson" placeholder="Aquí aparece (o pegas) el JSON de correcciones"></textarea>
+  <p class="hint">${S.changed.size} vértices con pesos cambiados.</p>`;
+  $('sSave').onclick=()=>{try{localStorage.setItem(S.Z.FIXKEY(S.Z.name),JSON.stringify(fixJSON()));S.dirty=false;buildPanel();toast('Guardado: recarga el juego para verlo')}catch(e){toast('No se pudo guardar (¿almacenamiento lleno?)')}};
+  $('sCopy').onclick=async()=>{const j=JSON.stringify(fixJSON());$('sJson').value=j;try{await navigator.clipboard.writeText(j);toast('JSON copiado')}catch(_){toast('Cópialo del cuadro de texto')}};
+  $('sPaste').onclick=()=>{try{const f=JSON.parse($('sJson').value);localStorage.setItem(S.Z.FIXKEY(S.Z.name),JSON.stringify(f));delete models[S.kind];loadModel(S.kind);toast('Correcciones aplicadas')}catch(_){toast('El texto no es un JSON válido')}};
+  $('sClear').onclick=()=>{if(!confirm('¿Borrar las correcciones de este modelo en este dispositivo?'))return;localStorage.removeItem(S.Z.FIXKEY(S.Z.name));delete models[S.kind];loadModel(S.kind);toast('Modelo original')}}}
+function fixJSON(){const s=S.Z.seg,w={};for(const i of S.changed)w[i]=[s[i*3],s[i*3+1],+s[i*3+2].toFixed(3)];
+ return{K:S.Z.K,smin:S.Z.smin,smax:S.Z.smax,RJ:S.RJ.map(v=>v.map(x=>+x.toFixed(4))),root:Object.fromEntries(Object.entries(S.root).map(([k,v])=>[k,v.map(x=>+x.toFixed(4))])),w}}
+
+/* ---------- bucle ---------- */
+function resize(){const r=$('view').getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/Math.max(1,r.height);camera.updateProjectionMatrix()}
+addEventListener('resize',resize);new ResizeObserver(resize).observe($('view'));
+function loop(t){requestAnimationFrame(loop);if(S.mesh)deform(curJ(t/1000));placeCam();renderer.render(scene,camera)}
+resize();buildPanel();loadModel('player').then(()=>requestAnimationFrame(loop));
+window.__S=S;
+}
+</script>
+</body>
+</html>

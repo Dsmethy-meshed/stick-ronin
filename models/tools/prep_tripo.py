@@ -1,5 +1,7 @@
 # Stick Ronin · prepara un modelo de Tripo (con rig) como PIEZAS RÍGIDAS pegadas a los 12 puntos del juego.
-# Uso: blender -b --factory-startup --python prep_tripo.py -- entrada.glb salida.glb salida_rig.json [triangulos] [tex]
+# Uso: blender -b --factory-startup --python prep_tripo.py -- entrada.glb salida.glb salida_rig.json [triangulos] [tex] [apose=50] [fist=75] [fit]
+# - apose/fist (solo Mixamo): deja el reposo con los brazos bajados y los puños cerrados (pose_rest.py); evita que se pellizquen los hombros.
+# - fit: coloca el pecho y la cabeza de referencia con las proporciones del stickman (si no, la cabeza se hunde en el pecho).
 # - Vale para rigs de Tripo (Hip, L_Upperarm…) y de Mixamo (mixamorig:Hips, LeftArm…).
 # - Con 'tex' conserva la textura (a 512 px, JPEG) y las UV: lo usa el protagonista (tinta aguada a partir de la textura).
 # - Baja la malla a N triángulos y quita las texturas (el juego pone el color de cada enemigo).
@@ -7,7 +9,13 @@
 # - Guarda en el JSON los 12 puntos de reposo y los puntos raíz de brazos y piernas (en coordenadas Y-arriba del juego).
 import bpy,bmesh,sys,json,mathutils
 a=sys.argv[sys.argv.index('--')+1:]
-src,out_glb,out_json=a[0],a[1],a[2];target=int(a[3]) if len(a)>3 else 1500;keep_tex=len(a)>4 and a[4]=='tex'
+src,out_glb,out_json=a[0],a[1],a[2];target=1500;keep_tex=False;apose=0;fist=0;fit=False
+for t in a[3:]:
+    if t.isdigit():target=int(t)
+    elif t=='tex':keep_tex=True
+    elif t=='fit':fit=True
+    elif t.startswith('apose='):apose=float(t[6:])
+    elif t.startswith('fist='):fist=float(t[5:])
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 for o in list(bpy.data.objects):
@@ -19,8 +27,12 @@ for pb in arm.pose.bones:pb.matrix_basis=mathutils.Matrix()
 B=arm.data.bones;M=arm.matrix_world
 MIX='mixamorig:Hips' in B
 def mx(n):return 'mixamorig:'+n
-def H(n):return M@B[n].head_local
-def T(n):return M@B[n].tail_local
+if MIX and (apose or fist):
+    import os;sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)));import pose_rest
+    bpy.context.view_layer.update();pose_rest.apply_rest_pose(arm,apose=apose,fist=fist);pose_rest.bake_pose(mesh)
+# puntos del esqueleto en la pose actual (sin pose = el reposo)
+def H(n):return M@arm.pose.bones[n].head
+def T(n):return M@arm.pose.bones[n].tail
 # hueso del rig de Tripo -> tramo del juego (a=punto de anclaje, b=punto al que apunta)
 SEG={'Hip':(3,2),'Pelvis':(3,2),'Waist':(3,2),'BoneRoot':(3,2),
  'Spine01':(2,1),'Spine02':(2,1),'L_Clavicle':(2,1),'R_Clavicle':(2,1),
@@ -30,7 +42,8 @@ SEG={'Hip':(3,2),'Pelvis':(3,2),'Waist':(3,2),'BoneRoot':(3,2),
  'L_Thigh':(3,8),'L_ThighTwist01':(3,8),'L_ThighTwist02':(3,8),'L_KneeShareBone':(8,9),'L_Calf':(8,9),'L_CalfTwist01':(8,9),'L_CalfTwist02':(8,9),'L_Foot':(8,9),'L_ToeBase':(8,9),
  'R_Thigh':(3,10),'R_ThighTwist01':(3,10),'R_ThighTwist02':(3,10),'R_KneeShareBone':(10,11),'R_Calf':(10,11),'R_CalfTwist01':(10,11),'R_CalfTwist02':(10,11),'R_Foot':(10,11),'R_ToeBase':(10,11)}
 if MIX:
-    SEG={mx('Hips'):(3,2),mx('Spine'):(3,2),mx('Spine1'):(2,1),mx('Spine2'):(2,1),mx('LeftShoulder'):(2,1),mx('RightShoulder'):(2,1),
+    SEG={mx('Hips'):(3,2),mx('Spine'):(3,2),mx('Spine1'):(2,1),mx('Spine2'):(2,1),mx('LeftShoulder'):(1,4),mx('RightShoulder'):(1,6),  # la clavícula sigue al brazo (si no, el hombro queda como una repisa)
+    
      mx('Neck'):(1,0),mx('Head'):(1,0),mx('HeadTop_End'):(1,0),
      mx('LeftArm'):(1,4),mx('LeftForeArm'):(4,5),mx('LeftHand'):(4,5),mx('RightArm'):(1,6),mx('RightForeArm'):(6,7),mx('RightHand'):(6,7),
      mx('LeftUpLeg'):(3,8),mx('LeftLeg'):(8,9),mx('LeftFoot'):(8,9),mx('LeftToeBase'):(8,9),mx('LeftToe_End'):(8,9),
@@ -47,6 +60,9 @@ g=lambda v:[round(v.x,4),round(v.z,4),round(-v.y,4)]
 if MIX:
     RJ=[(H(mx('Head'))+H(mx('HeadTop_End')))/2,H(mx('Neck')),H(mx('Spine1')),H(mx('Hips')),H(mx('LeftForeArm')),H(mx('LeftHand')),H(mx('RightForeArm')),H(mx('RightHand')),H(mx('LeftLeg')),H(mx('LeftFoot')),H(mx('RightLeg')),H(mx('RightFoot'))]
     ROOT={'1-4':H(mx('LeftArm')),'1-6':H(mx('RightArm')),'3-8':H(mx('LeftUpLeg')),'3-10':H(mx('RightUpLeg'))}
+    if fit:
+        # proporciones del stickman (juego): pecho al 58 % de cadera→cuello; cuello→cabeza = 0,274 × cadera→cuello
+        hp,nk=H(mx('Hips')),H(mx('Neck'));RJ[2]=hp.lerp(nk,.58);RJ[0]=nk+(H(mx('HeadTop_End'))-nk).normalized()*((nk-hp).length*.274)
 else:
     RJ=[(H('Head')+T('Head'))/2,H('NeckTwist01'),H('Spine01'),H('Hip'),H('L_Forearm'),H('L_Hand'),H('R_Forearm'),H('R_Hand'),H('L_Calf'),H('L_Foot'),H('R_Calf'),H('R_Foot')]
     ROOT={'1-4':H('L_Upperarm'),'1-6':H('R_Upperarm'),'3-8':H('L_Thigh'),'3-10':H('R_Thigh')}

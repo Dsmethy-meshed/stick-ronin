@@ -66,6 +66,17 @@ INKS.set=function(k,val){INKS.v[k]=val;INKS.sync();INKS.save()};
 INKS.reset=function(){INKS.v=dflt();INKS.sync();INKS.save()};
 INKS.json=function(){const d=dflt(),o={};for(const k in INKS.v)if(INKS.v[k]!==d[k])o[k]=INKS.v[k];return JSON.stringify(o)};
 INKS.onChange=f=>{INKS.listeners.push(f)};
+/* sombreado en 3 tonos para cualquier MeshLambertMaterial (lo usan el juego y shaders.html): se inyecta tras calcular la luz;
+   li = cuánta luz recibe (1 = luz de cielo normal) → sombra / medio / iluminado con dos cortes nítidos. Uniforms compartidos: no recompila. */
+INKS.patch=function(m){if(!m||m.__ink||!m.isMeshLambertMaterial)return;m.__ink=1;const ob=m.onBeforeCompile,key=m.customProgramCacheKey();
+ m.onBeforeCompile=function(sh,r){ob.call(this,sh,r);sh.uniforms.inkOn=INKS.u.on;sh.uniforms.inkTones=INKS.u.tones;sh.uniforms.inkTh=INKS.u.th;if(sh.fragmentShader.indexOf('inkOn')>=0)return;
+  sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float inkOn;uniform vec3 inkTones,inkTh;').replace('#include <aomap_fragment>','#include <aomap_fragment>\n'+
+  'if(inkOn>.5){vec3 lt=(reflectedLight.directDiffuse+reflectedLight.indirectDiffuse)/max(BRDF_Diffuse_Lambert(diffuseColor.rgb),vec3(1e-4));float li=dot(lt,vec3(.299,.587,.114))/PI;'+
+  'float q=mix(inkTones.x,inkTones.y,smoothstep(inkTh.x-inkTh.z,inkTh.x+inkTh.z,li));q=mix(q,inkTones.z,smoothstep(inkTh.y-inkTh.z,inkTh.y+inkTh.z,li));reflectedLight.directDiffuse=diffuseColor.rgb*q;reflectedLight.indirectDiffuse=vec3(0.);}')};
+ m.customProgramCacheKey=()=>key+'|ink';m.needsUpdate=true};
+INKS.scan=function(scene){scene.traverse(o=>{const m=o.material;if(Array.isArray(m))m.forEach(INKS.patch);else INKS.patch(m)})};
+// zombi en tinta: gris que conserva un poco la luminosidad de su color (eBase, eVar)
+INKS.tone=function(c,out){const v=INKS.v,l=c.r*.3+c.g*.59+c.b*.11,b=v.eBase,k=v.eVar;return out.setRGB(b+k*l,b*.93+k*.9*l,b*.87+k*.85*l)};
 // otra pestaña (el editor) cambió los ajustes: se ven al momento
 window.addEventListener('storage',e=>{if(e.key===KEY){load();INKS.sync()}});
 load();INKS.sync();window.INKS=INKS;

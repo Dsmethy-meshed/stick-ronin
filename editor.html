@@ -35,6 +35,7 @@ textarea{width:100%;min-height:96px;padding:8px;font:13px/1.4 ui-monospace,monos
 #menu .grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
 #menu .lab{flex:0 0 100%;font-size:12px;color:var(--dim)}
 #menu button,#menu a{min-height:40px;font-size:14px}
+#menu a.tool{display:inline-flex;align-items:center;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#2c2832;color:var(--ink);text-decoration:none;font-weight:650}
 #view #bGzMode{position:absolute;right:8px;top:150px;z-index:4;min-width:84px;min-height:40px;border-radius:12px;border:1px solid #4a434f;background:rgba(36,33,42,.92);color:#fff;font:800 13px system-ui,sans-serif}#view #bGzMode.rot{background:#d1242c;border-color:#d1242c}
 #view #axg{position:absolute;inset:auto;right:8px;top:60px;width:84px;height:84px;z-index:4;touch-action:none}
 #dock{position:absolute;left:0;right:0;bottom:0;z-index:6;background:rgba(23,21,27,.9);border-top:1px solid var(--line)}
@@ -60,7 +61,6 @@ textarea{width:100%;min-height:96px;padding:8px;font:13px/1.4 ui-monospace,monos
 nav{display:flex;background:var(--panel);border-top:1px solid var(--line)}
 nav button{flex:1;border:0;border-radius:0;background:transparent;color:var(--dim)}
 nav button.on{color:#fff;box-shadow:inset 0 -3px 0 var(--acc);background:transparent}
-#panel.shader{max-height:46vh}
 #panel input[type=color]{width:56px;height:40px;padding:2px;border:1px solid var(--line);border-radius:8px;background:#2c2832}
 #panel{max-height:30vh;overflow:auto;padding:10px 12px 18px;background:var(--panel)}
 .row{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap}
@@ -93,6 +93,7 @@ nav button.on{color:#fff;box-shadow:inset 0 -3px 0 var(--acc);background:transpa
    </div>
    <div id="menu" hidden>
     <div class="grp"><span class="lab">Archivo</span><button id="bNew">Nueva animación</button><a id="bPlayGame" href="index.html">Jugar</a></div>
+    <div class="grp"><span class="lab">Otras herramientas</span><a class="tool" href="shaders.html">🖌 Shaders (estilo tinta)</a><a class="tool" href="modelo.html">🧍 Modelo y pesos</a></div>
     <div class="grp" id="viewBar"><span class="lab">Vista</span><button data-v="front">Frente</button><button data-v="side">Lado</button><button data-v="top">Arriba</button><button data-v="free">Libre</button><button id="bCenter">Centrar</button></div>
     <div class="grp"><span class="lab">Mostrar</span><button id="bMix">Probar en movimiento</button><button id="bPoles">Codos y rodillas</button><button id="bOnion">Fantasmas</button><button id="bPath">Trayectoria</button><button id="bGizmo">Gizmo</button><button id="bZm">🧟 Modelo zombi</button><button id="bZp">🥷 Modelo protagonista</button></div>
     <div class="grp"><span class="lab">Mover puntos</span><button id="bChain">En cadena</button></div>
@@ -122,7 +123,7 @@ nav button.on{color:#fff;box-shadow:inset 0 -3px 0 var(--acc);background:transpa
  </div>
  </div>
   <div id="dPanelBox" hidden>
- <nav><button data-tab="pose" class="on">Pose</button><button data-tab="col">Colisiones</button><button data-tab="fx">Efectos</button><button data-tab="anim">Animación</button><button data-tab="shader">🖌 Shader</button></nav>
+ <nav><button data-tab="pose" class="on">Pose</button><button data-tab="col">Colisiones</button><button data-tab="fx">Efectos</button><button data-tab="anim">Animación</button></nav>
  <section id="panel"></section>
   </div>
  </div>
@@ -507,7 +508,7 @@ function render(){
  }
  const Jw=fr.J.map(l=>toW(fr,l));
  const zmM=zmKind==='p'?window.ZMP:zmKind==='z'?window.ZM:null,zmOk=!!(zmM&&zmM.ready);fig.set(Jw,!zmOk);
- for(const M of [window.ZM,window.ZMP]){if(!M||!M.ready)continue;M.ink=SHV.on;M.begin();if(M===zmM)M.add(Jw,(fr.ry||0)*D2R,1,null,M===window.ZM?shZombieCol():null,shAshDis());M.end()}
+ for(const M of [window.ZM,window.ZMP]){if(!M||!M.ready)continue;M.begin();if(M===zmM)M.add(Jw,(fr.ry||0)*D2R,1,null,null);M.end()}
  // fantasmas: clave anterior y siguiente
  const ks=a.keys;let prev=null,next=null;for(const k of ks){if(k.t<T-.004)prev=k;else if(k.t>T+.004&&!next)next=k}
  if(onion&&prev&&!SB.on){const f={...prev,J:finishPose(prev.p)};ghA.set(f.J.map(l=>toW(f,l)),true)}else ghA.set(Jw,false);
@@ -687,7 +688,7 @@ $('animSel').onchange=e=>{lib.cur=+e.target.value;{const c=lib.anims[lib.cur];if
 // modelo 3D del zombi (models/zombie.glb): 11 piezas pegadas al mismo esqueleto de 12 puntos que el juego
 // modelo 3D en vez de palos: '' palos, 'z' zombi, 'p' protagonista
 var zmKind='';async function setModel(k){zmKind=zmKind===k?'':k;$('bZm').classList.toggle('on',zmKind==='z');$('bZp').classList.toggle('on',zmKind==='p');
- const M=zmKind==='z'?ZM:zmKind==='p'?ZMP:null;if(M&&!M.ready&&!M.loading){M.loading=1;toast('Cargando modelo…');const ok=await M.load(zmKind==='z'?'models/zombie.glb':'models/player.glb',scene);M.loading=0;shScan();toast(ok?'Modelo cargado':'No se pudo cargar el modelo (ábrelo desde un servidor, no como archivo)')}if(tab==='shader')buildPanel()}
+ const M=zmKind==='z'?ZM:zmKind==='p'?ZMP:null;if(M&&!M.ready&&!M.loading){M.loading=1;toast('Cargando modelo…');const ok=await M.load(zmKind==='z'?'models/zombie.glb':'models/player.glb',scene);M.loading=0;toast(ok?'Modelo cargado':'No se pudo cargar el modelo (ábrelo desde un servidor, no como archivo)')}}
 $('bZm').onclick=()=>setModel('z');$('bZp').onclick=()=>setModel('p');
 $('bNew').onclick=()=>{const a={name:'Nueva animación '+(lib.anims.length+1),dur:1,loop:false,weapon:'katana',slot:'none',live:false,fx:[],keys:[key(0,IDLE,IDLE_BLADE),key(1,IDLE,IDLE_BLADE)],hurt:{r:.3,h:1.8},hits:[]};lib.anims.push(a);lib.cur=lib.anims.length-1;T=0;selKey=null;commit();fillSel();tab='anim';setTab();toast('Animación creada')};
 
@@ -699,7 +700,7 @@ const slider=(id,label,v,min,max,st,fmt)=>`<div class="row"><label for="${id}">$
 const f2=v=>(+v).toFixed(2),fs=v=>(+v).toFixed(2)+' s',fm=v=>(+v).toFixed(2)+' m',fd=v=>Math.round(v)+'°';
 function bindSlider(id,fmt,onInput){const el=$(id);if(!el)return;el.addEventListener('input',()=>{$(id+'_v').textContent=fmt(el.value);onInput(+el.value)});el.addEventListener('change',commit)}
 function buildPanel(){
- const a=A(),p=$('panel');p.classList.toggle('shader',tab==='shader');if(tab==='shader'){buildShaderPanel(p);return}
+ const a=A(),p=$('panel');
  if(tab==='pose'){
   const ki=keyAt(T),k=ki>=0?a.keys[ki]:null;
   p.innerHTML=`<p class="hint">${selJ?`<b>${JLABEL[selJ]}</b> seleccionado.`:'Toca un punto para moverlo: rojo articulaciones, rosa pecho, amarillo arma, blanco raíz. Activa “Codos y rodillas” para los puntos azules que deciden hacia dónde se doblan.'} Si mueves un punto donde no hay clave, se crea una sola. Usa Frente, Lado y Arriba para afinar.</p>
@@ -816,55 +817,6 @@ function loop(now){
 }
 fillSel();buildPanel();resize();updateSelLabel();requestAnimationFrame(loop);
 
-/* ============ EDITOR DE SHADERS (estilo tinta 墨) ============
-   Todos los ajustes del estilo están en models/inkstyle.js (INKS). Esta pestaña crea un deslizador, color o interruptor por ajuste,
-   los cambia en vivo y los guarda en este dispositivo (localStorage 'stickronin_ink'): el juego abierto desde el mismo sitio los usa al
-   momento. «Copiar ajustes» da un JSON para dejarlos fijos para todos (pegarlo en los valores por defecto de inkstyle.js). */
-var SHV={on:false,ash:false,ash0:0};
-const shBase=new THREE.Color(0x7d8c6a),shTmp=new THREE.Color();
-function shZombieCol(){if(!SHV.on)return null;const v=INKS.v,c=shBase,l=c.r*.3+c.g*.59+c.b*.11;return shTmp.setRGB(v.eBase+v.eVar*l,v.eBase*.93+v.eVar*.9*l,v.eBase*.87+v.eVar*.85*l)}
-function shAshDis(){if(!SHV.ash)return 0;const t=(performance.now()/1000-SHV.ash0)%2;return Math.min(1,Math.max(0,(t-.4)/.9))}
-// el mismo sombreado en 3 tonos que el juego (index.html, inkPatch)
-function shPatch(m){if(!m||m.__ink||!m.isMeshLambertMaterial)return;m.__ink=1;const ob=m.onBeforeCompile,key=m.customProgramCacheKey();
- m.onBeforeCompile=function(sh,r){ob.call(this,sh,r);sh.uniforms.inkOn=INKS.u.on;sh.uniforms.inkTones=INKS.u.tones;sh.uniforms.inkTh=INKS.u.th;if(sh.fragmentShader.indexOf('inkOn')>=0)return;
-  sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float inkOn;uniform vec3 inkTones,inkTh;').replace('#include <aomap_fragment>','#include <aomap_fragment>\n'+
-  'if(inkOn>.5){vec3 lt=(reflectedLight.directDiffuse+reflectedLight.indirectDiffuse)/max(BRDF_Diffuse_Lambert(diffuseColor.rgb),vec3(1e-4));float li=dot(lt,vec3(.299,.587,.114))/PI;'+
-  'float q=mix(inkTones.x,inkTones.y,smoothstep(inkTh.x-inkTh.z,inkTh.x+inkTh.z,li));q=mix(q,inkTones.z,smoothstep(inkTh.y-inkTh.z,inkTh.y+inkTh.z,li));reflectedLight.directDiffuse=diffuseColor.rgb*q;reflectedLight.indirectDiffuse=vec3(0.);}')};
- m.customProgramCacheKey=()=>key+'|ink';m.needsUpdate=true}
-function shScan(){scene.traverse(o=>{const m=o.material;if(Array.isArray(m))m.forEach(shPatch);else shPatch(m)})}
-const shPlane=new THREE.Mesh(new THREE.PlaneGeometry(8,8).rotateX(-Math.PI/2),new THREE.MeshLambertMaterial({color:0xd9d0c0}));shPlane.position.y=-.003;shPlane.visible=false;scene.add(shPlane);
-let shOrig=null;
-function shApply(){const v=INKS.v,on=SHV.on,hemi=scene.children.find(o=>o.isHemisphereLight);INKS.u.on.value=on?1:0;
- if(!shOrig)shOrig={bg:scene.background.getHex(),hs:hemi.color.getHex(),hg:hemi.groundColor.getHex(),hi:hemi.intensity,di:dl.intensity};
- if(on){scene.background.set(v.paper);hemi.color.set(0xffffff);hemi.groundColor.set(0x8d8478);hemi.intensity=v.hemi;dl.intensity=v.sunI;shPlane.material.color.set(v.ground)}
- else{scene.background.setHex(shOrig.bg);hemi.color.setHex(shOrig.hs);hemi.groundColor.setHex(shOrig.hg);hemi.intensity=shOrig.hi;dl.intensity=shOrig.di}
- shPlane.visible=on;grid.visible=!on;shScan()}
-INKS.onChange(()=>shApply());
-function buildShaderPanel(p){
- const v=INKS.v,groups={};for(const d of INKS.DEF)(groups[d[1]]=groups[d[1]]||[]).push(d);
- const fmt=st=>x=>(+x).toFixed(st>=1?0:st>=.1?1:st>=.01?2:3);
- let h=`<div class="btns"><button id="shOn" class="${SHV.on?'on':''}">🖌 Ver estilo tinta</button><button id="shMP" class="${zmKind==='p'?'on':''}">🥷 Protagonista</button><button id="shMZ" class="${zmKind==='z'?'on':''}">🧟 Zombi</button><button id="shMS" class="${!zmKind?'on':''}">🦴 Palos</button><button id="shAsh" class="${SHV.ash?'on':''}">🔥 Probar ceniza</button></div>
- <p class="hint">Lo que ajustes se guarda en este dispositivo y el juego lo usa al momento (abre los dos desde el mismo sitio). Los colores del escenario, la niebla y el grosor en palos se ven en el juego. Para dejarlo fijo para todos, copia los ajustes y pásamelos.</p>`;
- for(const g in groups){h+=`<div class="card"><h3>${g}</h3>`;
-  for(const [k,,lab,ty,def,mn,mx,st] of groups[g]){const id='sh_'+k;
-   if(ty==='color')h+=`<div class="row"><label for="${id}">${lab}</label><input type="color" id="${id}" value="${v[k]}"><span class="val">${v[k]}</span></div>`;
-   else if(ty==='bool')h+=`<label class="chk"><input type="checkbox" id="${id}"${v[k]?' checked':''}> ${lab}</label>`;
-   else h+=slider(id,lab,v[k],mn,mx,st,fmt(st))}
-  h+=`</div>`}
- h+=`<div class="btns"><button id="shCopy">📋 Copiar ajustes</button><button id="shPaste">📥 Pegar ajustes</button><button id="shReset">↺ Valores por defecto</button></div><textarea id="shJson" placeholder="Aquí aparecen (o pegas) los ajustes en JSON"></textarea>`;
- p.innerHTML=h;
- for(const [k,,lab,ty,def,mn,mx,st] of INKS.DEF){const el=$('sh_'+k);if(!el)continue;
-  if(ty==='color')el.addEventListener('input',()=>{el.nextElementSibling.textContent=el.value;INKS.set(k,el.value)});
-  else if(ty==='bool')el.addEventListener('change',()=>INKS.set(k,el.checked));
-  else{const f=fmt(st);el.addEventListener('input',()=>{$('sh_'+k+'_v').textContent=f(el.value);INKS.set(k,+el.value)})}}
- $('shOn').onclick=()=>{SHV.on=!SHV.on;shApply();buildPanel()};
- $('shMP').onclick=()=>setModel('p');$('shMZ').onclick=()=>setModel('z');$('shMS').onclick=()=>{if(zmKind)setModel(zmKind)};
- $('shAsh').onclick=()=>{SHV.ash=!SHV.ash;SHV.ash0=performance.now()/1000;buildPanel()};
- $('shCopy').onclick=async()=>{const j=INKS.json();$('shJson').value=j;try{await navigator.clipboard.writeText(j);toast('Ajustes copiados')}catch(_){toast('Cópialos del cuadro de texto')}};
- $('shPaste').onclick=()=>{try{const o=JSON.parse($('shJson').value||'{}');for(const k in o)if(k in INKS.v)INKS.v[k]=o[k];INKS.sync();INKS.save();buildPanel();toast('Ajustes aplicados')}catch(_){toast('El texto no es un JSON válido')}};
- $('shReset').onclick=()=>{INKS.reset();buildPanel();toast('Valores por defecto')};
-}
-shApply();
 }
 </script>
 </body>

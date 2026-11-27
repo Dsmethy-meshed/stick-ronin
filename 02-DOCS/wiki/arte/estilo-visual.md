@@ -55,7 +55,7 @@ Ahora mismo (para comparar): niebla y cielo `FOG = #d4b199` (arena), luz hemisf�
 Hechos los pasos 1-4 y la parte «enemigos en tinta» (interruptor «🖌 Estilo tinta», código en el bloque «ESTILO TINTA» de `index.html` y `ZM.outline` en `models/zmodel.js`). Paleta aplicada: niebla `#e8e1d4`, suelo `#d9d0c0`, laterales `#2e2a28`, techos `#77706a`, pagodas `#a59d92`, sol `#c8102e`. Pruebas: t35/t36 (capturas antes/después), t38 (43,7 fps con tinta frente a 46,2 sin ella). Siguen pendientes los pasos 5 (sangre como salpicadura) a 10.
 
 ## Editor de shaders y protagonista (28 nov 2026)
-- Todos los números del estilo viven en `models/inkstyle.js` y se ajustan con deslizadores en el editor (pestaña «🖌 Shader»); el juego del mismo sitio los usa al momento.
+- Todos los números del estilo viven en `models/inkstyle.js` y se ajustan en `shaders.html` (escena de prueba como la del juego); el juego del mismo sitio los usa al momento. Los pesos y el esqueleto de los modelos se ajustan en `modelo.html`.
 - Protagonista 3D en **tinta aguada** (inspirado en el guerrero de Grease Pencil de 80.lv): papel y tinta según la luminosidad de su textura, grano de pincel, borde de silueta a pincel seco y el rojo del fajín conservado.
 
 ## Cómo lo probaríamos

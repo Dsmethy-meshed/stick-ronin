@@ -19,8 +19,13 @@ let gltfP=null;const needGLTF=()=>gltfP||(gltfP=THREE.GLTFLoader?Promise.resolve
 const IU=()=>window.INKS?INKS.u:(IU.d||(IU.d={on:{value:0},wModel:{value:.028},outCol:{value:new THREE.Color(0x0e0c0b)},ash:{value:new THREE.Vector2(.055,1)},
  wash:{value:new THREE.Vector4(.18,.7,.35,40)},edge:{value:new THREE.Vector3(.55,.3,.85)},washPaper:{value:new THREE.Color(0xefe9df)},washInk:{value:new THREE.Color(0x141210)},washRed:{value:new THREE.Color(0xb5121f)},redKeep:{value:1},washOn:{value:1}}));
 
+/* correcciones hechas a mano en modelo.html (esqueleto, escala, estiramiento y pesos pintados):
+   primero las del dispositivo (localStorage 'stickronin_mfix_<nombre>'), si no, models/<nombre>_fix.json (si el _rig.json dice hasFix) */
+const FIXKEY=n=>'stickronin_mfix_'+n;
+async function loadFix(name,url,rig){let f=null;try{f=JSON.parse(localStorage.getItem(FIXKEY(name))||'null')}catch(_){}
+ if(!f&&rig.hasFix){try{const r=await fetch(url.replace(/\.glb$/,'_fix.json'));if(r.ok)f=await r.json()}catch(_){}}return f}
 function mk(cfg){
-const ZM={ready:false,failed:false,K:1.96,cap:cfg.cap||120,glow:cfg.glow==null?.12:cfg.glow,wash:!!cfg.wash,base:null,n:0,ink:false};
+const ZM={ready:false,failed:false,K:1.96,smin:.65,smax:1.6,cap:cfg.cap||120,glow:cfg.glow==null?.12:cfg.glow,wash:!!cfg.wash,base:null,n:0,ink:false};
 ZM.load=async function(url,scene){
  try{
   await needGLTF();
@@ -31,7 +36,10 @@ ZM.load=async function(url,scene){
   // color (a/10, b/10, peso de a) → atributo propio
   const C=g.getAttribute('color'),n=C.count,seg=new Float32Array(n*3),A=C.array,nd=!C.normalized?1:A instanceof Uint16Array?65535:A instanceof Uint8Array?255:1;
   for(let i=0;i<n;i++){seg[i*3]=Math.round(C.getX(i)/nd*10);seg[i*3+1]=Math.round(C.getY(i)/nd*10);seg[i*3+2]=C.getZ(i)/nd}
-  g.deleteAttribute('color');g.setAttribute('zmSeg',new THREE.BufferAttribute(seg,3));
+  ZM.name=url.split('/').pop().replace(/\.glb$/,'');const fix=await loadFix(ZM.name,url,rig);ZM.fix=fix;
+  if(fix&&fix.w)for(const k in fix.w){const i=+k,v=fix.w[k];if(i<n){seg[i*3]=v[0];seg[i*3+1]=v[1];seg[i*3+2]=v[2]}}
+  if(fix){if(fix.K)ZM.K=fix.K;if(fix.smin)ZM.smin=fix.smin;if(fix.smax)ZM.smax=fix.smax}
+  g.deleteAttribute('color');g.setAttribute('zmSeg',new THREE.BufferAttribute(seg,3));ZM.seg=seg;ZM.geo=g;ZM.rig=rig;
   const body=new Float32Array(ZM.cap);for(let i=0;i<ZM.cap;i++)body[i]=i;g.setAttribute('zmBody',new THREE.InstancedBufferAttribute(body,1));
   // disuelto en ceniza por cuerpo (0 = entero, 1 = desaparecido)
   ZM.dis=new THREE.InstancedBufferAttribute(new Float32Array(ZM.cap),1);ZM.dis.setUsage(THREE.DynamicDrawUsage);g.setAttribute('zmDis',ZM.dis);
@@ -74,11 +82,12 @@ ZM.load=async function(url,scene){
    sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform vec3 zmOC;').replace('#include <fog_fragment>','gl_FragColor.rgb=zmD>.001?gl_FragColor.rgb:zmOC;\n#include <fog_fragment>')};
   om.customProgramCacheKey=()=>key+'Out';
   const ol=new THREE.InstancedMesh(g,om,ZM.cap);ol.frustumCulled=false;for(let i=0;i<ZM.cap;i++)ol.setMatrixAt(i,new THREE.Matrix4());ol.count=0;ol.visible=false;scene.add(ol);ZM.outline=ol;
-  ZM.RJ=rig.RJ.map(v=>new THREE.Vector3(...v));
-  ZM.roots=SEGS.map(([a,b,par])=>par?new THREE.Vector3(...rig.root[segKey(a,b)]):null);
+  ZM.map=map;ZM.setRig((fix&&fix.RJ)||rig.RJ,Object.assign({},rig.root,fix&&fix.root||{}));
   ZM.ready=true;return true
  }catch(e){ZM.failed=true;console.warn('[zmodel] no se pudo cargar',url,e);return false}
 };
+ZM.setRig=function(RJ,root){ZM.RJ=RJ.map(v=>new THREE.Vector3(...v));ZM.roots=SEGS.map(([a,b,par])=>par?new THREE.Vector3(...root[segKey(a,b)]):null)};
+ZM.SEGS=SEGS;ZM.TW=TW;ZM.FIXKEY=FIXKEY;
 ZM.begin=function(){ZM.n=0};
 /* añade un cuerpo: J = 12 puntos en el mundo, yaw = hacia dónde mira, s = escala, vis = Set de tramos visibles (null = todos), col = THREE.Color, dis = ceniza 0..1 */
 ZM.add=function(J,yaw,s,vis,col,dis){if(!ZM.ready||ZM.n>=ZM.cap)return false;
@@ -93,7 +102,7 @@ ZM.add=function(J,yaw,s,vis,col,dis){if(!ZM.ready||ZM.n>=ZM.cap)return false;
   _a.subVectors(RJ[b],ra).applyQuaternion(_qy);const l0=_a.length()||1e-4;_a.multiplyScalar(1/l0);
   _d.set(J[b][0]-anchor.x,J[b][1]-anchor.y,J[b][2]-anchor.z);const l1=_d.length()||1e-4;_d.multiplyScalar(1/l1);
   _q.setFromUnitVectors(_a,_d).multiply(_qy);
-  const f=Math.min(1.6,Math.max(.65,l1/(l0*k)));
+  const f=Math.min(ZM.smax,Math.max(ZM.smin,l1/(l0*k)));
   // matriz = T(anclaje) · estirado a lo largo del tramo · R · S(k) · T(-anclaje de reposo)
   _m.compose(_z,_q,_k.set(k,k,k));_t.makeTranslation(-ra.x,-ra.y,-ra.z);_m.multiply(_t);
   if(Math.abs(f-1)>.02){const u=_d,g=f-1;_s.set(1+g*u.x*u.x,g*u.x*u.y,g*u.x*u.z,0,g*u.y*u.x,1+g*u.y*u.y,g*u.y*u.z,0,g*u.z*u.x,g*u.z*u.y,1+g*u.z*u.z,0,0,0,0,1);_m.premultiply(_s)}
