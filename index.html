@@ -467,8 +467,8 @@ function updDism(){
   if(C.convert&&C.t>=GORE.CONVERT_T)finishCorpse(C);
   if(C.dead||!C.convert&&C.t>GORE.MINI_LIFE+GORE.SINK_T)CORPSES.splice(k,1)}}
 function drawDism(zmOn){for(const C of CORPSES){const sink=C.convert?0:clamp((C.t-GORE.MINI_LIFE)/GORE.SINK_T,0,1),dy=-sink*.35,k=1-sink*.6;
- const cI=zmOn&&ZM.get(scene);if(cI){const J=[],st=[];for(const ch of C.chunks){ch.ids.forEach((id,i)=>{J[id]=[ch.W[i][0],ch.W[i][1]+dy,ch.W[i][2]]});st.push(...ch.sticks)}for(let i=0;i<12;i++)if(!J[i])J[i]=J[3]||[0,0,0];
-  C.yaw=zmYaw(J,C.yaw);ZM.pose(cI,J,C.yaw,C.hr<.15?.55:1,zmVis(st),C.col);for(const ch of C.chunks)for(const i of ch.stumps){const p=ch.W[ch.ids.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}continue}
+ const cI=zmOn&&ZM.ready;if(cI){const J=[],st=[];for(const ch of C.chunks){ch.ids.forEach((id,i)=>{J[id]=[ch.W[i][0],ch.W[i][1]+dy,ch.W[i][2]]});st.push(...ch.sticks)}for(let i=0;i<12;i++)if(!J[i])J[i]=J[3]||[0,0,0];
+  C.yaw=zmYaw(J,C.yaw);if(!ZM.add(J,C.yaw,C.hr<.15?.55:1,zmVis(st),C.col))continue;for(const ch of C.chunks)for(const i of ch.stumps){const p=ch.W[ch.ids.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}continue}
  for(const ch of C.chunks){const W=ch.W,ix=ch.ids;
   for(const s of ch.sticks){const A=W[ix.indexOf(s.a)],B=W[ix.indexOf(s.b)];bSeg(ZB_SEG,[A[0],A[1]+dy,A[2]],[B[0],B[1]+dy,B[2]],C.rad*k,C.col)}
   const h=ix.indexOf(0);if(h>=0)bSph(ZB_SPH,[W[h][0],W[h][1]+dy,W[h][2]],C.hr*k,C.col);
@@ -1183,7 +1183,7 @@ function hurtPlayer(dmg,from){
  if(P.hp<=0&&NET.on&&mpHunt()){mpDie(NET.lastBy);return}
  if(P.hp<=0&&SIEGE.on){siegePlayerDown();return}
  if(P.hp<=0&&KS.on&&RUN.kg.boons.life){RUN.kg.boons.life=0;P.hp=P.hpMax*.5;P.inv=2.5;banner('💀 ¡Shinigami te devuelve a la vida!');ring([P.x,P.y,P.z],4,.5);return}
- if(P.hp<=0){P.hp=0;P.dead=true;state='dead';for(const z of zs)if(z.alive&&!z.spider&&!z.inRag&&Math.hypot(z.x-P.x,z.z-P.z)<14){z.bowT0=time+rand(0,.4);z.yaw=Math.atan2(P.x-z.x,P.z-z.z)}if(!TRAIN)clearSave();deadT=0;slowT=.8;
+ if(P.hp<=0){P.hp=0;P.dead=true;state='dead';if(!TRAIN)clearSave();deadT=0;slowT=.8;
   const r=makeRag(P.J.map(l=>toW(P,P.yaw,l)),[P.vx,P.vy,P.vz],COL.player);r.keep=true;rags.push(r);spray([P.x,P.y+1,P.z],[dx,1,dz],30,6,1);
   if(kills>best){best=kills;try{localStorage.setItem('ronin3d_best',best)}catch(e){}}
   submitScore()}
@@ -1850,7 +1850,7 @@ function scrPose(st,q,e){
  }
 }
 function zombieWorld(e,lite){
- const bc=e.bowT0!=null&&(KF['zombi:reverencia']||(ZCLIP&&ZCLIP.bow));let L=(bc&&zClipLocal(bc,(time-e.bowT0)*1.6))||zombieLocal(e,lite);
+ let L=zombieLocal(e,lite);
  const ang=e.tumble||(e.stun>0?0:(e.pitch||0));
  if(ang){const c=Math.cos(ang),s=Math.sin(ang),cu=.95,cw=0;L=L.map(p=>p&&[p[0],cu+(p[1]-cu)*c-(p[2]-cw)*s,cw+(p[1]-cu)*s+(p[2]-cw)*c])}
  return L.map(l=>l&&toW(e,e.yaw,mul3(l,e.s)));
@@ -1911,7 +1911,6 @@ function updateZombies(){
   e.atkCd-=DT;e.atkAnim=Math.max(0,e.atkAnim-DT);if(e.stumT>0)e.stumT-=DT;if(e.parried>0){e.parried-=DT;e.vx*=.85;e.vz*=.85;e.atkWind=0}e.hopCd-=DT;e.overT-=DT;
   if(e.inRag){const q=e.inRag.pts[3];e.x=q.x;e.z=q.z;e.y=q.y-.9*e.s;continue}
   if(e.spawnT>0){e.spawnT-=DT;e.vx=e.vz=0;e.vy-=G*DT;moveBody(e);continue}
-  if(e.bowT0!=null){if(!P.dead){e.bowT0=null}else{e.vx=e.vz=0;continue}}
   if(e.iaiT>0){e.iaiT-=DT;if(e.iaiT<=0)iaiKill(e);continue}
   if(e.lungeW>0){e.lungeW-=DT;e.vx*=.7;e.vz*=.7;e.vy-=G*DT;moveBody(e);e.yaw=Math.atan2(P.x-e.x,P.z-e.z);if(e.lungeW<=0&&e.alive&&!e.inRag)launchLunge(e);continue}
   e.lungeCd-=DT;
@@ -2868,11 +2867,7 @@ let ZN=[],EP=[],CLONES=[],TUR=[],KNUM=[],KST=new Set();
 // interruptores de efectos; los números de daño vienen encendidos en pruebas (dev) y apagados por defecto en la web oficial (github.io)
 const KGFX=(()=>{let o={shake:true,flash:true,vib:true,model:true,num:!/github\.io$/.test(location.hostname)};try{const r=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(r){o.shake=false;o.flash=false}Object.assign(o,JSON.parse(localStorage.getItem('stickronin_fx')||'{}'))}catch(_){}return o})();
 // modelos 3D de los zombis (models/zombie.glb) y sus clips (reverencia, trepar)
-let ZCLIP=null;function zmBoot(){if(!window.ZM||ZM.ready||ZM.failed||ZM.loading)return;ZM.loading=1;ZM.load('models/zombie.glb');fetch('models/zombie_clips.json').then(r=>r.json()).then(j=>{ZCLIP=j}).catch(()=>{})}
-const ZMW=new THREE.Color(1,1,1);
-// clip del editor (p = puntos en local) → 12 puntos locales
-function zClipLocal(c,t){if(!c||!c.keys||!c.keys.length)return null;const ks=c.keys;t=Math.min(t,c.dur);let i=ks.findIndex(k=>k.t>t);if(i<0)i=ks.length-1;const k0=ks[Math.max(0,i-1)],k1=ks[i],u=k1.t>k0.t?clamp((t-k0.t)/(k1.t-k0.t),0,1):0,g=j=>lerp3(k0.p[j],k1.p[j],u);
- return finishPose(g('head'),g('neck'),g('pel'),g('hL'),g('hR'),g('fL'),g('fR'),{chest:g('chest'),eL:g('eL'),eR:g('eR'),kL:g('kL'),kR:g('kR')})}
+function zmBoot(){if(!window.ZM||ZM.ready||ZM.failed||ZM.loading)return;ZM.loading=1;ZM.load('models/zombie.glb',scene)}
 // hacia dónde mira un cuerpo suelto (ragdoll/trozos): por las rodillas o, si no, por los codos
 function zmYaw(J,def){const a=J[8],b=J[10],c=J[4],d=J[6];let rx=0,rz=0;if(a&&b){rx=b[0]-a[0];rz=b[2]-a[2]}else if(c&&d){rx=d[0]-c[0];rz=d[2]-c[2]}if(Math.hypot(rx,rz)<1e-3)return def||0;return Math.atan2(rz,-rx)}
 function zmVis(sticks){const v=new Set();for(const t of sticks)v.add(ZM.segKey(t.a,t.b));return v}
@@ -3755,12 +3750,12 @@ function draw(){
  for(const r of rags){
   const k=r.keep||r.convert?1:clamp(1-(r.life-7)/1,0,1);if(k<=0)continue;
   const rad=r.hr<.15?.035:.05;
-  const zI=zmOn&&r.sticks.length&&ZM.get(scene);if(zI){const J=r.pts.map(q=>[q.x,q.y-(1-k)*.4,q.z]);r.yaw=zmYaw(J,r.yaw);ZM.pose(zI,J,r.yaw,(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),r.col)}
-  else for(const s of r.sticks){const A=r.pts[s.a],B=r.pts[s.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],rad*k,r.col)}
+  let zI=false;if(zmOn&&ZM.ready&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y-(1-k)*.4,q.z]);r.yaw=zmYaw(J,r.yaw);zI=ZM.add(J,r.yaw,(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),r.col)}
+  if(!zI)for(const s of r.sticks){const A=r.pts[s.a],B=r.pts[s.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],rad*k,r.col)}
   const h=r.pts[0];if(!zI)bSph(ZB_SPH,[h.x,h.y,h.z],r.hr*k,r.col);
   for(let i=1;i<r.pts.length;i++){const p=r.pts[i];if(p.stump)bSph(ZB_SPH,[p.x,p.y,p.z],(r.hr<.15?.04:.058)*k,REDC)}
  }
- for(const r of frags){const fI=zmOn&&ZM.get(scene);if(fI){const J=r.pts.map(q=>[q.x,q.y,q.z]);r.yaw=zmYaw(J,r.zombie?r.zombie.yaw:0);ZM.pose(fI,J,r.yaw,r.zombie?r.zombie.s:1,zmVis(r.sticks),r.col);continue}for(const s2 of r.sticks){const A=r.pts[s2.a],B=r.pts[s2.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],r.hr<.15?.035:.05,r.col)}const h=r.pts[0];bSph(ZB_SPH,[h.x,h.y,h.z],r.hr,r.col)}
+ for(const r of frags){if(zmOn&&ZM.ready){const J=r.pts.map(q=>[q.x,q.y,q.z]);r.yaw=zmYaw(J,r.zombie?r.zombie.yaw:0);if(ZM.add(J,r.yaw,r.zombie?r.zombie.s:1,zmVis(r.sticks),r.col))continue}for(const s2 of r.sticks){const A=r.pts[s2.a],B=r.pts[s2.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],r.hr<.15?.035:.05,r.col)}const h=r.pts[0];bSph(ZB_SPH,[h.x,h.y,h.z],r.hr,r.col)}
  camera.updateMatrixWorld();FRM.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);FRUS.setFromProjectionMatrix(FRM);
  let nNear=0;
  for(const e of zs){if(e.spider)continue;
@@ -3772,7 +3767,7 @@ function draw(){
   if(e.spawnT>0){const k=1-e.spawnT/(e.mini?.35:.55);J=J.map(p=>p&&[p[0],e.y+(p[1]-e.y)*k,p[2]])}
   const ms=e.mass||0,rad=.048*(e.mini?.8:1)*(1+.7*ms)*(e.bw||1),hr=.145*e.s*(1+.25*ms)*(e.hs||1);
   blobShadow(e.x,e.y,e.z,.36*e.s*(1+.5*ms));
-  const zI=zmOn&&!e.mass&&ZM.get(scene);if(zI){ZM.pose(zI,J,e.yaw,e.s,null,e.ks?kgTint(e):e.col);if(near)nNear++;continue}
+  if(zmOn&&!e.mass&&ZM.add(J,e.yaw,e.s,null,e.ks?kgTint(e):e.col)){if(near)nNear++;continue}
   const zc=e.ks?kgTint(e):e.col;if(near){nNear++;drawCharZ(J,zc,rad,hr);
    const F=dirW(e.yaw,[0,0,1]),R=dirW(e.yaw,[1,0,0]),h=J[0],es=.12*e.s;
    bSph(ZB_SPH,[h[0]+F[0]*es+R[0]*.05*e.s,h[1]+.02,h[2]+F[2]*es+R[2]*.05*e.s],.025,REDC);bSph(ZB_SPH,[h[0]+F[0]*es-R[0]*.05*e.s,h[1]+.02,h[2]+F[2]*es-R[2]*.05*e.s],.025,REDC);
@@ -3856,7 +3851,7 @@ function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CT
  <p>👑 Cada 5 oleadas sale un jefe (5: Ō-oni, 10: Karura, y se alternan) y la oleada no acaba hasta vencerlo. Tras vencerlos: martillo de Amatsumara (oleadas 5 y 10), trato del oni si no te han tocado y tienda del tanuki. Zombis, yokai y jefes tienen más vida cuanto más avanzas</p>
  <p>📱 Desde la oleada 5 (o con muchos enemigos) el juego pasa a modo ligero: la sangre ya no salpica, forma charcos en el suelo que crecen, y los cuerpos que salen volando caen con una animación sencilla, para que vaya fluido en el móvil</p>
  <p>⚡ Todas las armas tienen su habilidad especial desde el principio. El botón muestra los segundos que faltan</p>
- <p>🧟 Los zombis usan un modelo 3D que sigue las mismas animaciones (y se parte igual al cortarlos). Si el móvil va justo, apaga «🧟 Modelos 3D» en la armería y vuelven los de palos. Cuando mueres, los que tienes cerca te hacen una reverencia.</p><p>⚔ Antes de empezar eliges 2 armas en la armería: cada una dice si es fácil o difícil y su crítico 会心 (por ejemplo, la kama hace ×3 por la espalda). Venciendo a un jefe con un arma desbloqueas su estilo 流, que sube de nivel con las bajas. Abajo puedes apagar el temblor, los destellos, la vibración y los números de daño 💥</p><p>⛩ 加護 Bendiciones: en cada oleada aparece el santuario de un kami (cada 3 oleadas, dos: toca el que quieras). Al acabarla te ofrece 1 de 3 cartas. Cada carta va a un botón (ataque, cargado, especial, dash o esquiva perfecta 避: dash justo cuando te van a golpear = cámara lenta y siguiente golpe ×2) y aplica el estado de su kami: rayo, viento, fuego, hielo, herida, marca lunar o encanto. 2 kami distintos abren dúos 結; 3 del mismo, su legendaria ★. 🎲 cambia las cartas y 🚫 destierra una. A veces aparece un pacto 💀 de Shinigami: maldición 3 oleadas y luego un premio</p><p>鬼 Kamon: los sueltan yokai y onis. 3 del mismo juego (Oni, Tengu, Kitsune, Ryū o Shinobi) te transforman (Henge). 魂 La tama se gasta en la tienda del tanuki, en cambiar cartas y en curarte en el santuario</p><p>🛡 La barra amarilla es armadura: rómpela con golpes fuertes (aturde y da tama). Los enemigos con un kanji encima son campeones 祟 con un truco y mejor botín. Desde la oleada 3, el 天邪鬼 Amanojaku dispara desde las azoteas y huye con su gancho si te acercas: lánzale tu gancho y cae de un golpe. Desde la oleada 4, la 濡れ女 Nure-onna (mujer serpiente) guarda la distancia y escupe veneno en arco, y de cerca muerde; desde la 5, las medusas 海月火 flotan y sueltan gotas tóxicas y, al reventar, dejan una nube: mejor con el gancho o a distancia. El veneno 毒 quita vida poco a poco, te frena y deja charcos verdes que no conviene pisar (con el dash los cruzas sin envenenarte). La tienda del tanuki cambia en cada visita: puedes comprar 2 cosas por visita y 6 por partida (a veces el tanuki es generoso)</p><p><button class="edl" type="button" onpointerdown="event.stopPropagation()" onclick="kgShowCodex()">📖 Códice: kami, dúos, Henge, campeones y armas</button></p>
+ <p>🧟 Los zombis usan un modelo 3D que sigue las mismas animaciones (y se parte igual al cortarlos). Si el móvil va justo, apaga «🧟 Modelos 3D» en la armería y vuelven los de palos.</p><p>⚔ Antes de empezar eliges 2 armas en la armería: cada una dice si es fácil o difícil y su crítico 会心 (por ejemplo, la kama hace ×3 por la espalda). Venciendo a un jefe con un arma desbloqueas su estilo 流, que sube de nivel con las bajas. Abajo puedes apagar el temblor, los destellos, la vibración y los números de daño 💥</p><p>⛩ 加護 Bendiciones: en cada oleada aparece el santuario de un kami (cada 3 oleadas, dos: toca el que quieras). Al acabarla te ofrece 1 de 3 cartas. Cada carta va a un botón (ataque, cargado, especial, dash o esquiva perfecta 避: dash justo cuando te van a golpear = cámara lenta y siguiente golpe ×2) y aplica el estado de su kami: rayo, viento, fuego, hielo, herida, marca lunar o encanto. 2 kami distintos abren dúos 結; 3 del mismo, su legendaria ★. 🎲 cambia las cartas y 🚫 destierra una. A veces aparece un pacto 💀 de Shinigami: maldición 3 oleadas y luego un premio</p><p>鬼 Kamon: los sueltan yokai y onis. 3 del mismo juego (Oni, Tengu, Kitsune, Ryū o Shinobi) te transforman (Henge). 魂 La tama se gasta en la tienda del tanuki, en cambiar cartas y en curarte en el santuario</p><p>🛡 La barra amarilla es armadura: rómpela con golpes fuertes (aturde y da tama). Los enemigos con un kanji encima son campeones 祟 con un truco y mejor botín. Desde la oleada 3, el 天邪鬼 Amanojaku dispara desde las azoteas y huye con su gancho si te acercas: lánzale tu gancho y cae de un golpe. Desde la oleada 4, la 濡れ女 Nure-onna (mujer serpiente) guarda la distancia y escupe veneno en arco, y de cerca muerde; desde la 5, las medusas 海月火 flotan y sueltan gotas tóxicas y, al reventar, dejan una nube: mejor con el gancho o a distancia. El veneno 毒 quita vida poco a poco, te frena y deja charcos verdes que no conviene pisar (con el dash los cruzas sin envenenarte). La tienda del tanuki cambia en cada visita: puedes comprar 2 cosas por visita y 6 por partida (a veces el tanuki es generoso)</p><p><button class="edl" type="button" onpointerdown="event.stopPropagation()" onclick="kgShowCodex()">📖 Códice: kami, dúos, Henge, campeones y armas</button></p>
  <p style="opacity:.75">Teclado: ${['u','l','d','r'].map(k).join('')} mover · ${k('jump')} saltar · ${k('atk')} atacar · ${k('dash')} especial · ${k('hook')} gancho · ${k('swap')} arma · ${k('menu')} pausa · también con mando</p>
  ${best?`<p style="opacity:.75">Tu récord: ${best} bajas</p>`:''}</div><button class="edl" id="bBack" type="button">← Volver</button>`}
 /* ================= MULTIJUGADOR (fase 1: sala compartida) =================

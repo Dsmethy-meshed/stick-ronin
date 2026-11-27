@@ -90,7 +90,7 @@ nav button.on{color:#fff;box-shadow:inset 0 -3px 0 var(--acc);background:transpa
     <button id="bFull" aria-label="Pantalla completa">⛶</button>
    </div>
    <div id="menu" hidden>
-    <div class="grp"><span class="lab">Archivo</span><button id="bNew">Nueva animación</button><button id="bZmClips">🧟 Clips del zombi</button><a id="bPlayGame" href="index.html">Jugar</a></div>
+    <div class="grp"><span class="lab">Archivo</span><button id="bNew">Nueva animación</button><a id="bPlayGame" href="index.html">Jugar</a></div>
     <div class="grp" id="viewBar"><span class="lab">Vista</span><button data-v="front">Frente</button><button data-v="side">Lado</button><button data-v="top">Arriba</button><button data-v="free">Libre</button><button id="bCenter">Centrar</button></div>
     <div class="grp"><span class="lab">Mostrar</span><button id="bMix">Probar en movimiento</button><button id="bPoles">Codos y rodillas</button><button id="bOnion">Fantasmas</button><button id="bPath">Trayectoria</button><button id="bGizmo">Gizmo</button><button id="bZm">🧟 Modelo zombi</button></div>
     <div class="grp"><span class="lab">Mover puntos</span><button id="bChain">En cadena</button></div>
@@ -503,7 +503,7 @@ function render(){
   fr={p,blade:nrm3(lerp3(rb.blade,fr.blade,WJ.hR)),root:[0,0,0],ry:fr.ry*WJ.hR};fr.J=finishPose(p);
  }
  const Jw=fr.J.map(l=>toW(fr,l));
- fig.set(Jw,!zmShow||!zmI);if(zmShow&&window.ZM&&ZM.ready){if(!zmI)zmI=ZM.create(scene);ZM.pose(zmI,Jw,(fr.ry||0)*D2R,1,null,null)}else if(zmI)zmI.mesh.visible=false;
+ const zmOk=zmShow&&window.ZM&&ZM.ready;fig.set(Jw,!zmOk);if(window.ZM&&ZM.ready){ZM.begin();if(zmOk)ZM.add(Jw,(fr.ry||0)*D2R,1,null,null);ZM.end()}
  // fantasmas: clave anterior y siguiente
  const ks=a.keys;let prev=null,next=null;for(const k of ks){if(k.t<T-.004)prev=k;else if(k.t>T+.004&&!next)next=k}
  if(onion&&prev&&!SB.on){const f={...prev,J:finishPose(prev.p)};ghA.set(f.J.map(l=>toW(f,l)),true)}else ghA.set(Jw,false);
@@ -680,12 +680,8 @@ function fillSel(){const s=$('animSel');const grp={};lib.anims.forEach((a,i)=>{c
  const order=['general',...W_ORDER,'none'].filter(w=>grp[w]).concat(Object.keys(grp).filter(w=>w!=='general'&&!W_ORDER.includes(w)&&w!=='none'));
  s.innerHTML=order.map(w=>`<optgroup label="${w==='general'?'General':w==='none'?'Sin arma':esc(W_N[w]||w)}">${grp[w].map(([a,i])=>`<option value="${i}"${i===lib.cur?' selected':''}>${a.live?'● ':''}${a.ref?'◇ ':''}${esc(a.name)}</option>`).join('')}</optgroup>`).join('')}
 $('animSel').onchange=e=>{lib.cur=+e.target.value;{const c=lib.anims[lib.cur];if(c&&c.keys&&c.keys.some(k=>(k.we||0)>.8)){orb.r=Math.max(orb.r,7.5);orb.ty=1.2}}SB.t=0;setTimeout(sbBar,0);T=0;selKey=null;selJ=null;playing=false;setPlayBtn();save();snap=JSON.stringify(lib);buildPanel();drawTL();updateSelLabel()};
-// modelo 3D del zombi (models/zombie.glb): sigue el mismo esqueleto de 12 puntos que el juego
-var zmShow=false,zmI=null;$('bZm').onclick=async()=>{zmShow=!zmShow;$('bZm').classList.toggle('on',zmShow);if(zmShow&&!ZM.ready){toast('Cargando modelo…');const ok=await ZM.load('models/zombie.glb');toast(ok?'Modelo cargado':'No se pudo cargar el modelo (ábrelo desde un servidor, no como archivo)')}};
-// las animaciones que traía el modelo de Tripo (reverencia y trepar), convertidas a 12 puntos
-$('bZmClips').onclick=async()=>{try{const C=await (await fetch('models/zombie_clips.json')).json();const NM={bow:'reverencia',climb:'trepar'};let n=0;
- for(const k in C){const nm='Zombi · '+(NM[k]||k);if(lib.anims.some(a=>a.name===nm))continue;const c=C[k];const a=withSlot({name:nm,dur:c.dur,loop:false,weapon:'katana',fx:[],keys:c.keys,hurt:{r:.3,h:1.8},hits:[]},'none');a.slot='zombi:'+(NM[k]||k);lib.anims.push(a);n++}
- if(n){lib.cur=lib.anims.length-1;T=0;selKey=null;commit();fillSel();toast(n+' clip(s) del zombi añadidos')}else toast('Ya estaban añadidos')}catch(e){toast('No se pudieron leer los clips (ábrelo desde un servidor)')}};
+// modelo 3D del zombi (models/zombie.glb): 11 piezas pegadas al mismo esqueleto de 12 puntos que el juego
+var zmShow=false;$('bZm').onclick=async()=>{zmShow=!zmShow;$('bZm').classList.toggle('on',zmShow);if(zmShow&&!ZM.ready){toast('Cargando modelo…');const ok=await ZM.load('models/zombie.glb',scene);toast(ok?'Modelo cargado':'No se pudo cargar el modelo (ábrelo desde un servidor, no como archivo)')}};
 $('bNew').onclick=()=>{const a={name:'Nueva animación '+(lib.anims.length+1),dur:1,loop:false,weapon:'katana',slot:'none',live:false,fx:[],keys:[key(0,IDLE,IDLE_BLADE),key(1,IDLE,IDLE_BLADE)],hurt:{r:.3,h:1.8},hits:[]};lib.anims.push(a);lib.cur=lib.anims.length-1;T=0;selKey=null;commit();fillSel();tab='anim';setTab();toast('Animación creada')};
 
 /* ============ PANELES ============ */
