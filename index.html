@@ -2926,6 +2926,26 @@ INKOUT.customProgramCacheKey=()=>'inkOut';
 // ojo: bSeg monta los cilindros con una base en espejo (u, d, d×u), así que sus caras «traseras» son las FrontSide
 const INKOUT_S=INKOUT.clone();INKOUT_S.side=THREE.FrontSide;INKOUT_S.onBeforeCompile=INKOUT.onBeforeCompile;INKOUT_S.customProgramCacheKey=()=>'inkOutS';
 const INK_B=[SEG,SPH,ZB_SEG,ZB_SPH,SEGL,SPHL].map(B=>{const m=new THREE.Mesh(B.g,B===SEG||B===ZB_SEG||B===SEGL?INKOUT_S:INKOUT);m.frustumCulled=false;m.visible=false;scene.add(m);return m});
+
+/* tira de tela (bufanda) del protagonista 3D: la misma física que la del stickman (`scarf`, 8 puntos), pero dibujada como una cinta plana:
+   3 vértices por punto (borde, centro, borde), más ancha junto al cuello, cola en «V», bordes en rojo oscuro (tinta) y un leve aleteo */
+const RIB={n:8,w0:.068,w1:.036,edge:new THREE.Color(.42,.03,.06),mid:new THREE.Color(.84,.08,.13)};
+const ribG=new THREE.BufferGeometry(),ribP=new Float32Array(RIB.n*9),ribC=new Float32Array(RIB.n*9),ribI=[];
+for(let i=0;i<RIB.n-1;i++){const a=i*3,b=a+3;ribI.push(a,a+1,b,a+1,b+1,b,a+1,a+2,b+1,a+2,b+2,b+1)}
+ribG.setIndex(ribI);ribG.setAttribute('position',new THREE.BufferAttribute(ribP,3).setUsage(THREE.DynamicDrawUsage));ribG.setAttribute('color',new THREE.BufferAttribute(ribC,3));
+for(let i=0;i<RIB.n;i++)for(let k=0;k<3;k++){const c=k===1?RIB.mid:RIB.edge;ribC.set([c.r,c.g,c.b],(i*3+k)*3)}
+const ribM=new THREE.Mesh(ribG,new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide}));ribM.frustumCulled=false;ribM.visible=false;ribM.castShadow=true;scene.add(ribM);
+function drawRibbon(){const n=RIB.n,Rv=dirW(P.ryaw,[1,0,0]);
+ for(let i=0;i<n;i++){const s=scarf[i],A=scarf[Math.max(0,i-1)],B=scarf[Math.min(n-1,i+1)];let dx=B.x-A.x,dy=B.y-A.y,dz=B.z-A.z;const dl=Math.hypot(dx,dy,dz)||1;dx/=dl;dy/=dl;dz/=dl;
+  // eje a lo ancho: el «derecha» del jugador sin la parte que va a lo largo de la tira, girado un poco por el aleteo
+  let ax=Rv[0],ay=Rv[1],az=Rv[2];const dd=ax*dx+ay*dy+az*dz;ax-=dx*dd;ay-=dy*dd;az-=dz*dd;let al=Math.hypot(ax,ay,az)||1;ax/=al;ay/=al;az/=al;
+  const nx=dy*az-dz*ay,ny=dz*ax-dx*az,nz=dx*ay-dy*ax,f=Math.sin(time*6+i*.9)*.45*(i/(n-1)),cf=Math.cos(f),sf=Math.sin(f);
+  ax=ax*cf+nx*sf;ay=ay*cf+ny*sf;az=az*cf+nz*sf;
+  const t=i/(n-1),w=RIB.w0+(RIB.w1-RIB.w0)*t,last=i===n-1,ex=last?.035:0,cx=last?-.075:0,o=i*9;
+  ribP[o]=s.x-ax*w+dx*ex;ribP[o+1]=s.y-ay*w+dy*ex;ribP[o+2]=s.z-az*w+dz*ex;
+  ribP[o+3]=s.x+dx*cx;ribP[o+4]=s.y+dy*cx;ribP[o+5]=s.z+dz*cx;
+  ribP[o+6]=s.x+ax*w+dx*ex;ribP[o+7]=s.y+ay*w+dy*ex;ribP[o+8]=s.z+az*w+dz*ex}
+ ribG.attributes.position.needsUpdate=true;ribG.computeVertexNormals();ribM.visible=true}
 const INKT=new THREE.Color();
 // enemigo en tinta: conserva un poco su luminosidad (variedad) pero casi negro (INKS: eBase, eVar)
 const inkTone=c=>{if(!KGFX.ink||!c)return c;const l=c.r*.3+c.g*.59+c.b*.11,v=INKS.v,b=v.eBase,k=v.eVar;return INKT.setRGB(b+k*l,b*.93+k*.9*l,b*.87+k*.85*l)};
@@ -3849,11 +3869,12 @@ function draw(){
  }
  drawSpiders();drawYokai();drawRocks();drawFly();drawDism(zmOn);drawArsenal();kgDrawFx();if(zmOn)ZM.end();
  for(const g of ghostsArr)for(const[a,b]of BONES)ghost(g.J[a],g.J[b],.05*g.life/.25+.01);
- const W=weapon();marker.visible=false;pin.visible=false;for(const t in WT){WT[t].g.visible=false;if(WT[t].g2)WT[t].g2.visible=false}
+ const W=weapon();marker.visible=false;pin.visible=false;ribM.visible=false;for(const t in WT){WT[t].g.visible=false;if(WT[t].g2)WT[t].g2.visible=false}
  if(!P.dead){
   const blink=P.inv>0&&P.dashT<=0&&!(P.atk&&P.atk.type==='iai')&&((P.inv*24)|0)%2===0;
   const J=kgScaleJ(P.Jdraw.map(l=>toW(P,P.ryaw,l)));
-  if(!blink){if(!(zmpOn&&ZMP.add(J,P.ryaw,1,null,null)))drawChar(J,COL.player,.055,.15);kgDrawPlayer(J);for(let i=1;i<scarf.length;i++){const A=scarf[i-1],B=scarf[i];limb([A.x,A.y,A.z],[B.x,B.y,B.z],.075-i*.006,COL.scarf)}
+  if(!blink){const pm=zmpOn&&ZMP.add(J,P.ryaw,1,null,null);if(!pm)drawChar(J,COL.player,.055,.15);kgDrawPlayer(J);
+   if(pm)drawRibbon();else for(let i=1;i<scarf.length;i++){const A=scarf[i-1],B=scarf[i];limb([A.x,A.y,A.z],[B.x,B.y,B.z],.075-i*.006,COL.scarf)}
    marker.visible=true;marker.position.set(P.x,P.y+.02,P.z)}
   {let crowd=0;for(const z of zs){if(Math.abs(z.x-P.x)<2.2&&Math.abs(z.z-P.z)<2.2&&++crowd>5)break}pin.visible=crowd>5;if(pin.visible){pin.position.set(P.x,P.y+2.6+Math.sin(time*5)*.08,P.z);pin.rotation.y=time*2}}
   const g=W.g;g.visible=!blink;
