@@ -188,6 +188,12 @@ Sustituye por completo a la forja vieja: ya no hay rarezas de armas, metal, bols
 - Rendimiento (CPU ×4, oleada 6, calidad 2): 43,7 fps con tinta y 120 modelos frente a 46,2 sin tinta.
 
 ## Editor de animaciones (`editor.html`)
+- **Interfaz sin menús desplegables (28 nov 2026)**, inspirada en Cascadeur (barra de herramientas fija y línea de tiempo con sus herramientas de clave) y en Procreate Dreams / Stick Nodes (línea de tiempo táctil siempre a mano, iconos):
+  - arriba, dos tiras deslizables: armas (`#wStrip`, con «General» para reposo y correr) y animaciones de esa arma (`#aStrip`, más «＋ Nueva»); `fillSel`, `selectAnim`, `newAnim`, `libGroup`;
+  - izquierda, herramientas (`#railL`): Mover/Rotar, Cadena, Codos, Gizmo, Fantasma, Recorrido, Correr, Zombi, Prota; derecha (`#railR`): Frente, Lado, Arriba, 3D, Centrar, Paneo, Deshacer, Rehacer, Pantalla, Jugar;
+  - abajo, línea de tiempo y transporte siempre visibles; pestañas con icono (Pose, Golpes, Efectos, Animación); tocar la pestaña activa pliega el panel (`#dock.fold`);
+  - dentro de los paneles, botones de elección (`chipRow`, `bindChips`) en vez de `<select>`: curva, efecto nuevo, dónde, color, sonido, forma, articulación, arma, uso en el juego y la secuencia de «Correr»;
+  - en el móvil en horizontal, la vista a la izquierda y biblioteca/tiempo/panel en una columna a la derecha.
 - Genera clips de referencia desde el `ATK` del juego (`GEN_V`, `GEN_ATK`) y los guarda en localStorage, en ranuras `arma:tecla`.
 - Deslizadores `we` (separación arma–mano) y `wox/woy/woz`. La kusarigama dibuja la cadena hasta el arma.
 - La estela del editor sigue la posición del arma.

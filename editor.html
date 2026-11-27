@@ -25,34 +25,15 @@ button:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-vis
 select{min-height:44px;padding:0 10px;font-size:16px}
 input[type=text],input[type=number]{min-height:44px;padding:0 10px;font-size:16px;width:100%}
 textarea{width:100%;min-height:96px;padding:8px;font:13px/1.4 ui-monospace,monospace;resize:vertical}
-#view{position:absolute;inset:0;overflow:hidden;touch-action:none}
 #view canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
-#top{position:absolute;left:6px;right:6px;top:6px;z-index:5}
-#top .bar{display:flex;gap:6px;align-items:center}
-#top .bar select{flex:1;background:rgba(33,30,38,.88)}
-#top .bar button{min-width:44px;padding:0 10px;background:rgba(33,30,38,.88)}
-#menu{margin-top:6px;background:rgba(28,26,33,.96);border:1px solid var(--line);border-radius:12px;padding:6px 10px;max-height:60vh;overflow:auto}
-#menu .grp{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:6px 0}
-#menu .lab{flex:0 0 100%;font-size:12px;color:var(--dim)}
-#menu button,#menu a{min-height:40px;font-size:14px}
-#menu a.tool{display:inline-flex;align-items:center;padding:0 12px;border-radius:10px;border:1px solid var(--line);background:#2c2832;color:var(--ink);text-decoration:none;font-weight:650}
-#view #bGzMode{position:absolute;right:8px;top:150px;z-index:4;min-width:84px;min-height:40px;border-radius:12px;border:1px solid #4a434f;background:rgba(36,33,42,.92);color:#fff;font:800 13px system-ui,sans-serif}#view #bGzMode.rot{background:#d1242c;border-color:#d1242c}
-#view #axg{position:absolute;inset:auto;right:8px;top:60px;width:84px;height:84px;z-index:4;touch-action:none}
-#dock{position:absolute;left:0;right:0;bottom:0;z-index:6;background:rgba(23,21,27,.9);border-top:1px solid var(--line)}
-.dockbar{display:flex;gap:6px;padding:4px 6px}
-.dockbar button{flex:1;min-height:38px;font-size:14px;background:transparent}
 #bPlayGame{display:inline-flex;align-items:center;justify-content:center}
-#selLabel{position:absolute;left:10px;top:60px;max-width:calc(100% - 110px);font-size:13px;color:var(--dim);pointer-events:none;background:rgba(23,21,27,.7);padding:4px 8px;border-radius:8px}
-#sbBar{position:absolute;left:6px;right:6px;top:58px;z-index:4;display:none;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;align-items:center;background:rgba(23,21,27,.82);border:1px solid var(--line);border-radius:12px;padding:6px}
 #sbBar.on{display:flex}
 #sbBar>*{flex:0 0 auto}
 #view.sb #selLabel{display:none}
-#view.menu #sbBar{display:none}
 #sbBar button,#sbBar select{min-height:36px;font-size:13px;padding:0 10px}
 #sbBar .chip{background:#3d2a2e;border-color:var(--acc);color:#fff}
 #sbBar .chip.cur{box-shadow:0 0 0 2px var(--acc2)}
 #sbBar .lab{font-size:12px;color:var(--dim)}
-#actBadge{position:absolute;right:10px;top:150px;font-size:13px;font-weight:700;color:#fff;background:var(--acc);padding:4px 8px;border-radius:8px;display:none}
 #tl{height:70px;background:#1c1a21;border-top:1px solid var(--line);touch-action:none;position:relative}
 #tl canvas{width:100%;height:100%;display:block}
 #transport{display:flex;gap:6px;align-items:center;padding:6px 8px;background:var(--panel)}
@@ -62,7 +43,6 @@ nav{display:flex;background:var(--panel);border-top:1px solid var(--line)}
 nav button{flex:1;border:0;border-radius:0;background:transparent;color:var(--dim)}
 nav button.on{color:#fff;box-shadow:inset 0 -3px 0 var(--acc);background:transparent}
 #panel input[type=color]{width:56px;height:40px;padding:2px;border:1px solid var(--line);border-radius:8px;background:#2c2832}
-#panel{max-height:30vh;overflow:auto;padding:10px 12px 18px;background:var(--panel)}
 .row{display:flex;gap:8px;align-items:center;margin:8px 0;flex-wrap:wrap}
 .row>label{flex:0 0 7.5em;color:var(--dim);font-size:13px}
 .row input[type=range]{flex:1;min-width:120px;accent-color:var(--acc);height:32px}
@@ -75,57 +55,92 @@ nav button.on{color:#fff;box-shadow:inset 0 -3px 0 var(--acc);background:transpa
 .chk input{width:22px;height:22px;accent-color:var(--acc)}
 #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000c;color:#fff;padding:8px 14px;border-radius:10px;font-size:13px;opacity:0;transition:opacity .2s;pointer-events:none}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
+/* ---- distribución (28 nov 2026), inspirada en Cascadeur (barra de herramientas fija + línea de tiempo con sus herramientas)
+   y en Procreate Dreams / Stick Nodes (línea de tiempo táctil siempre a mano, iconos en vez de menús): sin menús desplegables ---- */
+#app{display:flex;flex-direction:column}
+#lib{flex:0 0 auto;display:flex;flex-direction:column;align-items:stretch;gap:0;background:var(--panel);border-bottom:1px solid var(--line);padding:4px 0}
+.strip{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:3px 6px}
+.strip::-webkit-scrollbar{display:none}
+.strip button{flex:0 0 auto;min-height:38px;padding:0 12px;border-radius:19px;font-size:14px;background:#2c2832}
+.strip button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+#aStrip button.on{background:#3d2a2e;border-color:var(--acc)}
+.strip .live{color:var(--acc2)}
+#view{position:relative;flex:1 1 auto;min-height:180px;overflow:hidden;touch-action:none}
+.rail{position:absolute;top:6px;bottom:6px;z-index:5;display:flex;flex-direction:column;gap:4px;overflow-y:auto;scrollbar-width:none;width:54px}
+.rail::-webkit-scrollbar{display:none}
+#railL{left:6px}#railR{right:6px;top:96px}
+.rail button,.rail a{flex:0 0 auto;min-height:46px;width:54px;padding:2px 0;border-radius:12px;border:1px solid #4a434f;background:rgba(36,33,42,.9);color:#fff;font:700 17px/1.1 system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;text-decoration:none}
+.rail small{font:600 9px/1.1 system-ui,sans-serif;color:var(--dim);margin-top:2px;white-space:nowrap}
+.rail .on small,.rail .rot small{color:#fff}
+.rail button.on{background:#3d2a2e;border-color:var(--acc)}
+.rail #bGzMode.rot{background:var(--acc);border-color:var(--acc)}
+.rail #bPlayGame{background:var(--acc);border-color:var(--acc)}
+#viewBar{display:contents}
+#view #axg{position:absolute;inset:auto;right:6px;top:6px;width:84px;height:84px;z-index:4;touch-action:none}
+#selLabel{position:absolute;left:66px;right:96px;top:6px;font-size:12px;color:var(--dim);pointer-events:none;background:rgba(23,21,27,.7);padding:4px 8px;border-radius:8px}
+#sbBar{position:absolute;left:66px;right:66px;bottom:8px;z-index:4;display:none;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;align-items:center;background:rgba(23,21,27,.82);border:1px solid var(--line);border-radius:12px;padding:6px}
+#actBadge{position:absolute;left:50%;transform:translateX(-50%);bottom:8px;font-size:13px;font-weight:700;color:#fff;background:var(--acc);padding:4px 8px;border-radius:8px;display:none}
+#dock{flex:0 0 auto;background:var(--panel);border-top:1px solid var(--line)}
+#transport button{min-width:44px;padding:0 10px}
+nav button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:48px;font-size:13px}
+nav button b{font-size:18px;line-height:1}
+#panel{max-height:32vh;overflow:auto;padding:8px 12px 16px;background:var(--panel)}
+#dock.fold #panel{display:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chips button{min-height:38px;padding:0 10px;font-size:13px;border-radius:19px}
+.chips button.on{background:#3d2a2e;border-color:var(--acc);color:#fff}
+.lbl{font-size:12px;color:var(--dim);margin:8px 0 2px}
+@media (min-width:900px){#panel{max-height:38vh}}
+/* móvil en horizontal: la vista ocupa toda la izquierda; biblioteca, tiempo y panel en una columna a la derecha */
+@media (orientation:landscape) and (max-height:620px){#app{display:grid;grid-template-columns:1fr minmax(300px,42%);grid-template-rows:auto 1fr}#view{grid-column:1;grid-row:1/3;min-height:0}#lib{grid-column:2;grid-row:1}#dock{grid-column:2;grid-row:2;overflow:auto;min-height:0;border-left:1px solid var(--line)}#panel{max-height:none}}
 </style>
 </head>
 <body>
 <div id="app">
+ <header id="lib">
+  <div class="strip" id="wStrip" aria-label="Arma"></div>
+  <div class="strip" id="aStrip" aria-label="Animación"></div>
+ </header>
  <div id="view">
   <canvas id="cv3"></canvas>
   <canvas id="axg" aria-label="Ejes: toca uno para mirar desde ahí"></canvas>
-  <button id="bGzMode" type="button" title="Cambiar entre mover y rotar">✥ Mover</button>
-  <div id="top">
-   <div class="bar">
-    <button id="mMenu" aria-label="Menú" aria-expanded="false">☰</button>
-    <select id="animSel" aria-label="Animación"></select>
-    <button id="bUndo" title="Deshacer" aria-label="Deshacer">↶</button>
-    <button id="bRedo" title="Rehacer" aria-label="Rehacer">↷</button>
-    <button id="bFull" aria-label="Pantalla completa">⛶</button>
-   </div>
-   <div id="menu" hidden>
-    <div class="grp"><span class="lab">Archivo</span><button id="bNew">Nueva animación</button><a id="bPlayGame" href="index.html">Jugar</a></div>
-    <div class="grp"><span class="lab">Otras herramientas</span><a class="tool" href="shaders.html">🖌 Shaders (estilo tinta)</a><a class="tool" href="modelo.html">🧍 Modelo y pesos</a></div>
-    <div class="grp" id="viewBar"><span class="lab">Vista</span><button data-v="front">Frente</button><button data-v="side">Lado</button><button data-v="top">Arriba</button><button data-v="free">Libre</button><button id="bCenter">Centrar</button></div>
-    <div class="grp"><span class="lab">Mostrar</span><button id="bMix">Probar en movimiento</button><button id="bPoles">Codos y rodillas</button><button id="bOnion">Fantasmas</button><button id="bPath">Trayectoria</button><button id="bGizmo">Gizmo</button><button id="bZm">🧟 Modelo zombi</button><button id="bZp">🥷 Modelo protagonista</button></div>
-    <div class="grp"><span class="lab">Mover puntos</span><button id="bChain">En cadena</button></div>
-    <div class="grp"><span class="lab">Un dedo</span><button id="bPan">Mover vista (paneo)</button></div>
-    <p class="hint">Dos dedos: arrastra para mover la vista, pellizca para acercar. Un dedo en vacío: girar.</p>
-   </div>
+  <div class="rail" id="railL" aria-label="Herramientas">
+   <button id="bGzMode" type="button" title="Mover o rotar los puntos">✥<small>Mover</small></button>
+   <button id="bChain" title="Mover en cadena: al mover la cadera, el cuerpo la sigue">⛓<small>Cadena</small></button>
+   <button id="bPoles" title="Codos y rodillas: hacia dónde se doblan">◐<small>Codos</small></button>
+   <button id="bGizmo" title="Flechas y anillos para mover y rotar">✛<small>Gizmo</small></button>
+   <button id="bOnion" title="Fantasmas: clave anterior y siguiente">👻<small>Fantasma</small></button>
+   <button id="bPath" title="Recorrido del arma">〰<small>Recorrido</small></button>
+   <button id="bMix" title="Probar en movimiento (mezclado con correr)">🏃<small>Correr</small></button>
+   <button id="bZm" title="Ver el modelo del zombi">🧟<small>Zombi</small></button>
+   <button id="bZp" title="Ver el modelo del protagonista">🥷<small>Prota</small></button>
+  </div>
+  <div class="rail" id="railR" aria-label="Vista">
+   <div id="viewBar"><button data-v="front" title="Vista de frente">F<small>Frente</small></button><button data-v="side" title="Vista de lado">L<small>Lado</small></button><button data-v="top" title="Vista desde arriba">A<small>Arriba</small></button><button data-v="free" title="Vista libre">3D<small>Libre</small></button></div>
+   <button id="bCenter" title="Centrar la vista en el personaje">⊙<small>Centrar</small></button>
+   <button id="bPan" title="Un dedo mueve la vista en vez de girarla">✋<small>Paneo</small></button>
+   <button id="bUndo" title="Deshacer">↶<small>Deshacer</small></button>
+   <button id="bRedo" title="Rehacer">↷<small>Rehacer</small></button>
+   <button id="bFull" title="Pantalla completa">⛶<small>Pantalla</small></button>
+   <a id="bPlayGame" href="index.html" title="Probar en el juego">🎮<small>Jugar</small></a>
   </div>
   <div id="selLabel">Toca un punto rojo para editar</div>
   <div id="sbBar" aria-label="Prueba en movimiento"></div>
   <div id="actBadge">GOLPE ACTIVO</div>
  </div>
  <div id="dock">
-  <div class="dockbar">
-   <button id="dTime" class="on" aria-expanded="true">⏱ Tiempo ▾</button>
-   <button id="dPanel" aria-expanded="false">☰ Panel ▴</button>
+  <div id="tl"><canvas id="tlc"></canvas></div>
+  <div id="transport">
+   <button id="bPrevK" aria-label="Clave anterior">⏮</button>
+   <button id="bPlay" class="acc" aria-label="Reproducir">▶</button>
+   <button id="bNextK" aria-label="Clave siguiente">⏭</button>
+   <span id="tTime">0.00 s</span>
+   <span class="grow"></span>
+   <button id="bAddK" title="Añadir clave aquí">◆＋</button>
+   <button id="bDelK" title="Borrar la clave">◆✕</button>
   </div>
-  <div id="dTimeBox">
- <div id="tl"><canvas id="tlc"></canvas></div>
- <div id="transport">
-  <button id="bPrevK" aria-label="Clave anterior">⏮</button>
-  <button id="bPlay" class="acc" aria-label="Reproducir">▶</button>
-  <button id="bNextK" aria-label="Clave siguiente">⏭</button>
-  <span id="tTime">0.00 s</span>
-  <span class="grow"></span>
-  <button id="bAddK">+ Clave</button>
-  <button id="bDelK">Borrar</button>
- </div>
- </div>
-  <div id="dPanelBox" hidden>
- <nav><button data-tab="pose" class="on">Pose</button><button data-tab="col">Colisiones</button><button data-tab="fx">Efectos</button><button data-tab="anim">Animación</button></nav>
- <section id="panel"></section>
-  </div>
+  <nav><button data-tab="pose" class="on"><b>🦴</b>Pose</button><button data-tab="col"><b>⚔</b>Golpes</button><button data-tab="fx"><b>✨</b>Efectos</button><button data-tab="anim"><b>🎬</b>Animación</button></nav>
+  <section id="panel"></section>
  </div>
 </div>
 <div id="toast"></div>
@@ -368,12 +383,12 @@ const sbAnim=i=>i===-1?A():lib.anims[i];
 function sbBar(){const b=$('sbBar');b.classList.toggle('on',SB.on);$('view').classList.toggle('sb',SB.on);if(!SB.on)return;
  const atk=lib.anims.map((a,i)=>[a,i]).filter(([a,i])=>!a.loop&&i!==lib.cur);
  b.innerHTML=`${SB.seq.map((i,k)=>{const a=sbAnim(i);return a?`<button class="chip${k===SB.cur?' cur':''}" data-rm="${k}" title="Quitar">${esc(i===-1?'★ '+a.name:a.name)} ✕</button>`:''}).join('')}
- <select id="sbAdd" aria-label="Añadir animación"><option value="">+ Añadir</option>${A().loop?'':'<option value="-1">★ La que editas</option>'}${atk.map(([a,i])=>`<option value="${i}">${esc(a.name)}</option>`).join('')}</select>
+ <button id="sbAddB" class="${SB.adding?'on':''}">＋ Añadir</button>${SB.adding?`${A().loop?'':'<button data-add="-1">★ La que editas</button>'}${atk.sort((x,y)=>(animGroup(y[0])===animGroup(A()))-(animGroup(x[0])===animGroup(A()))).map(([a,i])=>`<button data-add="${i}">＋ ${esc(a.name)}</button>`).join('')}`:''}
  <button id="sbRun" class="${SB.run?'on':''}">${SB.run?'Corriendo':'Quieto'}</button>
  <button id="sbSpd">Velocidad ${['lenta','normal','rápida'][[.6,1,1.4].indexOf(SB.spd)]}</button>
  <button id="sbGap">Pausa ${SB.gap.toFixed(1)} s</button>`;
  b.querySelectorAll('[data-rm]').forEach(x=>x.onclick=()=>{SB.seq.splice(+x.dataset.rm,1);SB.t=0;sbBar()});
- $('sbAdd').onchange=e=>{if(e.target.value==='')return;SB.seq.push(+e.target.value);SB.t=0;sbBar()};
+ $('sbAddB').onclick=()=>{SB.adding=!SB.adding;sbBar()};b.querySelectorAll('[data-add]').forEach(x=>x.onclick=()=>{SB.seq.push(+x.dataset.add);SB.adding=false;SB.t=0;sbBar()});
  $('sbRun').onclick=()=>{SB.run=!SB.run;sbBar()};
  $('sbSpd').onclick=()=>{const L=[.6,1,1.4];SB.spd=L[(L.indexOf(SB.spd)+1)%3];sbBar()};
  $('sbGap').onclick=()=>{const L=[0,.2,.5,1];SB.gap=L[(L.indexOf(SB.gap)+1)%4];SB.t=0;sbBar()};
@@ -420,12 +435,9 @@ $('bPoles').onclick=()=>{showPoles=!showPoles;$('bPoles').classList.toggle('on',
 $('bOnion').onclick=()=>{onion=!onion;$('bOnion').classList.toggle('on',onion)};$('bOnion').classList.toggle('on',onion);
 $('bPath').onclick=()=>{showPath=!showPath;$('bPath').classList.toggle('on',showPath)};$('bPath').classList.toggle('on',showPath);
 // ===== menús desplegables, pantalla completa, paneo =====
-function setMenu(open){$('menu').hidden=!open;$('mMenu').setAttribute('aria-expanded',open);$('mMenu').classList.toggle('on',open);$('view').classList.toggle('menu',open)}
-$('mMenu').onclick=()=>setMenu($('menu').hidden);
+function setMenu(){} // ya no hay menú desplegable
 document.querySelectorAll('#viewBar [data-v]').forEach(b=>b.addEventListener('click',()=>setMenu(false)));
 function dockToggle(box,btn,lbl,up){const open=$(box).hidden;$(box).hidden=!open;$(btn).classList.toggle('on',open);$(btn).setAttribute('aria-expanded',open);$(btn).textContent=lbl+(open?' ▾':' ▴');setTimeout(()=>{resize();drawTL()},0)}
-$('dTime').onclick=()=>dockToggle('dTimeBox','dTime','⏱ Tiempo');
-$('dPanel').onclick=()=>dockToggle('dPanelBox','dPanel','☰ Panel');
 $('bFull').onclick=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen({navigationUI:'hide'})}catch(e){toast('Aquí no se puede: abre el editor en una pestaña aparte')}};
 document.addEventListener('fullscreenchange',()=>{$('bFull').classList.toggle('on',!!document.fullscreenElement);setTimeout(resize,50)});
 let panMode=false;$('bPan').onclick=()=>{panMode=!panMode;$('bPan').classList.toggle('on',panMode);toast(panMode?'Un dedo mueve la vista':'Un dedo gira la vista')};
@@ -470,7 +482,7 @@ function moveRot(x,y){const k=ensureKey();let th=Math.atan2(-(y-drag.cy),x-drag.
  for(const c in drag.st){const w=add3(drag.P0,rotOf(sub3(drag.st[c],drag.P0),drag.aw,th));let l=bodyInv(toL(k,w),k.rx,k.rz);if(c[0]==='f')l[1]=Math.max(0,l[1]);k.p[c]=l.map(v=>+v.toFixed(3))}
  if(drag.bl)k.blade=nrm3(bodyInvD(toL(k,rotOf(drag.bl,drag.aw,th),true),k.rx,k.rz)).map(v=>+v.toFixed(4));
  $('selLabel').textContent=`${JLABEL[drag.h]} · girando ${Math.round(th*180/Math.PI)}°`}
-$('bGzMode').addEventListener('click',()=>{gzMode=gzMode==='move'?'rot':'move';const b=$('bGzMode');b.textContent=gzMode==='rot'?'⟳ Rotar':'✥ Mover';b.classList.toggle('rot',gzMode==='rot');if(gzMode==='rot'&&!showGizmo){showGizmo=true;$('bGizmo').classList.add('on')}toast(gzMode==='rot'?'Rotar: arrastra un anillo. Gira lo que cuelga del punto (brazo desde el cuello, pierna desde la cadera, el arma desde la mano)':'Mover: arrastra las flechas o el punto')});
+$('bGzMode').addEventListener('click',()=>{gzMode=gzMode==='move'?'rot':'move';const b=$('bGzMode');b.innerHTML=gzMode==='rot'?'⟳<small>Rotar</small>':'✥<small>Mover</small>';b.classList.toggle('rot',gzMode==='rot');if(gzMode==='rot'&&!showGizmo){showGizmo=true;$('bGizmo').classList.add('on')}toast(gzMode==='rot'?'Rotar: arrastra un anillo. Gira lo que cuelga del punto (brazo desde el cuello, pierna desde la cadera, el arma desde la mano)':'Mover: arrastra las flechas o el punto')});
 function pickGizmo(x,y){if(gzMode==='rot')return -1;if(!gzState||!gizmo.visible)return -1;const s0=screenOf(gzState.p);let best=-1,bd=22;
  gzState.ax.forEach((d,i)=>{const s1=screenOf(add3(gzState.p,mul3(d,gzState.len*1.05)));const vx=s1[0]-s0[0],vy=s1[1]-s0[1],L2=vx*vx+vy*vy;if(L2<100)return;let t=((x-s0[0])*vx+(y-s0[1])*vy)/L2;if(t<.25||t>1.2)return;const dd=Math.hypot(s0[0]+vx*t-x,s0[1]+vy*t-y);if(dd<bd){bd=dd;best=i}});return best}
 // ===== mini ejes de orientación (toca un eje para mirar desde ahí) =====
@@ -610,7 +622,6 @@ function pickHandle(x,y){if(SB.on)return null;let best=null,bd=30;const fr=frame
 function rayHit(x,y){const r=cv.getBoundingClientRect();ndc.set((x-r.left)/r.width*2-1,-((y-r.top)/r.height)*2+1);ray.setFromCamera(ndc,camera);return ray.ray.intersectPlane(plane,hit)}
 cv.addEventListener('pointerdown',e=>{
  cv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
- if(!$('menu').hidden)setMenu(false);
  if(ptrs.size===2){drag=null;const[p1,p2]=[...ptrs.values()];pinch={d:Math.hypot(p1.x-p2.x,p1.y-p2.y),r:orb.r,mx:(p1.x+p2.x)/2,my:(p1.y+p2.y)/2};return}
  if(tab==='col'||tab==='fx'||playing){drag={orbit:true,x:e.clientX,y:e.clientY};return}
  {const ri=pickRing(e.clientX,e.clientY);if(ri>=0){startRot(ri,e.clientX,e.clientY);return}}
@@ -681,31 +692,44 @@ $('bDelK').onclick=()=>{const i=keyAt(T);if(i<0)return toast('Coloca el cursor s
 function refreshKeyUI(){$('tTime').textContent=T.toFixed(2)+' s';drawTL();if(tab==='pose')buildPanel()}
 
 /* ============ SELECTOR DE ANIMACIÓN ============ */
-function fillSel(){const s=$('animSel');const grp={};lib.anims.forEach((a,i)=>{const w=a.slot==='idle'||a.slot==='run'?'general':(a.weapon||'general');(grp[w]=grp[w]||[]).push([a,i])});
+/* biblioteca: arriba, una tira con las armas (y «General» para reposo y correr) y otra con las animaciones de esa arma */
+let libGroup=null;
+const animGroup=a=>a.slot==='idle'||a.slot==='run'?'general':(a.weapon||'general');
+function fillSel(){const grp={};lib.anims.forEach((a,i)=>{(grp[animGroup(a)]=grp[animGroup(a)]||[]).push([a,i])});
  const order=['general',...W_ORDER,'none'].filter(w=>grp[w]).concat(Object.keys(grp).filter(w=>w!=='general'&&!W_ORDER.includes(w)&&w!=='none'));
- s.innerHTML=order.map(w=>`<optgroup label="${w==='general'?'General':w==='none'?'Sin arma':esc(W_N[w]||w)}">${grp[w].map(([a,i])=>`<option value="${i}"${i===lib.cur?' selected':''}>${a.live?'● ':''}${a.ref?'◇ ':''}${esc(a.name)}</option>`).join('')}</optgroup>`).join('')}
-$('animSel').onchange=e=>{lib.cur=+e.target.value;{const c=lib.anims[lib.cur];if(c&&c.keys&&c.keys.some(k=>(k.we||0)>.8)){orb.r=Math.max(orb.r,7.5);orb.ty=1.2}}SB.t=0;setTimeout(sbBar,0);T=0;selKey=null;selJ=null;playing=false;setPlayBtn();save();snap=JSON.stringify(lib);buildPanel();drawTL();updateSelLabel()};
+ const cur=A();if(!libGroup||!grp[libGroup]||(cur&&animGroup(cur)!==libGroup&&grp[animGroup(cur)]))libGroup=cur?animGroup(cur):order[0];
+ const gname=w=>w==='general'?'General':w==='none'?'Sin arma':esc(W_N[w]||w);
+ $('wStrip').innerHTML=order.map(w=>`<button type="button" data-w="${w}" class="${w===libGroup?'on':''}">${gname(w)} <small>${grp[w].length}</small></button>`).join('');
+ $('aStrip').innerHTML=(grp[libGroup]||[]).map(([a,i])=>`<button type="button" data-i="${i}" class="${i===lib.cur?'on':''}">${a.live?'<span class="live">●</span> ':''}${a.ref?'◇ ':''}${esc(a.name)}</button>`).join('')+'<button type="button" id="bNew">＋ Nueva</button>';
+ $('wStrip').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>{libGroup=b.dataset.w;const g=grp[libGroup];if(g&&g.length)selectAnim(g[0][1]);else fillSel()});
+ $('aStrip').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>selectAnim(+b.dataset.i));
+ $('bNew').onclick=newAnim;
+ const on=$('aStrip').querySelector('.on');if(on)on.scrollIntoView({block:'nearest',inline:'center'});const wo=$('wStrip').querySelector('.on');if(wo)wo.scrollIntoView({block:'nearest',inline:'center'})}
+function selectAnim(i){lib.cur=i;{const c=lib.anims[lib.cur];if(c&&c.keys&&c.keys.some(k=>(k.we||0)>.8)){orb.r=Math.max(orb.r,7.5);orb.ty=1.2}}SB.t=0;setTimeout(sbBar,0);T=0;selKey=null;selJ=null;playing=false;setPlayBtn();save();snap=JSON.stringify(lib);fillSel();buildPanel();drawTL();updateSelLabel()}
 // modelo 3D del zombi (models/zombie.glb): 11 piezas pegadas al mismo esqueleto de 12 puntos que el juego
 // modelo 3D en vez de palos: '' palos, 'z' zombi, 'p' protagonista
 var zmKind='';async function setModel(k){zmKind=zmKind===k?'':k;$('bZm').classList.toggle('on',zmKind==='z');$('bZp').classList.toggle('on',zmKind==='p');
  const M=zmKind==='z'?ZM:zmKind==='p'?ZMP:null;if(M&&!M.ready&&!M.loading){M.loading=1;toast('Cargando modelo…');const ok=await M.load(zmKind==='z'?'models/zombie.glb':'models/player.glb',scene);M.loading=0;toast(ok?'Modelo cargado':'No se pudo cargar el modelo (ábrelo desde un servidor, no como archivo)')}}
 $('bZm').onclick=()=>setModel('z');$('bZp').onclick=()=>setModel('p');
-$('bNew').onclick=()=>{const a={name:'Nueva animación '+(lib.anims.length+1),dur:1,loop:false,weapon:'katana',slot:'none',live:false,fx:[],keys:[key(0,IDLE,IDLE_BLADE),key(1,IDLE,IDLE_BLADE)],hurt:{r:.3,h:1.8},hits:[]};lib.anims.push(a);lib.cur=lib.anims.length-1;T=0;selKey=null;commit();fillSel();tab='anim';setTab();toast('Animación creada')};
+function newAnim(){const a={name:'Nueva animación '+(lib.anims.length+1),dur:1,loop:false,weapon:W_ORDER.includes(libGroup)?libGroup:'katana',slot:'none',live:false,fx:[],keys:[key(0,IDLE,IDLE_BLADE),key(1,IDLE,IDLE_BLADE)],hurt:{r:.3,h:1.8},hits:[]};lib.anims.push(a);lib.cur=lib.anims.length-1;T=0;selKey=null;commit();fillSel();tab='anim';setTab();toast('Animación creada')}
 
 /* ============ PANELES ============ */
-document.querySelectorAll('nav [data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;setTab()});
+document.querySelectorAll('nav [data-tab]').forEach(b=>b.onclick=()=>{const d=$('dock');if(tab===b.dataset.tab){d.classList.toggle('fold')}else{d.classList.remove('fold');tab=b.dataset.tab;setTab()}setTimeout(resize,0)});
 function setTab(){document.querySelectorAll('nav [data-tab]').forEach(b=>b.classList.toggle('on',b.dataset.tab===tab));updateSelLabel();buildPanel()}
 function buildPanelIfPose(){if(tab==='pose')buildPanel()}
 const slider=(id,label,v,min,max,st,fmt)=>`<div class="row"><label for="${id}">${label}</label><input type="range" id="${id}" min="${min}" max="${max}" step="${st}" value="${v}"><span class="val" id="${id}_v">${fmt(v)}</span></div>`;
 const f2=v=>(+v).toFixed(2),fs=v=>(+v).toFixed(2)+' s',fm=v=>(+v).toFixed(2)+' m',fd=v=>Math.round(v)+'°';
 function bindSlider(id,fmt,onInput){const el=$(id);if(!el)return;el.addEventListener('input',()=>{$(id+'_v').textContent=fmt(el.value);onInput(+el.value)});el.addEventListener('change',commit)}
+/* botones de elección (en vez de menús desplegables): chipRow pinta una fila, bindChips le pone la acción */
+const chipRow=(id,opts,cur)=>`<div class="chips" id="${id}">${opts.map(([v,n])=>`<button type="button" data-v="${v}" class="${String(cur)===String(v)?'on':''}">${n}</button>`).join('')}</div>`;
+function bindChips(id,fn){const el=$(id);if(!el)return;el.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{el.querySelectorAll('[data-v]').forEach(x=>x.classList.toggle('on',x===b));fn(b.dataset.v)})}
 function buildPanel(){
  const a=A(),p=$('panel');
  if(tab==='pose'){
   const ki=keyAt(T),k=ki>=0?a.keys[ki]:null;
   p.innerHTML=`<p class="hint">${selJ?`<b>${JLABEL[selJ]}</b> seleccionado.`:'Toca un punto para moverlo: rojo articulaciones, rosa pecho, amarillo arma, blanco raíz. Activa “Codos y rodillas” para los puntos azules que deciden hacia dónde se doblan.'} Si mueves un punto donde no hay clave, se crea una sola. Usa Frente, Lado y Arriba para afinar.</p>
   ${k&&selJ&&JX.includes(selJ)&&k.p[selJ]?`<div class="btns"><button id="bAuto">${selJ==='chest'?'Pecho automático':'Dirección automática'}</button></div>`:''}
-  ${k?`<div class="row"><label for="ease">Curva hasta la siguiente clave</label><select id="ease">${Object.entries(EASES).map(([id,[n]])=>`<option value="${id}"${k.ease===id?' selected':''}>${n}</option>`).join('')}</select></div>
+  ${k?`<div class="lbl">Curva hasta la siguiente clave</div>${chipRow('ease',Object.entries(EASES).map(([id,[n]])=>[id,n]),k.ease)}
   ${slider('ry','Giro del cuerpo',k.ry,-720,720,5,fd)}
   <p class="hint" style="margin-top:8px"><b>Arma</b>: sepárala de la mano (en la kusarigama se ve la cadena). La línea amarilla enseña su recorrido.</p>
   ${slider('we','Separar a lo largo del arma (m)',k.we||0,0,5,.05,v=>(+v).toFixed(2))}
@@ -714,7 +738,7 @@ function buildPanel(){
   ${slider('woz','Mover arma atrás / delante (m)',(k.wo||Z3)[2],-3,3,.05,v=>(+v).toFixed(2))}`:`<p class="hint">No hay clave en ${T.toFixed(2)} s. Pulsa “+ Clave” o mueve un punto.</p>`}
   <div class="btns"><button id="bCopy">Copiar pose</button><button id="bPaste">Pegar pose</button><button id="bMirror">Espejo</button><button id="bReset">Pose de reposo</button></div>
   ${slider('spd','Velocidad de reproducción',speed,.1,2,.05,v=>(+v).toFixed(2)+'×')}`;
-  if(k){$('ease').onchange=e=>{k.ease=e.target.value;commit()};bindSlider('ry',fd,v=>{k.ry=v});const f2=v=>(+v).toFixed(2),wo=()=>k.wo||(k.wo=[0,0,0]);bindSlider('we',f2,v=>{k.we=v});bindSlider('wox',f2,v=>{wo()[0]=v});bindSlider('woy',f2,v=>{wo()[1]=v});bindSlider('woz',f2,v=>{wo()[2]=v})}
+  if(k){bindChips('ease',v=>{k.ease=v;commit()});bindSlider('ry',fd,v=>{k.ry=v});const f2=v=>(+v).toFixed(2),wo=()=>k.wo||(k.wo=[0,0,0]);bindSlider('we',f2,v=>{k.we=v});bindSlider('wox',f2,v=>{wo()[0]=v});bindSlider('woy',f2,v=>{wo()[1]=v});bindSlider('woz',f2,v=>{wo()[2]=v})}
   bindSlider('spd',v=>(+v).toFixed(2)+'×',v=>{speed=v});
   if($('bAuto'))$('bAuto').onclick=()=>{delete k.p[selJ];commit();buildPanel();toast('Vuelve a calcularse solo')};
   $('bCopy').onclick=()=>{const s=sampleRaw(a,T);poseClip={p:clone(s.p),blade:s.blade.slice(),rx:s.rx||0,rz:s.rz||0,we:s.we||0,wo:(s.wo||Z3).slice()};toast('Pose copiada')};
@@ -724,21 +748,21 @@ function buildPanel(){
  }else if(tab==='fx'){
   const list=[...a.fx].sort((x,y)=>x.t-y.t);
   p.innerHTML=`<p class="hint">Los efectos se disparan en su momento al reproducir y en el juego. Triángulos azules en la regla de tiempo: tócalos para ir a ellos o arrástralos para moverlos.</p>
-  <div class="row"><select id="fxNew">${Object.entries(FXT).map(([k,v])=>`<option value="${k}">${v.n}</option>`).join('')}</select><button id="bAddFx" class="acc">+ En ${T.toFixed(2)} s</button></div>
+  <div class="lbl">Añadir en ${T.toFixed(2)} s</div><div class="chips" id="fxNew">${Object.entries(FXT).map(([k,v])=>`<button type="button" data-v="${k}">＋ ${v.n}</button>`).join('')}</div>
   ${list.length?'':'<p class="hint">Esta animación todavía no tiene efectos.</p>'}
   ${list.map(e=>{const i=a.fx.indexOf(e),d=FXT[e.type]||{n:e.type};return`<div class="card"${e===selFx?' style="border-color:#6fb6ff"':''}><h3>${d.n} · ${(+e.t).toFixed(2)} s</h3>
    ${slider('ft'+i,'Momento',e.t,0,a.dur,.01,fs)}
-   ${d.j?`<div class="row"><label for="fj${i}">Dónde</label><select id="fj${i}">${Object.entries(FXJ).map(([k,n])=>`<option value="${k}"${(e.j||'tip')===k?' selected':''}>${n}</option>`).join('')}</select></div>`:''}
+   ${d.j?`<div class="lbl">Dónde</div>${chipRow('fj'+i,Object.entries(FXJ),e.j||'tip')}`:''}
    ${d.amt?slider('fa'+i,'Intensidad',e.amt??.5,0,1,.05,v=>Math.round(v*100)+'%'):''}
    ${d.dur?slider('fd'+i,'Duración',e.dur??.15,.02,1.5,.01,fs):''}
-   ${d.col?`<div class="row"><label for="fc${i}">Color</label><select id="fc${i}">${Object.entries(FXCOL).map(([k,[n]])=>`<option value="${k}"${(e.col||'white')===k?' selected':''}>${n}</option>`).join('')}</select></div>`:''}
-   ${d.snd?`<div class="row"><label for="fs${i}">Sonido</label><select id="fs${i}">${Object.entries(SOUNDS).map(([k,n])=>`<option value="${k}"${(e.snd||'swish')===k?' selected':''}>${n}</option>`).join('')}</select></div>`:''}
+   ${d.col?`<div class="lbl">Color</div>${chipRow('fc'+i,Object.entries(FXCOL).map(([k,[n]])=>[k,n]),e.col||'white')}`:''}
+   ${d.snd?`<div class="lbl">Sonido</div>${chipRow('fs'+i,Object.entries(SOUNDS),e.snd||'swish')}`:''}
    <div class="btns"><button data-try="${i}">Probar</button><button data-go="${i}">Ir</button><button data-fdel="${i}">Eliminar</button></div></div>`}).join('')}`;
-  $('bAddFx').onclick=()=>{const t=$('fxNew').value,d=FXT[t],e={t:+T.toFixed(3),type:t};if(d.j)e.j='tip';if(d.amt)e.amt=.5;if(d.dur)e.dur=t==='trail'?.12:t==='hitstop'?.08:.3;if(d.col)e.col='white';if(d.snd)e.snd='swish';a.fx.push(e);selFx=e;commit();buildPanel();drawTL();initAudio();fireFx(e)};
+  bindChips('fxNew',t=>{const d=FXT[t],e={t:+T.toFixed(3),type:t};if(d.j)e.j='tip';if(d.amt)e.amt=.5;if(d.dur)e.dur=t==='trail'?.12:t==='hitstop'?.08:.3;if(d.col)e.col='white';if(d.snd)e.snd='swish';a.fx.push(e);selFx=e;commit();buildPanel();drawTL();initAudio();fireFx(e)});
   a.fx.forEach((e,i)=>{
    bindSlider('ft'+i,fs,v=>{e.t=v;T=v;$('tTime').textContent=T.toFixed(2)+' s';drawTL()});
    bindSlider('fa'+i,v=>Math.round(v*100)+'%',v=>e.amt=v);bindSlider('fd'+i,fs,v=>{e.dur=v;drawTL()});
-   if($('fj'+i))$('fj'+i).onchange=ev=>{e.j=ev.target.value;commit()};if($('fc'+i))$('fc'+i).onchange=ev=>{e.col=ev.target.value;commit()};if($('fs'+i))$('fs'+i).onchange=ev=>{e.snd=ev.target.value;commit();initAudio();sfx(e.snd)};
+   bindChips('fj'+i,v=>{e.j=v;commit()});bindChips('fc'+i,v=>{e.col=v;commit()});bindChips('fs'+i,v=>{e.snd=v;commit();initAudio();sfx(e.snd)});
   });
   p.querySelectorAll('[data-try]').forEach(b=>b.onclick=()=>{const e=a.fx[+b.dataset.try];selFx=e;T=e.t;refreshKeyUI();initAudio();fireFx(e)});
   p.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const e=a.fx[+b.dataset.go];selFx=e;T=e.t;playing=false;setPlayBtn();refreshKeyUI();buildPanel()});
@@ -748,8 +772,8 @@ function buildPanel(){
   <div class="card"><h3>Cuerpo (recibe daño)</h3>${slider('hr','Radio',a.hurt.r,.1,.8,.01,fm)}${slider('hh','Altura',a.hurt.h,.5,2.5,.01,fm)}</div>
   ${a.hits.map((h,i)=>`<div class="card"><h3>Golpe ${i+1}</h3>
    ${slider('hs'+i,'Empieza',h.s,0,a.dur,.01,fs)}${slider('he'+i,'Termina',h.e,0,a.dur,.01,fs)}
-   <div class="row"><label for="sh${i}">Forma</label><select id="sh${i}"><option value="blade"${h.shape==='blade'?' selected':''}>Hoja del arma</option><option value="sphere"${h.shape==='sphere'?' selected':''}>Esfera en una articulación</option></select></div>
-   ${h.shape==='sphere'?`<div class="row"><label for="jo${i}">Articulación</label><select id="jo${i}">${['hR','hL','fR','fL','head','pel'].map(j=>`<option value="${j}"${h.joint===j?' selected':''}>${JLABEL[j]}</option>`).join('')}</select></div>`:slider('re'+i,'Alcance',h.reach,.4,3,.05,fm)}
+   <div class="lbl">Forma</div>${chipRow('sh'+i,[['blade','🗡 Hoja del arma'],['sphere','● Esfera en una articulación']],h.shape)}
+   ${h.shape==='sphere'?`<div class="lbl">Articulación</div>${chipRow('jo'+i,['hR','hL','fR','fL','head','pel'].map(j=>[j,JLABEL[j]]),h.joint)}`:slider('re'+i,'Alcance',h.reach,.4,3,.05,fm)}
    ${slider('rr'+i,'Grosor',h.r,.03,.8,.01,fm)}
    <div class="row"><label for="dm${i}">Daño</label><input type="number" id="dm${i}" min="0" max="999" value="${h.dmg}"></div>
    <div class="btns"><button data-goto="${i}">Ir al inicio</button><button data-del="${i}">Eliminar golpe</button></div></div>`).join('')}
@@ -758,7 +782,7 @@ function buildPanel(){
   a.hits.forEach((h,i)=>{
    bindSlider('hs'+i,fs,v=>{h.s=Math.min(v,h.e);drawTL()});bindSlider('he'+i,fs,v=>{h.e=Math.max(v,h.s);drawTL()});
    bindSlider('rr'+i,fm,v=>h.r=v);bindSlider('re'+i,fm,v=>h.reach=v);
-   $('sh'+i).onchange=e=>{h.shape=e.target.value;commit();buildPanel()};if($('jo'+i))$('jo'+i).onchange=e=>{h.joint=e.target.value;commit()};
+   bindChips('sh'+i,v=>{h.shape=v;commit();buildPanel()});bindChips('jo'+i,v=>{h.joint=v;commit()});
    $('dm'+i).onchange=e=>{h.dmg=clamp(+e.target.value||0,0,999);commit()};
   });
   p.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{a.hits.splice(+b.dataset.del,1);commit();buildPanel();drawTL()});
@@ -768,13 +792,13 @@ function buildPanel(){
   const L=layerOf(a),pc=v=>Math.round(v*100)+'%';
   p.innerHTML=`<div class="row"><label for="nm">Nombre</label><input type="text" id="nm" value="${esc(a.name)}" maxlength="60"></div>
   ${slider('du','Duración (escala claves)',a.dur,.2,5,.05,fs)}
-  <div class="row"><label for="wp">Arma</label><select id="wp">${W_ORDER.map(w=>`<option value="${w}"${a.weapon===w?' selected':''}>${W_N[w]}</option>`).join('')}<option value="none"${a.weapon==='none'?' selected':''}>Sin arma</option></select></div>
+  <div class="lbl">Arma</div>${chipRow('wp',[...W_ORDER.map(w=>[w,W_N[w]]),['none','Sin arma']],a.weapon)}
   <label class="chk"><input type="checkbox" id="lp"${a.loop?' checked':''}> Repetir en bucle</label>
   ${a.loop?'':`<div class="card"><h3>Mezcla por capas</h3><p class="hint">Cuánto manda este ataque sobre cada parte del cuerpo cuando corres. Quieto, el ataque se ve tal cual lo animaste. Usa “Mezclar con correr” para verlo.</p>
    ${slider('la','Brazos y arma',L.arms,0,1,.05,pc)}${slider('lh','Cabeza y cuello',L.head,0,1,.05,pc)}${slider('lc','Pecho',L.chest,0,1,.05,pc)}${slider('lpv','Pelvis',L.pel,0,1,.05,pc)}${slider('ll','Piernas',L.legs,0,1,.05,pc)}
    ${slider('li','Entrada suave',L.in,0,.5,.01,fs)}${slider('lo','Salida suave',L.out,0,.8,.01,fs)}${slider('lm','Moverse al atacar',L.move,0,1,.05,pc)}</div>`}
   <div class="card"><h3>En el juego</h3>
-   <div class="row"><label for="sl">Se usa como</label><select id="sl">${Object.entries(SLOTS).map(([k,n])=>`<option value="${k}"${(a.slot||'none')===k?' selected':''}>${n}</option>`).join('')}</select></div>
+   <div class="lbl">Se usa como</div>${chipRow('sl',Object.entries(SLOTS),a.slot||'none')}
    <label class="chk"><input type="checkbox" id="lv"${a.live?' checked':''}${(a.slot||'none')==='none'?' disabled':''}> Usar esta animación al jugar</label>
    ${(()=>{const o=lib.anims.filter(x=>x!==a&&x.live&&x.slot===a.slot&&a.slot&&a.slot!=='none');return o.length&&a.live?`<p class="hint">Otra animación también está activa para “${SLOTS[a.slot]}”: el juego usa la última de la lista.</p>`:''})()}
    <p class="hint">Al editar una animación con uso asignado se activa sola. Pulsa “Jugar” para probarla.</p></div>
@@ -790,8 +814,8 @@ function buildPanel(){
   $('du').addEventListener('pointerdown',()=>{baseDur=a.dur;baseKeys=a.keys.map(k=>k.t);baseHits=a.hits.map(h=>[h.s,h.e])});
   bindSlider('du',fs,v=>{if(!baseKeys){baseDur=a.dur;baseKeys=a.keys.map(k=>k.t);baseHits=a.hits.map(h=>[h.s,h.e])}const f=v/baseDur;a.dur=v;a.keys.forEach((k,i)=>k.t=+(baseKeys[i]*f).toFixed(3));a.hits.forEach((h,i)=>{h.s=+(baseHits[i][0]*f).toFixed(3);h.e=+(baseHits[i][1]*f).toFixed(3)});T=Math.min(T,v);drawTL()});
   $('du').addEventListener('change',()=>{baseKeys=null});
-  $('wp').onchange=e=>{a.weapon=e.target.value;commit()};
-  $('sl').onchange=e=>{a.slot=e.target.value;if(a.slot==='none')a.live=false;commit();buildPanel()};
+  bindChips('wp',v=>{a.weapon=v;commit();fillSel()});
+  bindChips('sl',v=>{a.slot=v;if(a.slot==='none')a.live=false;commit();buildPanel()});
   $('lv').onchange=e=>{a.live=e.target.checked;a._off=!a.live;snap='';commit();buildPanel()};$('lp').onchange=e=>{a.loop=e.target.checked;commit()};
   $('bDup').onclick=()=>{const c=clone(a);c.name=a.name+' (copia)';lib.anims.splice(lib.cur+1,0,c);lib.cur++;commit();fillSel();buildPanel();toast('Duplicada')};
   $('bDelA').onclick=()=>{if(lib.anims.length<=1)return toast('Debe quedar al menos una');const b=$('bDelA');if(b.dataset.c!=='1'){b.dataset.c='1';b.textContent='Pulsa otra vez para eliminar';return}lib.anims.splice(lib.cur,1);lib.cur=Math.max(0,lib.cur-1);T=0;commit();fillSel();buildPanel();drawTL();toast('Eliminada (puedes deshacer)')};
@@ -806,7 +830,7 @@ function buildPanel(){
 }
 
 /* ============ BUCLE ============ */
-function resize(){const r=$('view').getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/Math.max(1,r.height);const dh=$('dock').offsetHeight,th=50;const off=Math.round((dh-th)/2);if(off>0)camera.setViewOffset(r.width,r.height,0,off,r.width,r.height);else camera.clearViewOffset();camera.updateProjectionMatrix();drawTL()}
+function resize(){const r=$('view').getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/Math.max(1,r.height);camera.clearViewOffset();camera.updateProjectionMatrix();drawTL()}
 addEventListener('resize',resize);new ResizeObserver(resize).observe($('view'));
 let last=performance.now();
 function loop(now){
