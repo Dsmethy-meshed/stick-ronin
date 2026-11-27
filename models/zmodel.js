@@ -4,7 +4,7 @@
    J: 0 cabeza, 1 cuello/hombros, 2 pecho, 3 pelvis, 4-5 codo/mano izq., 6-7 codo/mano der., 8-9 rodilla/pie izq., 10-11 rodilla/pie der.
    Los huesos se colocan directamente en coordenadas del mundo (sin jerarquía), así un corte solo oculta los huesos de ese tramo. */
 (function(){
-const ZM={ready:false,failed:false,K:1.96,glow:.45,bright:1.35,tpl:null,pool:[],used:0,cap:80};
+const ZM={ready:false,failed:false,K:1.96,glow:.12,bright:1,base:new THREE.Color(0x7d8c6a),tpl:null,pool:[],used:0,cap:80};
 // tramo (a→b) que mueve cada hueso; "limb" = raíz de brazo/pierna: su posición la da el tramo padre y apunta a la articulación b
 const DEFS=[
  ['Hip',[3,2]],['Pelvis',[3,2]],['Waist',[3,2]],
@@ -36,7 +36,8 @@ ZM.load=async function(url){
  }catch(e){ZM.failed=true;console.warn('[zmodel] no se pudo cargar',e);return false}
 };
 ZM.create=function(scene){const T=ZM.tpl;
- const mat=new THREE.MeshLambertMaterial({map:T.map,emissiveMap:T.map,emissive:new THREE.Color(ZM.glow,ZM.glow,ZM.glow),skinning:true,side:THREE.DoubleSide});
+ // sin textura: color plano (el de cada enemigo), con un poco de brillo propio para que no se pierda en la sombra
+ const mat=new THREE.MeshLambertMaterial({color:ZM.base,emissive:new THREE.Color(ZM.glow,ZM.glow,ZM.glow),skinning:true,side:THREE.DoubleSide});
  const bones=T.names.map(()=>{const b=new THREE.Bone();b.matrixAutoUpdate=false;return b});
  const mesh=new THREE.SkinnedMesh(T.geo,mat);mesh.frustumCulled=false;mesh.matrixAutoUpdate=false;
  const sk=new THREE.Skeleton(bones,T.boneInv.map(m=>m.clone()));mesh.bind(sk,T.bind);
@@ -67,7 +68,7 @@ ZM.pose=function(I,J,yaw,s,vis,tint){const T=ZM.tpl,k=ZM.K*(s||1);_qy.setFromAxi
   if(!hidden&&Math.abs(f-1)>.02){const u=_d,g=f-1;_s.set(1+g*u.x*u.x,g*u.x*u.y,g*u.x*u.z,0,g*u.y*u.x,1+g*u.y*u.y,g*u.y*u.z,0,g*u.z*u.x,g*u.z*u.y,1+g*u.z*u.z,0,0,0,0,1);_m.premultiply(_s)}
   const e=_m.elements;e[12]=head.x;e[13]=head.y;e[14]=head.z;
   b.matrixWorld.multiplyMatrices(T.bind,_m)}
- if(tint)I.mat.color.copy(tint).multiplyScalar(ZM.bright);else I.mat.color.setRGB(ZM.bright,ZM.bright,ZM.bright);I.mesh.visible=true};
+ I.mat.color.copy(tint||ZM.base);if(ZM.bright!==1)I.mat.color.multiplyScalar(ZM.bright);I.mesh.visible=true};
 // reparto por fotograma
 ZM.begin=function(){ZM.used=0};
 ZM.get=function(scene){if(!ZM.ready||ZM.used>=ZM.cap)return null;let I=ZM.pool[ZM.used];if(!I){I=ZM.create(scene);ZM.pool.push(I)}ZM.used++;return I};

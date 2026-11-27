@@ -74,9 +74,12 @@ bpy.ops.object.modifier_apply(modifier='dec')
 bpy.ops.object.vertex_group_limit_total(limit=4);bpy.ops.object.vertex_group_normalize_all(lock_active=False)
 tris2=sum(len(p.vertices)-2 for p in mesh.data.polygons)
 print('TRIS',tris,'->',tris2,'BONES',len(arm.data.bones))
-# ---------- 4) textura a 512 ----------
-for im in bpy.data.images:
-    if im.size[0]>512:im.scale(512,512)
+# ---------- 4) sin textura: color plano (el juego pone el color de cada enemigo) ----------
+for m in bpy.data.materials:
+    if m.use_nodes:
+        for n in list(m.node_tree.nodes):
+            if n.type=='TEX_IMAGE':m.node_tree.nodes.remove(n)
+for im in list(bpy.data.images):bpy.data.images.remove(im)
 # sin animaciones en el GLB del juego
 for a in list(bpy.data.actions):bpy.data.actions.remove(a)
 bpy.ops.export_scene.gltf(filepath=out_glb,export_format='GLB',export_animations=False,export_image_format='JPEG',export_jpeg_quality=80,export_skins=True,export_morph=False,export_apply=False,use_selection=False)
