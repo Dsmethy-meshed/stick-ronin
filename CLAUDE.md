@@ -143,7 +143,7 @@ Sustituye por completo a la forja vieja: ya no hay rarezas de armas, metal, bols
 ### Multijugador (`NET`)
 - PeerJS con el anfitrión como relevo.
 - **Cacería (PvP):**
-  - Armas en el suelo con menú ✔/✖ sobre el botón especial.
+  - Armas en el suelo con menú ✔/✖ sobre el botón especial. Desde el 27 nov 2026 traen bendiciones (`item.bl=[{ka,lv}]`, `huntBless`): por cuartos de partida 1·2·2·3 bendiciones de nivel 1·2·3·4 (tabla `HB`). El atacante manda `bl` en el mensaje `hit` (`hbAttack`: +5 % de daño por nivel, crítico lunar, robo de vida de Inari); el golpeado se aplica los estados en su móvil (`hbHit`/`hbTick`: quemadura, lentitud, rayo, herida, controles al revés, empuje). Los estados viajan en `st.fx` y el brillo del arma en `st.bk` (`hbDraw`).
   - Parry que lanza al rival, con 1 s de recarga. Anti-machaque (27 nov 2026): ventana `HUNT.win` 0,18 s; si vuelves a pulsar antes de `HUNT.mash` (0,35 s) solo `HUNT.mashWin` 0,05 s; si la ventana se acaba sin parar nada, `P.parryLock` 0,45 s sin poder intentarlo. Solo fuera de Kago (`!kgOn()`).
   - Flechas con 0,1 s de retraso, desviables atacando (menos los ataques cargados).
 - **Asedio (cooperativo):** de momento solo con 3 bots IA (`SIEGE`, `botStep`, `siegeAI`).
