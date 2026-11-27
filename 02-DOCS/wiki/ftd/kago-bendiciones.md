@@ -24,7 +24,7 @@ Solo el modo normal y el dojo. El asedio y la Cacería no cambian. No hay animac
 - [x] Game feel: hit-stop por daño, crítico, ruptura y último enemigo; vibración; ceremonia de cartas y sinergias; interruptores. **Prueba:** capturas de cartas.
 - [x] Rendimiento. **Prueba:** t3 con CPU ×4 en la oleada 6: 50,8 fps antes y 48,8 fps ahora.
 - [x] ℹ Info y códice. **Prueba:** t4 (45 entradas).
-- [ ] Hoja de equilibrio: pestañas nuevas.
+- [x] Hoja de equilibrio: pestañas Kago, Armas, Kami y Enemigos, y columnas K-M en Escalado. **Prueba:** lectura de la revisión 9 (6, 8, 10, 12, 14…). No se ha borrado nada.
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
