@@ -121,15 +121,20 @@ Servicios externos que usa el juego:
 - `updateWaves()` y `waveCount(n) = min(220, round(6·1,5^(n−1)))`. En las oleadas de jefe, la mitad.
 - `TRAIN` (dojo, sala MP, asedio) desactiva las oleadas, el guardado y el ranking.
 
-### Arsenal y forja (modo normal)
-- `RUN.wpn` (2 equipadas), `RUN.bag`, `RUN.slots` (kamon del personaje), `AR` con todos los números ajustables.
-- **Fusionar:** arrastrar un arma sobre otra igual llama a `temper` / `fuseInto`. También se puede afilar 🎲 con `sharpen`, usar la forja de sangre 🩸 con `bloodForge` (propia de cada arma, `AR.bloodT`) y fundir.
-- **Especial según rareza:** `SPEC_CD`, `SPEC_RAR=[0,1,.45,.3]`, `specOK/specUsed`, `P.spCd`.
-  - La común solo hace dash.
-  - En Cacería todos tienen el especial (`specFree`).
-- **Legendarias:**
-  - Solo se mejoran con otra legendaria de su tipo (`legendFeed`): barra `kp` según el poder; al llenarse, +1 hueco `ks`.
-  - En los huecos se engarzan kamon (`kam`): +10 % de daño cada uno, más su efecto.
+### Kago 加護: bendiciones de los kami (modo normal, desde el 27 nov 2026)
+Sustituye a la forja (que solo sigue en el asedio). Inspirado en Hades e Isaac; diseño en `reports/Mejoras por sinergias estilo Hades.md` (carpeta principal). Todo el código está en el bloque «KAGO» de `index.html`; los números, en `KG` y en las tablas `KAMI`, `DUO`, `SHINPO`, `TSUCHI`, `RYU`, `KAMON`, `HENGE`, `TATARI`, `ZTYPE`, `WBASE` y `KAI`.
+- `kgOn()` = modo normal o dojo (no asedio ni multijugador). `RUN.kg` guarda la partida; `KS` (lo recalcula `kgCalc` desde `refreshSM`) dice qué está activo.
+- **Daño numérico:** 1 unidad = 10 en pantalla. Zombis `KG.zhp(w)=0,6+0,2·(w−1)` (`e.hp`); `kgZHit` (desde `killZombie`) y `kgYDmg` (desde `yokaiHit`) aplican `WBASE` del arma, `SM.dmg` (√ de mejoras × familias), crítico **Kaishin** `KAI` por arma, armadura y estados. `kgDeal` = daño directo sin crítico. `KGPD` fuerza el daño base de los cargados en línea; `KGPJ` pasa el proyectil.
+- **Armadura** `e.yr/e.yrMax` (ojo: `e.arm` ya era el largo del brazo del zombi): yoroi-zombi, onis, variantes de minijefe y jefes (vuelve a 66 % y 33 %). Romperla aturde (`kgBreak`).
+- **8 kami × 5 ranuras** (`kiri` ataque, `tame` cargado, `waza` especial, `hashiri` dash, `kaeshi` parry) + pasiva por kami (solo si su estado está en una ranura), 12 dúos, 8 Shinpō (3 bendiciones del kami), Omiki (nivel 1-4). Rareza Nami/Jō/Toku/Gō ×1/1,5/2/2,5.
+- Estados por enemigo en `e.ks` (lista `KST`, `kgStep`): shock, quemadura, escarcha/congelado, herida, marca, encanto/aliado, empuje. Zonas en `ZN`, clones `CLONES`, tiradores `TUR`, flechas enemigas `EP`.
+- Enganches: `kgSwing` (startAttack), `kgCharge` (soltar carga), `kgDash`, `kgParry` (counterAttack), `kgSpecial` (specUsed), `kgProjMod/kgProjHit` (addProj/updateProj), `kgOnKill` (onKill), `kgSpawnZ/kgSpawnY`, `kgZAI` (IA de yumi-zombi, tanuki y aliados), `kgHurtMod` (hurtPlayer).
+- **Flujo:** `startGame` → `kgArmeria` (2 armas + estilo Ryū) → carta inicial de ataque → oleadas. Cada oleada: santuario `hokora` del kami (cada 3, dos). Fin de oleada: `openForge` → `kgEndQueue` (cartas, y en jefes: martillo Tsuchi en 5 y 10, trato del oni si no te tocaron, tienda del tanuki). Pactos de Shinigami (15 % desde la oleada 3).
+- **Martillos Tsuchi** (2 por arma) y **estilos Ryū** (1 por arma, se desbloquean venciendo a un jefe con ella; maestría por bajas en `localStorage stickronin_ryu`) cambian cómo funciona el arma **sin animaciones nuevas** (por eso el editor no cambia).
+- **Kamon/Henge:** caen de yokai y onis (`LOOT` con `kid`); 3 del mismo juego → Henge (Oni, Tengu, Kitsune, Ryū, Shinobi) con cambio visual (`kgDrawPlayer`).
+- **Campeones tatari** (kanji flotante, `kgLabels`) y variantes nuevas: yoroi, yumi, sōhei, kagami, tanuki. Tope de 90 vivos (`KG.cap`).
+- Todas las armas tienen especial (`specOK`); en el asedio sigue `SPEC_RAR`. Interruptores Temblor/Destellos/Vibración en la armería (`KGFX`).
+- Lo viejo de `AR` (`stats`, `bloodT`, `eff`, rarezas) sigue porque lo usa el asedio y los efectos de kamon.
 
 ### Multijugador (`NET`)
 - PeerJS con el anfitrión como relevo.
