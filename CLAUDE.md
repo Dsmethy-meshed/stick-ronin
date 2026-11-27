@@ -31,6 +31,7 @@ Versión publicada: **v1.6 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmeth
    - No borrar datos de su hoja de Google sin su aprobación explícita.
    - Pendiente: hay 19 filas de prueba con nombre "T" en la hoja del ranking (id `17dUqM092IVWJRi2l0a61UrMHlbh-9FudIxSxHqTT3a8`). Están sin borrar porque falta su permiso.
 8. **Estilo:**
+   - Blanco, negro y rojo (tinta japonesa): guía, paleta, técnicas por coste y enlaces en `02-DOCS/wiki/arte/estilo-visual.md`. Decidido el 27 nov 2026: mejorar el juego actual en Three.js r128, sin rehacerlo ni migrar.
    - Muy arcade.
    - Visual antes que texto: iconos, brillos y animaciones en vez de descripciones largas.
    - Pensado para pantalla táctil.
