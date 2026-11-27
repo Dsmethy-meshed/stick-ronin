@@ -62,12 +62,13 @@ textarea{width:100%;min-height:80px;padding:8px;font:12px/1.4 ui-monospace,monos
 </div>
 <div id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="models/inkstyle.js"></script>
-<script src="models/zmodel.js"></script>
+<script src="models/inkstyle.js?v=20261128b"></script>
+<script src="models/zmodel.js?v=20261128b"></script>
 <script>
 {
 'use strict';
 const $=id=>document.getElementById(id);
+addEventListener('error',e=>{const i=document.getElementById('info');if(i)i.textContent='Error: '+e.message+' · recarga en unos minutos'});
 const toast=t=>{const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.h);toast.h=setTimeout(()=>e.style.opacity=0,1600)};
 /* tramos (mismo orden que zmodel.js / prep_tripo.py) y su espejo izquierda ↔ derecha */
 const SEGN=['Cadera → pecho','Pecho → cuello','Cuello → cabeza','Brazo izq.','Antebrazo izq.','Brazo der.','Antebrazo der.','Muslo izq.','Pierna izq.','Muslo der.','Pierna der.'];

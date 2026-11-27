@@ -22,15 +22,17 @@ const IU=()=>window.INKS?INKS.u:(IU.d||(IU.d={on:{value:0},wModel:{value:.028},o
 /* correcciones hechas a mano en modelo.html (esqueleto, escala, estiramiento y pesos pintados):
    primero las del dispositivo (localStorage 'stickronin_mfix_<nombre>'), si no, models/<nombre>_fix.json (si el _rig.json dice hasFix) */
 const FIXKEY=n=>'stickronin_mfix_'+n;
+// versión de los archivos de modelos: SÚBELA (aquí y en el ?v= de las etiquetas <script> de las páginas) cada vez que cambien los modelos o este archivo
+const AV='20261128b',vq=u=>u+'?v='+AV;
 async function loadFix(name,url,rig){let f=null;try{f=JSON.parse(localStorage.getItem(FIXKEY(name))||'null')}catch(_){}
- if(!f&&rig.hasFix){try{const r=await fetch(url.replace(/\.glb$/,'_fix.json'));if(r.ok)f=await r.json()}catch(_){}}return f}
+ if(!f&&rig.hasFix){try{const r=await fetch(vq(url.replace(/\.glb$/,'_fix.json')));if(r.ok)f=await r.json()}catch(_){}}return f}
 function mk(cfg){
 const ZM={ready:false,failed:false,K:1.96,smin:.65,smax:1.6,cap:cfg.cap||120,glow:cfg.glow==null?.12:cfg.glow,wash:!!cfg.wash,base:null,n:0,ink:false};
 ZM.load=async function(url,scene){
  try{
   await needGLTF();
-  const rig=await (await fetch(url.replace(/\.glb$/,'_rig.json'))).json();
-  const gltf=await new Promise((ok,ko)=>new THREE.GLTFLoader().load(url,ok,undefined,ko));gltf.scene.updateMatrixWorld(true);
+  url=url.split('?')[0];const rig=await (await fetch(vq(url.replace(/\.glb$/,'_rig.json')))).json();
+  const gltf=await new Promise((ok,ko)=>new THREE.GLTFLoader().load(vq(url),ok,undefined,ko));gltf.scene.updateMatrixWorld(true);
   let src=null;gltf.scene.traverse(o=>{if(o.isMesh&&!src)src=o});if(!src||!src.geometry.getAttribute('color'))throw new Error('malla sin datos de tramos');
   const g=src.geometry.clone();g.applyMatrix4(src.matrixWorld);
   // color (a/10, b/10, peso de a) → atributo propio
