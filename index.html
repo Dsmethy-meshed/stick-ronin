@@ -407,7 +407,12 @@ const goreLite=()=>(state==='play'||state==='dead')&&!(TRAIN&&!TRAIN.siege)&&(wa
 /* Muerte de los zombis: con menos de GORE.RAG_BELOW vivos, ragdoll con física (como siempre);
    con más, o si se llena el cupo de ragdolls, desmembrado cinemático (dismember): los trozos salen por el corte, giran, rebotan y de ellos salen los minis.
    on:false = comportamiento antiguo (cupos del modo ligero y cuerpo entero girando con flyCorpse). */
-const GORE={on:true,RAG_BELOW:20,CUT_MAX:3,SPIN_MIN:6,SPIN_MAX:12,BOUNCE:.32,BOUNCE_MIN_VY:3,CONVERT_T:1.1,MINI_LIFE:2.6,SINK_T:.5,MAX_CORPSES:40};
+const GORE={on:true,RAG_BELOW:20,CUT_MAX:3,SPIN_MIN:6,SPIN_MAX:12,BOUNCE:.32,BOUNCE_MIN_VY:3,CONVERT_T:1.15,MINI_LIFE:2.6,SINK_T:.5,MAX_CORPSES:40};
+// los cuerpos caen ~0,8 s y se deshacen en ceniza hasta 1,15 s (los minis salen de esa ceniza)
+const ASH={t0:.8,t1:1.15,col:new THREE.Color(0x3b3734)},ASHTMP=new THREE.Color();
+const ashK=t=>clamp(1-(t-ASH.t0)/(ASH.t1-ASH.t0),0,1); // 1 = cuerpo entero, 0 = ceniza
+const ashCol=(c,k)=>k>=1?c:ASHTMP.copy(c).lerp(ASH.col,Math.min(1,(1-k)*1.6));
+function ashPuff(x,y,z){if(parts.length>520)return;addP({k:'m',x:x+rand(-.15,.15),y:y+rand(-.1,.2),z:z+rand(-.15,.15),vx:rand(-.4,.4),vy:rand(.6,1.6),vz:rand(-.4,.4),life:.7,max:.7,size:rand(.18,.32),c:[.33,.31,.29]});addP({k:'s',x:x+rand(-.2,.2),y:y+rand(0,.3),z:z+rand(-.2,.2),vx:rand(-.8,.8),vy:rand(1,2.4),vz:rand(-.8,.8),life:.5,max:.5,size:.06,c:[.12,.11,.1]})}
 const BPOOLS=[],FLY=[];
 function bloodPool(x,y,z,a){const gy=groundAt(x,y+.3,z);
  for(const q of BPOOLS)if(Math.abs(q.y-gy)<.3&&Math.hypot(q.x-x,q.z-z)<Math.max(.7,q.r*.9)){q.tr=Math.min(1.7,q.tr+a);return}
@@ -465,13 +470,14 @@ function updDism(){
     if(ch.stumps.length)bloodPool(p[0],p[1],p[2],goreLite()?.16:.1)}
    if(ch.stumps.length&&C.t<1.2&&tick%6===j%6){const W=ch.W[ch.ids.indexOf(ch.stumps[0])];if(W)spray(W,[ch.v[0],1,ch.v[2]],2,2,.6)}}
   if(C.convert&&C.t>=GORE.CONVERT_T)finishCorpse(C);
-  if(C.dead||!C.convert&&C.t>GORE.MINI_LIFE+GORE.SINK_T)CORPSES.splice(k,1)}}
-function drawDism(zmOn){for(const C of CORPSES){const sink=C.convert?0:clamp((C.t-GORE.MINI_LIFE)/GORE.SINK_T,0,1),dy=-sink*.35,k=1-sink*.6;
+  if(C.t>ASH.t0&&tick%2===0){const ch=C.chunks[(Math.random()*C.chunks.length)|0],W=ch&&ch.W[(Math.random()*ch.W.length)|0];if(W)ashPuff(W[0],W[1],W[2])}
+  if(C.dead||!C.convert&&C.t>=ASH.t1)CORPSES.splice(k,1)}}
+function drawDism(zmOn){for(const C of CORPSES){const ak=ashK(C.t),dy=0,k=ak,cc=ashCol(C.col,ak);if(k<=.02)continue;
  const cI=zmOn&&ZM.ready;if(cI){const J=[],st=[];for(const ch of C.chunks){ch.ids.forEach((id,i)=>{J[id]=[ch.W[i][0],ch.W[i][1]+dy,ch.W[i][2]]});st.push(...ch.sticks)}for(let i=0;i<12;i++)if(!J[i])J[i]=J[3]||[0,0,0];
-  if(C.yaw==null)C.yaw=zmYaw(J,0);if(!ZM.add(J,C.yaw,C.hr<.15?.55:1,zmVis(st),C.col))continue;for(const ch of C.chunks)for(const i of ch.stumps){const p=ch.W[ch.ids.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}continue}
+  if(C.yaw==null)C.yaw=zmYaw(J,0);if(!ZM.add(J,C.yaw,(C.hr<.15?.55:1)*(.35+.65*ak),zmVis(st),cc))continue;for(const ch of C.chunks)for(const i of ch.stumps){const p=ch.W[ch.ids.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}continue}
  for(const ch of C.chunks){const W=ch.W,ix=ch.ids;
-  for(const s of ch.sticks){const A=W[ix.indexOf(s.a)],B=W[ix.indexOf(s.b)];bSeg(ZB_SEG,[A[0],A[1]+dy,A[2]],[B[0],B[1]+dy,B[2]],C.rad*k,C.col)}
-  const h=ix.indexOf(0);if(h>=0)bSph(ZB_SPH,[W[h][0],W[h][1]+dy,W[h][2]],C.hr*k,C.col);
+  for(const s of ch.sticks){const A=W[ix.indexOf(s.a)],B=W[ix.indexOf(s.b)];bSeg(ZB_SEG,[A[0],A[1]+dy,A[2]],[B[0],B[1]+dy,B[2]],C.rad*k,cc)}
+  const h=ix.indexOf(0);if(h>=0)bSph(ZB_SPH,[W[h][0],W[h][1]+dy,W[h][2]],C.hr*k,cc);
   for(const i of ch.stumps){const p=W[ix.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}}}}
 function drawFly(){for(const q of BPOOLS)bSph(POOLB,[q.x,q.y,q.z],q.r,BLK);
  for(const f of FLY){const k=f.land?Math.max(0,1-(f.t-f.land-.5)/.4):1;if(k>.02)drawTumbler([f.x,f.y-(1-k)*.2,f.z],f.spin,f.yaw,f.sc*Math.max(.3,k))}}
@@ -1740,6 +1746,7 @@ function collidePt(p){
 }
 function updateRag(r){
  r.life+=DT;
+ if(r.ash&&r.life>ASH.t0){if(tick%2===0){const q=r.pts[(Math.random()*r.pts.length)|0];ashPuff(q.x,q.y,q.z)}if(!r.convert&&r.life>=ASH.t1){r.dead=true;return}}
  for(const p of r.pts){const vx=(p.x-p.px)*.992,vy=(p.y-p.py)*.992,vz=(p.z-p.pz)*.992;p.px=p.x;p.py=p.y;p.pz=p.z;p.x+=vx;p.y+=vy-G*DT*DT;p.z+=vz}
  const it=r.life>2.5?2:3;
  for(let k=0;k<it;k++){
@@ -1888,7 +1895,7 @@ function killZombie(e,hit){
   const cut=[];if(Math.random()<.5){const s=stickOf(r,0,1);if(s)cut.push(s)}if(Math.random()<.4){const s=stickOf(r,...pick([[4,5],[6,7],[8,9],[10,11]]));if(s)cut.push(s)}
   if(cut.length)sever(r,cut,hit.vel);sfx('blunt');sparks(im,hit.vel,6,[1,.85,.6]);
  }else{cutRag(r,hit.p0,hit.n,hit.vel,hit.mode,hit.reach);if(!hit.quiet){sfx('slice');sparks(hit.impact,hit.vel,6)}}
- if(!e.mini)r.convert={t:1.1};
+ r.ash=1;if(!e.mini)r.convert={t:ASH.t1};
  rags.push(r);while(rags.length>MAX_RAGS){const i=rags.findIndex(q=>!q.keep&&!q.convert);if(i<0)break;rags.splice(i,1)}
  hitstop=Math.max(hitstop,(hit.hs||.05)*(e.mini?.6:1));shake=Math.max(shake,(hit.sh||.08)*(e.mini?.6:1));if(hit.blunt&&!e.mini)fovKick=Math.max(fovKick,5);
 }
@@ -3748,11 +3755,11 @@ function blobShadow(x,y,z,r){const gy=y<=.06?0:groundAt(x,y+.2,z),h=Math.max(0,y
 function draw(){
  poolBegin();const zmOn=KGFX.model&&window.ZM;if(zmOn){zmBoot();ZM.begin()}
  for(const r of rags){
-  const k=r.keep||r.convert?1:clamp(1-(r.life-7)/1,0,1);if(k<=0)continue;
+  const ak=r.ash?ashK(r.life):1,k=(r.keep||r.convert?1:clamp(1-(r.life-7)/1,0,1))*ak;if(k<=.02)continue;const rc=ashCol(r.col,ak);
   const rad=r.hr<.15?.035:.05;
-  let zI=false;if(zmOn&&ZM.ready&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y-(1-k)*.4,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);zI=ZM.add(J,r.yaw,(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),r.col)}
-  if(!zI)for(const s of r.sticks){const A=r.pts[s.a],B=r.pts[s.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],rad*k,r.col)}
-  const h=r.pts[0];if(!zI)bSph(ZB_SPH,[h.x,h.y,h.z],r.hr*k,r.col);
+  let zI=false;if(zmOn&&ZM.ready&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);zI=ZM.add(J,r.yaw,(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1)*(.35+.65*ak),zmVis(r.sticks),rc)}
+  if(!zI)for(const s of r.sticks){const A=r.pts[s.a],B=r.pts[s.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],rad*k,rc)}
+  const h=r.pts[0];if(!zI)bSph(ZB_SPH,[h.x,h.y,h.z],r.hr*k,rc);
   for(let i=1;i<r.pts.length;i++){const p=r.pts[i];if(p.stump)bSph(ZB_SPH,[p.x,p.y,p.z],(r.hr<.15?.04:.058)*k,REDC)}
  }
  for(const r of frags){if(zmOn&&ZM.ready){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);if(ZM.add(J,r.yaw,r.zombie?r.zombie.s:1,zmVis(r.sticks),r.col))continue}for(const s2 of r.sticks){const A=r.pts[s2.a],B=r.pts[s2.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],r.hr<.15?.035:.05,r.col)}const h=r.pts[0];bSph(ZB_SPH,[h.x,h.y,h.z],r.hr,r.col)}
