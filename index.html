@@ -993,7 +993,9 @@ function updateHook(){
  gp.sagV+=((gp.phase==='throw'?.6:.05)-gp.sag)*120*DT;gp.sagV*=.86;gp.sag+=gp.sagV*DT;
  if(gp.phase==='throw'){
   const k=Math.min(1,gp.t/.14);gp.tip=lerp3(hand,tgt,eOut2(k));P.vx*=.85;P.vz*=.85;P.vy=Math.max(P.vy-G*DT*.4,-3);
-  if(g.amj){g.x=g.amj.x;g.y=g.amj.y+1;g.z=g.amj.z;if(k>=1){amjHooked(g.amj);return}}
+  // si el objetivo muere o desaparece mientras el gancho vuela (p. ej. una flecha tuya), se suelta: antes se quedaba lanzándose para siempre y no te podías mover
+  if(g.amj){if(!g.amj.alive||!zs.includes(g.amj)){P.grap=null;return}g.x=g.amj.x;g.y=g.amj.y+1;g.z=g.amj.z;if(k>=1){amjHooked(g.amj);return}}
+  if(gp.t>1){P.grap=null;return} // red de seguridad: ningún lanzamiento dura más de 1 s
   if(k>=1){gp.phase='pull';gp.t=0;gp.sag=.35;gp.sagV=-6;sfx('zip');shake=Math.max(shake,.05)}
  }else{
   if(g.boss){if(!g.boss.alive||!karuraHookable(g.boss)){P.grap=null;return}const dd=Math.hypot(g.ax-P.x,g.ay-P.y,g.az-P.z);if(dd<1.8||gp.t>1.4){P.grap=null;if(dd<4)karuraMount('P',g.boss);return}}
@@ -3529,7 +3531,7 @@ function spawnAmanojaku(){const p=amjSpot(false);if(!p)return null;const S=spawn
 function amjTick(){if(!KS.on||TRAIN||SIEGE.on||wave<AMJ.from||state!=='play')return;const G=RUN.kg;G.amjT=(G.amjT??rand(4,8))-DT;if(G.amjT>0)return;G.amjT=rand(...AMJ.every);
  if(zs.filter(z=>z.alive&&z.kind==='amanojaku').length<AMJ.max(wave))spawnAmanojaku()}
 // tu gancho lo alcanza: lo derribas de un tirón
-function amjHooked(S){if(!S.alive)return;P.grap=null;S.zip=null;S.hurtT=0;kgArc([P.x,P.y+1.3,P.z],[S.x,S.y+1,S.z],kcol('#e8e0d0'),.3,.05);
+function amjHooked(S){P.grap=null;if(!S.alive)return;S.zip=null;S.hurtT=0;kgArc([P.x,P.y+1.3,P.z],[S.x,S.y+1,S.z],kcol('#e8e0d0'),.3,.05);
  yokaiHit(S,{vel:[(P.x-S.x)*1.4,4,(P.z-S.z)*1.4],kgAbs:999,blunt:1},999);hitstop=Math.max(hitstop,.1);shake=Math.max(shake,.3);banner('¡DERRIBADO!');kgVib([30,40,60],true)}
 // ---------- tienda del tanuki: 4 objetos que rotan, límite de compras ----------
 const SHOP={perVisit:2,perRun:6,gen:{p:.15,visit:3,run:7},omikiP:.35,
