@@ -185,7 +185,12 @@ Sustituye a la forja (que solo sigue en el asedio). Inspirado en Hades e Isaac; 
 - **Especial:** recargas por rareza.
 - **Onis.**
 - **Minijefes:** las 16 variantes.
-- **Legendarias.**
+- **Legendarias.** (las de la forja vieja; con Kago solo cuentan en el asedio, igual que «Especial»)
+- **Kago:** reglas y números del sistema de bendiciones.
+- **Armas:** dificultad, daño base, Kaishin, martillos y estilo de cada arma.
+- **Kami:** estado, las 5 ranuras, pasiva y Shinpō de cada kami.
+- **Enemigos:** variantes nuevas de zombi y campeones tatari.
+- En «Escalado», columnas K-M: vida de zombi Kago, golpes de katana sin mejoras y probabilidad de campeón.
 
 Si cambias esos números en el juego, actualiza la hoja.
 
