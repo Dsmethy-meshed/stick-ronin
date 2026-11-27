@@ -44,6 +44,9 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Modelo deformado en la GPU (malla entera, articulaciones suaves, cortes limpios sin pinchos). **Prueba:** t22/t25 (capturas de vivos, ragdoll cortado y cadáveres), t27 (editor), t26: 43,4 fps con 64 modelos frente a 42,6-44,6 sin modelos.
 - [x] Muerte en ceniza rehecha: el modelo arde con borde de brasa (shader con ruido), brasas aditivas y copos; los minis brotan sin humo. **Prueba:** t34 (8 capturas de 0,5 a 1,6 s y zoom del borde), t26: 45,7 fps con 115 modelos (CPU ×4).
 - [x] Estilo tinta (blanco, negro y rojo): paleta de papel, sombreado en 3 tonos, contornos de tinta en palos y modelo, enemigos en tinta; interruptor «🖌 Estilo tinta». **Prueba:** t35/t36 (capturas con y sin tinta, zoom del jugador), t38: 43,7 fps con tinta frente a 46,2 sin ella (CPU ×4, oleada 6).
+- [x] Gancho: soltarlo si el Amanojaku/Kurage muere mientras vuela (te bloqueaba). **Prueba:** t39 (muere / desaparece / normal: sin gancho tras 1,5 s y te mueves; la versión anterior se quedaba con el gancho).
+- [x] Protagonista 3D en tinta aguada (`ZMP`, `models/player.glb`). **Prueba:** t36 (capturas con y sin tinta, zoom del fajín rojo), t38: ~45 fps con y sin tinta (CPU ×4, oleada 6).
+- [x] Editor de shaders en el editor (pestaña «🖌 Shader», ajustes en `models/inkstyle.js`). **Prueba:** t40 (25 deslizadores, 11 colores, 1 interruptor; cambios en vivo en el editor y en el juego abierto en otra pestaña; probar ceniza; valores por defecto).
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
