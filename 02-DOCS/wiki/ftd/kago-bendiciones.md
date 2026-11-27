@@ -43,6 +43,7 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Modelo del zombi pasado a piezas rígidas (sin esqueleto ni reverencia), dibujadas por instancias; editor adaptado. **Prueba:** t22 (vivos y cortes), t25 (3 cadáveres), t27 (editor), t26 rendimiento: ~42 fps con modelos frente a 39-43 sin ellos.
 - [x] Modelo deformado en la GPU (malla entera, articulaciones suaves, cortes limpios sin pinchos). **Prueba:** t22/t25 (capturas de vivos, ragdoll cortado y cadáveres), t27 (editor), t26: 43,4 fps con 64 modelos frente a 42,6-44,6 sin modelos.
 - [x] Muerte en ceniza rehecha: el modelo arde con borde de brasa (shader con ruido), brasas aditivas y copos; los minis brotan sin humo. **Prueba:** t34 (8 capturas de 0,5 a 1,6 s y zoom del borde), t26: 45,7 fps con 115 modelos (CPU ×4).
+- [x] Estilo tinta (blanco, negro y rojo): paleta de papel, sombreado en 3 tonos, contornos de tinta en palos y modelo, enemigos en tinta; interruptor «🖌 Estilo tinta». **Prueba:** t35/t36 (capturas con y sin tinta, zoom del jugador), t38: 43,7 fps con tinta frente a 46,2 sin ella (CPU ×4, oleada 6).
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
