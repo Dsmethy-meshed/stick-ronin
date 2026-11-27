@@ -2309,7 +2309,7 @@ function spawnYokai(kind,ang,opt){
   yaw:Math.atan2(P.x-x,P.z-z),t:Math.random()*9,st:'walk',stT:0,atkCd:rand(1,2),hurtT:0,ph:0,orb:Math.random()*6.3,zig:1,J:null};
  {const w=Math.max(1,wave),k=((kind==='ooni'||kind==='karura')?1+.1*(w-1):1+.15*(w-1))*KG.ykExp**(w-1);S.hp=S.maxHp=Math.round(D.hp*k*10)/10} // yokai y jefes también se endurecen
  if(kind==='oni')oniVariant(S);else if(opt&&opt.var==='mini'){S.var='mini';S.vname='';S.vcol=YV.kasa.v.ao.col;S.s=.6;S.r=.22;S.h=.85;S.hp=S.maxHp=1}else ykVariant(S,opt&&opt.var);
- if(kgOn())kgSpawnY(S);zs.push(S);if(!(opt&&opt.quiet))banner(S.vname||YK_NAME[kind]);sfx('charge');dust([x,y,z],8,2);return S;
+ if(kgOn())kgSpawnY(S);zs.push(S);if(!(opt&&opt.quiet)&&(kind==='ooni'||kind==='karura'))banner(S.vname||YK_NAME[kind]);sfx('charge');dust([x,y,z],8,2);return S;
 }
 function yokaiHit(S,hit,dmg){
  if(!S.alive||S.hurtT>0)return;let bk=1;
@@ -3189,7 +3189,7 @@ function kgOmikiSmall(){const L=kgBlessList();if(!L.length)return;const b=pick(L
 // al crear un zombi (modo normal): vida, variantes y campeones
 function kgSpawnZ(e){if(!KS.on)return;const w=Math.max(1,wave);e.hp=e.maxHp=KG.zhp(w)*(e.mini?.5:1)*(SIEGE.on?KG.siegeHp:1);if(e.mini||horde300)return;
  const G=RUN.kg,curse=G.pact&&G.pact.left>0?G.pact.c:null;
- if(w>=3&&G.tanW!==w&&Math.random()<.025){G.tanW=w;e.zt='tanuki';e.col=new THREE.Color('#8a6a48');e.speed=4.6;e.life=14;e.s*=.8;e.h*=.8;e.r*=.85;e.hp=e.maxHp*=.8;banner('🦝 ¡Un tanuki ladrón! Atrápalo');return}
+ if(w>=3&&G.tanW!==w&&Math.random()<.025){G.tanW=w;e.zt='tanuki';e.col=new THREE.Color('#8a6a48');e.speed=4.6;e.life=14;e.s*=.8;e.h*=.8;e.r*=.85;e.hp=e.maxHp*=.8;return}
  for(const t in ZTYPE){const Z=ZTYPE[t];if(w>=Z.w&&Math.random()<Z.p){if(t==='sohei'&&zs.filter(z=>z.alive&&z.zt==='sohei').length>=2)continue;e.zt=t;e.col=new THREE.Color(Z.c);
   if(t==='yoroi'){e.yr=e.yrMax=KG.arm.yoroi*(1+KG.ykHp*(w-1));e.speed*=.85}if(t==='yumi'){e.arT=rand(1,2.5)}if(t==='kagami'){e.glow=false;e.glT=rand(1,2)}break}}
  if(Math.random()<KG.champ(w)*(curse==='champ'?2:1)){const pool=Object.keys(TATARI).filter(k=>w>=TATARI[k].w&&(k!=='o'||Math.random()<.3)&&(k!=='niji'||Math.random()<.2));kgChamp(e,pick(pool))}
@@ -3434,7 +3434,7 @@ function losIgn(a,b,ign){for(let i=1;i<12;i++){const t=i/12,x=lerp(a[0],b[0],t),
 // ---------- veneno 毒: estado del jugador, charcos tóxicos y escupitajos ----------
 const PSN={dps:4,t:3,slow:.85,g:14,pud:{r:1.3,t:4},cloud:{r:2.6,t:3.5}};
 let EZ=[];
-function psApply(t,dps){if(!P||P.dead)return;P.psT=Math.max(P.psT||0,t||PSN.t);P.psD=Math.max(P.psD||0,dps||PSN.dps);if(!(P.psFx>0)){banner('毒 ¡Envenenado!');P.psFx=1}}
+function psApply(t,dps){if(!P||P.dead)return;P.psT=Math.max(P.psT||0,t||PSN.t);P.psD=Math.max(P.psD||0,dps||PSN.dps);if(!(P.psFx>0)){P.psFx=1}}
 function psPuddle(x,z,r,t){if(EZ.length>14)EZ.shift();const y=groundAt(x,30,z);EZ.push({x,z,y,r:r||PSN.pud.r,t:t||PSN.pud.t,max:t||PSN.pud.t});ring([x,y,z],r||PSN.pud.r,.3)}
 // escupitajo en parábola desde o hasta el jugador (con un poco de puntería)
 function psSpit(o,dmg){const t=[P.x+P.vx*.3,P.y+1,P.z+P.vz*.3],dx=t[0]-o[0],dz=t[2]-o[2],d=Math.hypot(dx,dz),T=.55+d*.045,dy=t[1]-o[1];
@@ -3457,7 +3457,7 @@ function ykWaveSpawn(){const L=YK_KINDS.slice();if(wave>=4)L.push('nureonna','nu
 function amjRoofs(){return BOXES.filter(b=>b.y1>=AMJ.roofMin&&b.y1<12&&(b.x1-b.x0)>1.1&&(b.z1-b.z0)>1.1&&Math.abs((b.x0+b.x1)/2)<18&&Math.abs((b.z0+b.z1)/2)<18)}
 function amjSpot(far,not){const R=amjRoofs();let best=null,bs=-1e9;for(let i=0;i<16&&R.length;i++){const b=pick(R);if(b===not)continue;const x=rand(b.x0+.35,b.x1-.35),z=rand(b.z0+.35,b.z1-.35),d=Math.hypot(x-P.x,z-P.z);if(d<6||d>21)continue;
   const s=(far?d:-Math.abs(d-12))+(losIgn([x,b.y1+1.2,z],[P.x,P.y+1.2,P.z],b)?100:0);if(s>bs){bs=s;best={x,z,y:b.y1,b}}}return best}
-function spawnAmanojaku(){const p=amjSpot(false);if(!p)return null;const S=spawnYokai('amanojaku',0,{quiet:true});S.x=p.x;S.z=p.z;S.y=p.y;S.roof=p.b;S.st='aim';S.atkCd=rand(1.2,2);S.zipCd=1;dust([S.x,S.y,S.z],6,1.5);banner('天邪鬼 ¡AMANOJAKU en las azoteas! · lánzale el gancho');return S}
+function spawnAmanojaku(){const p=amjSpot(false);if(!p)return null;const S=spawnYokai('amanojaku',0,{quiet:true});S.x=p.x;S.z=p.z;S.y=p.y;S.roof=p.b;S.st='aim';S.atkCd=rand(1.2,2);S.zipCd=1;dust([S.x,S.y,S.z],6,1.5);return S}
 function amjTick(){if(!KS.on||TRAIN||SIEGE.on||wave<AMJ.from||state!=='play')return;const G=RUN.kg;G.amjT=(G.amjT??rand(4,8))-DT;if(G.amjT>0)return;G.amjT=rand(...AMJ.every);
  if(zs.filter(z=>z.alive&&z.kind==='amanojaku').length<AMJ.max(wave))spawnAmanojaku()}
 // tu gancho lo alcanza: lo derribas de un tirón
