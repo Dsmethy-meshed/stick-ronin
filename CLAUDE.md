@@ -116,6 +116,8 @@ Servicios externos que usa el juego:
   - Lógica común en `bossFx()`: `SIEGE.hits`, `siegeAoe`, `siegeGrabStep`, `karuraFx`. Funciona también en el modo normal.
   - **Modo normal:** jefe cada 5 oleadas (5 Ō-oni, 10 Karura, alternando) con `spBoss()`. La oleada no acaba hasta matarlo y suelta botín con `bossLoot`.
 - **天邪鬼 Amanojaku** (`amanojaku`, `AMJ`, `amjTick`, `spawnAmanojaku`): desde la oleada 3 aparece en azoteas (`amjRoofs`, prefiere tejados desde los que te ve, `losIgn`), dispara flechas con caída (`EP` con `vy`) y, si te acercas, se va con su gancho a otro tejado. Si dos veces no te ve, también cambia de tejado. Tu gancho lo apunta (`findHook`) y al alcanzarlo muere (`amjHooked`). Cuenta como `spider:true` (no bloquea el fin de oleada). Botón en el dojo.
+- **Veneno 毒** (`PSN`, `psApply`, `psTick`, `psDraw`): quita `P.psD`/s durante `P.psT`, frena ×0,85 (`hbSlow`), bordes verdes en pantalla (`#psFx`). Charcos tóxicos `EZ` (`psPuddle`); el dash los cruza sin envenenarte. Escupitajos/gotas son `EP` con `g` y `poison` (`psSpit`, `psDrop`): al caer dejan charco.
+- **濡れ女 Nure-onna** (`nureonna`, desde la oleada 4): mujer serpiente que guarda 4,5-8 m, escupe veneno en arco y de cerca muerde (10 + veneno). **海月火 Kurage-hi** (`kurage`, desde la 5, en grupos de 2-3, 3 desde la 9): flotan a 3 m, sueltan gotas tóxicas y al morir dejan una nube (veneno si estás a menos de 2,8 m); tu gancho las tumba. Salen con `ykWaveSpawn`. Botones en el dojo.
 - `hurtPlayer(dmg, from)` es el único sitio donde baja la vida del jugador. En el asedio redirige a los bots con `P.mpSwap`.
 
 ### Oleadas
