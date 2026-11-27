@@ -25,6 +25,8 @@ Solo el modo normal y el dojo. El asedio y la Cacería no cambian. No hay animac
 - [x] Rendimiento. **Prueba:** t3 con CPU ×4 en la oleada 6: 50,8 fps antes y 48,8 fps ahora.
 - [x] ℹ Info y códice. **Prueba:** t4 (45 entradas).
 - [x] Hoja de equilibrio: pestañas Kago, Armas, Kami y Enemigos, y columnas K-M en Escalado. **Prueba:** lectura de la revisión 9 (6, 8, 10, 12, 14…). No se ha borrado nada.
+- [x] Borrar la forja vieja del modo normal (código, números de `AR` y ~120 reglas CSS sin uso) sin tocar la del asedio. **Prueba:** t1 (flujo normal), t2 (combinaciones), t5 (asedio: botín del jefe, forja ⛓ y mejora) y t6, todo con `{"n":0}`; `node --check` correcto.
+- [x] Arreglo: la armería ya no se abre al entrar al dojo, la sala MP, el asedio o la prueba de yokai. **Prueba:** t5/t6 (dojo → estado `dojo` sin armería; normal → armería).
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
