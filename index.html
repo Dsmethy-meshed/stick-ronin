@@ -3767,7 +3767,7 @@ function draw(){
   if(e.spawnT>0){const k=1-e.spawnT/(e.mini?.35:.55);J=J.map(p=>p&&[p[0],e.y+(p[1]-e.y)*k,p[2]])}
   const ms=e.mass||0,rad=.048*(e.mini?.8:1)*(1+.7*ms)*(e.bw||1),hr=.145*e.s*(1+.25*ms)*(e.hs||1);
   blobShadow(e.x,e.y,e.z,.36*e.s*(1+.5*ms));
-  if(zmOn&&!e.mass&&ZM.add(J,e.yaw,e.s,null,e.ks?kgTint(e):e.col)){if(near)nNear++;continue}
+  if(zmOn&&ZM.add(J,e.yaw,e.s*(1+.15*(e.mass||0)),null,e.ks?kgTint(e):e.col)){if(near)nNear++;continue}
   const zc=e.ks?kgTint(e):e.col;if(near){nNear++;drawCharZ(J,zc,rad,hr);
    const F=dirW(e.yaw,[0,0,1]),R=dirW(e.yaw,[1,0,0]),h=J[0],es=.12*e.s;
    bSph(ZB_SPH,[h[0]+F[0]*es+R[0]*.05*e.s,h[1]+.02,h[2]+F[2]*es+R[2]*.05*e.s],.025,REDC);bSph(ZB_SPH,[h[0]+F[0]*es-R[0]*.05*e.s,h[1]+.02,h[2]+F[2]*es-R[2]*.05*e.s],.025,REDC);
