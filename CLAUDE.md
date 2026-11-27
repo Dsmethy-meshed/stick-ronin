@@ -171,6 +171,14 @@ Sustituye por completo a la forja vieja: ya no hay rarezas de armas, metal, bols
 - Ojo r128: los colores de vértice normalizados de 16 bits no se convierten solos (se dividen entre 65535 al cargar).
 - Nuevos modelos de Tripo: Blender 5.2 + `models/tools/prep_tripo.py entrada.glb salida.glb salida_rig.json [triángulos]` (baja triángulos, quita texturas, guarda los tramos de cada vértice según los pesos del rig de Tripo y exporta la malla + el JSON).
 
+## Estilo tinta 墨 (27 nov 2026)
+- Bloque «ESTILO TINTA» de `index.html` (`INK`, `INKPAL`, `inkApply`, `inkPatch`, `inkScan`, `inkTone`, `INK_B`); guía en `02-DOCS/wiki/arte/estilo-visual.md`. Interruptor «🖌 Estilo tinta» (`KGFX.ink`): encendido por defecto fuera de `github.io` (dev, local) y apagado en la web oficial, como los números de daño.
+- Paleta de papel (niebla `#e8e1d4`, suelo hueso, edificios en tinta, pagodas en aguada, sol rojo `#c8102e`); al apagar se restauran los colores de `INK.orig`.
+- Sombreado en 3 tonos en **todos** los `MeshLambertMaterial` (`inkPatch` envuelve su `onBeforeCompile` y conserva su `customProgramCacheKey`; el uniform `INK.on` es compartido, así que encender/apagar no recompila). `inkScan` repasa la escena cada 90 fotogramas para los materiales nuevos.
+- Contorno de tinta con «casco invertido»: `INK_B` reutiliza la geometría de los lotes `SEG, SPH, ZB_SEG, ZB_SPH, SEGL, SPHL` (0 CPU, 1 llamada por lote); ojo, `bSeg` monta los cilindros en espejo y por eso los segmentos usan `INKOUT_S` (FrontSide). El modelo tiene `ZM.outline` (mismo parche, inflado `ZM.inkU`, respeta cortes y ceniza). Sin contornos en calidad 0.
+- Enemigos en tinta (`inkTone`) y sin brillo propio del modelo; el rojo queda para el jugador, la sangre, los ojos y el peligro; los colores de los kami solo en los brillos (decidido con Daniel).
+- Rendimiento (CPU ×4, oleada 6, calidad 2): 43,7 fps con tinta y 120 modelos frente a 46,2 sin tinta.
+
 ## Editor de animaciones (`editor.html`)
 - Genera clips de referencia desde el `ATK` del juego (`GEN_V`, `GEN_ATK`) y los guarda en localStorage, en ranuras `arma:tecla`.
 - Deslizadores `we` (separación arma–mano) y `wox/woy/woz`. La kusarigama dibuja la cadena hasta el arma.

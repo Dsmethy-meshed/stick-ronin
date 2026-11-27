@@ -487,7 +487,7 @@ function updDism(){
   if(C.dead||!C.convert&&C.t>=ASH.t1)CORPSES.splice(k,1)}}
 function drawDism(zmOn){for(const C of CORPSES){const ak=ashK(C.t),dy=0,k=ak,cc=ashCol(C.col,ak);if(k<=.02)continue;
  const cI=zmOn&&ZM.ready;if(cI){const J=[],st=[];for(const ch of C.chunks){ch.ids.forEach((id,i)=>{J[id]=[ch.W[i][0],ch.W[i][1]+dy,ch.W[i][2]]});st.push(...ch.sticks)}for(let i=0;i<12;i++)if(!J[i])J[i]=J[3]||[0,0,0];
-  if(C.yaw==null)C.yaw=zmYaw(J,0);if(!ZM.add(J,C.yaw,C.hr<.15?.55:1,zmVis(st),C.col,1-ak))continue;for(const ch of C.chunks)for(const i of ch.stumps){const p=ch.W[ch.ids.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}continue}
+  if(C.yaw==null)C.yaw=zmYaw(J,0);if(!ZM.add(J,C.yaw,C.hr<.15?.55:1,zmVis(st),inkTone(C.col),1-ak))continue;for(const ch of C.chunks)for(const i of ch.stumps){const p=ch.W[ch.ids.indexOf(i)];bSph(ZB_SPH,[p[0],p[1]+dy,p[2]],(C.hr<.15?.04:.058)*k,REDC)}continue}
  for(const ch of C.chunks){const W=ch.W,ix=ch.ids;
   for(const s of ch.sticks){const A=W[ix.indexOf(s.a)],B=W[ix.indexOf(s.b)];bSeg(ZB_SEG,[A[0],A[1]+dy,A[2]],[B[0],B[1]+dy,B[2]],C.rad*k,cc)}
   const h=ix.indexOf(0);if(h>=0)bSph(ZB_SPH,[W[h][0],W[h][1]+dy,W[h][2]],C.hr*k,cc);
@@ -2892,13 +2892,46 @@ const ZTYPE={yoroi:{n:'Yoroi-zombi',w:4,p:.08,c:'#6d737c'},yumi:{n:'Yumi-zombi',
 let KS={slot:{},st:{},pas:{},duo:{},sp:{},ham:{},hg:{},kam:{},sty:null,styLv:1,pr:{},critCh:0,air:0,kb:1,tamaK:1,on:false};
 let ZN=[],EP=[],CLONES=[],TUR=[],KNUM=[],KST=new Set();
 // interruptores de efectos; los números de daño vienen encendidos en pruebas (dev) y apagados por defecto en la web oficial (github.io)
-const KGFX=(()=>{let o={shake:true,flash:true,vib:true,model:true,num:!/github\.io$/.test(location.hostname)};try{const r=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(r){o.shake=false;o.flash=false}Object.assign(o,JSON.parse(localStorage.getItem('stickronin_fx')||'{}'))}catch(_){}return o})();
+const KGFX=(()=>{let o={shake:true,flash:true,vib:true,model:true,ink:!/github\.io$/.test(location.hostname),num:!/github\.io$/.test(location.hostname)};try{const r=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(r){o.shake=false;o.flash=false}Object.assign(o,JSON.parse(localStorage.getItem('stickronin_fx')||'{}'))}catch(_){}return o})();
 // modelos 3D de los zombis (models/zombie.glb) y sus clips (reverencia, trepar)
 function zmBoot(){if(!window.ZM||ZM.ready||ZM.failed||ZM.loading)return;ZM.loading=1;ZM.load('models/zombie.glb',scene)}
 // hacia dónde mira un cuerpo suelto (ragdoll/trozos): por las rodillas o, si no, por los codos
 function zmYaw(J,def){const a=J[8],b=J[10],c=J[4],d=J[6];let rx=0,rz=0;if(a&&b){rx=b[0]-a[0];rz=b[2]-a[2]}else if(c&&d){rx=d[0]-c[0];rz=d[2]-c[2]}if(Math.hypot(rx,rz)<1e-3)return def||0;return Math.atan2(rz,-rx)}
 function zmVis(sticks){const v=new Set();for(const t of sticks)v.add(ZM.segKey(t.a,t.b));return v}
 function kgFxSave(){try{localStorage.setItem('stickronin_fx',JSON.stringify(KGFX))}catch(_){}}
+/* ================= ESTILO TINTA 墨 (blanco, negro y rojo; guía: 02-DOCS/wiki/arte/estilo-visual.md) =================
+   1) paleta de papel y tinta (niebla, luces, edificios, suelo); 2) sombreado en 3 tonos en TODOS los Lambert (se inyecta tras calcular la luz;
+   uniform compartido INK.on, así que encender/apagar no recompila); 3) contorno de tinta: «casco invertido» que reutiliza la geometría de los
+   lotes de palos (0 trabajo de CPU, 1 llamada de dibujo por lote) y el del modelo (ZM.outline); 4) enemigos en tinta (inkTone), el rojo queda
+   para el jugador, la sangre, los ojos y el peligro; los colores de los kami solo en los brillos. Interruptor «🖌 Estilo tinta» (KGFX.ink). */
+const INK={on:{value:0},w:{value:.02},orig:null};
+const INKPAL={fog:0xe8e1d4,hemiSky:0xffffff,hemiGround:0x8d8478,hemiI:.95,sunC:0xffffff,sunI:.8,side:0x2e2a28,top:0x77706a,ground:0xd9d0c0,tiles:0xb1a796,pag:0xa59d92,disc:0xc8102e};
+function inkPatch(m){if(!m||m.__ink||!m.isMeshLambertMaterial)return;m.__ink=1;const ob=m.onBeforeCompile,key=m.customProgramCacheKey();
+ m.onBeforeCompile=function(sh,r){ob.call(this,sh,r);sh.uniforms.inkOn=INK.on;if(sh.fragmentShader.indexOf('inkOn')>=0)return;
+  sh.fragmentShader=sh.fragmentShader.replace('#include <common>','#include <common>\nuniform float inkOn;').replace('#include <aomap_fragment>','#include <aomap_fragment>\n'+
+  // li = cuánta luz recibe (1 = luz de cielo normal); se pasa a 3 tonos: sombra de tinta, medio y papel iluminado, con bordes nítidos
+  'if(inkOn>.5){vec3 lt=(reflectedLight.directDiffuse+reflectedLight.indirectDiffuse)/max(BRDF_Diffuse_Lambert(diffuseColor.rgb),vec3(1e-4));float li=dot(lt,vec3(.299,.587,.114))/PI;'+
+  'float q=mix(.5,.8,smoothstep(.82,.88,li));q=mix(q,1.05,smoothstep(1.22,1.28,li));reflectedLight.directDiffuse=diffuseColor.rgb*q;reflectedLight.indirectDiffuse=vec3(0.);}')};
+ m.customProgramCacheKey=()=>key+'|ink';m.needsUpdate=true}
+function inkScan(){scene.traverse(o=>{const m=o.material;if(Array.isArray(m))m.forEach(inkPatch);else inkPatch(m)})}
+const INKOUT=new THREE.MeshBasicMaterial({color:0x0e0c0b,side:THREE.BackSide});
+INKOUT.onBeforeCompile=sh=>{sh.uniforms.inkW=INK.w;sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float inkW;').replace('#include <begin_vertex>','vec3 transformed=position+normalize(normal+1e-6)*inkW;')};
+INKOUT.customProgramCacheKey=()=>'inkOut';
+// ojo: bSeg monta los cilindros con una base en espejo (u, d, d×u), así que sus caras «traseras» son las FrontSide
+const INKOUT_S=INKOUT.clone();INKOUT_S.side=THREE.FrontSide;INKOUT_S.onBeforeCompile=INKOUT.onBeforeCompile;INKOUT_S.customProgramCacheKey=()=>'inkOutS';
+const INK_B=[SEG,SPH,ZB_SEG,ZB_SPH,SEGL,SPHL].map(B=>{const m=new THREE.Mesh(B.g,B===SEG||B===ZB_SEG||B===SEGL?INKOUT_S:INKOUT);m.frustumCulled=false;m.visible=false;scene.add(m);return m});
+const INKT=new THREE.Color();
+// enemigo en tinta: conserva un poco su luminosidad (variedad) pero casi negro
+const inkTone=c=>{if(!KGFX.ink||!c)return c;const l=c.r*.3+c.g*.59+c.b*.11;return INKT.setRGB(.075+.2*l,.07+.18*l,.065+.17*l)};
+function inkApply(){const on=!!KGFX.ink;INK.on.value=on?1:0;for(const m of INK_B)m.visible=on;if(window.ZM)ZM.ink=on;
+ const hemi=scene.children.find(o=>o.isHemisphereLight),lines=scene.children.find(o=>o.isLineSegments),pag=INK.pag||(INK.pag=[]);if(!pag.length)scene.traverse(o=>{const m=o.material;if(o.isMesh&&m&&m.isMeshBasicMaterial&&m.color&&m.color.getHex()===0xa27e6c&&!pag.includes(m))pag.push(m)});
+ if(!INK.orig)INK.orig={fog:scene.fog.color.getHex(),hs:hemi.color.getHex(),hg:hemi.groundColor.getHex(),hi:hemi.intensity,sc:sun.color.getHex(),si:sun.intensity,side:matSide.color.getHex(),top:matTop.color.getHex(),ground:matGround.color.getHex(),tiles:lines?lines.material.color.getHex():0,pag:pag.length?pag[0].color.getHex():0,disc:sunDisc.material.color.getHex()};
+ const o=INK.orig,P_=on?{fog:INKPAL.fog,hs:INKPAL.hemiSky,hg:INKPAL.hemiGround,hi:INKPAL.hemiI,sc:INKPAL.sunC,si:INKPAL.sunI,side:INKPAL.side,top:INKPAL.top,ground:INKPAL.ground,tiles:INKPAL.tiles,pag:INKPAL.pag,disc:INKPAL.disc}:o;
+ scene.fog.color.setHex(P_.fog);scene.background.setHex(P_.fog);hemi.color.setHex(P_.hs);hemi.groundColor.setHex(P_.hg);hemi.intensity=P_.hi;sun.color.setHex(P_.sc);sun.intensity=P_.si;
+ matGround.color.setHex(P_.ground);for(const b of BOXES)if(b.mats){b.mats[0].color.setHex(P_.side);b.mats[1].color.setHex(P_.top)}
+ if(lines)lines.material.color.setHex(P_.tiles);for(const m of pag)m.color.setHex(P_.pag);sunDisc.material.color.setHex(P_.disc);
+ inkScan()}
+inkApply();
 let vibT=0;function kgVib(p,force){if(!KGFX.vib||!('vibrate' in navigator))return;const n=performance.now();if(!force&&n-vibT<100)return;vibT=n;try{navigator.vibrate(p)}catch(_){}}
 function kgOn(){return!!RUN&&!NET.on&&!(TRAIN&&TRAIN.mp)}
 function kgNew(){return{slots:{},pas:{},duo:{},shinpo:{},ham:[],kam:{},rr:1,rrN:0,ban:3,banned:[],pact:null,boons:{},buy:{},oniTaken:false,done:{},hok:null,hokSel:0,hurtBoss:false,breath:0,omikiTok:0}}
@@ -3543,12 +3576,12 @@ function kgRenderArm(){const A=KARM,skc={'Fácil':'#4ee07a','Media':'#ffd23a','D
   <div class="kad">${un?R[2]:'Reto: vence a un jefe con la '+TYPE_N[t]+' en la mano'}</div></div>`};
  KGO.innerHTML=`<div class="krays" style="--kc:#d1242c"></div><div class="kwrap anim"><div class="khead"><div class="ktitle">⚔ ARMERÍA</div><div class="kwave">Toca una ranura y luego un arma</div></div>
  ${styRow(0)}${styRow(1)}<div class="kgrid">${Object.keys(TYPE_N).map(tile).join('')}</div>
- <div class="kfx"><button data-k="fx" data-v="shake" class="${KGFX.shake?'on':''}">📳 Temblor</button><button data-k="fx" data-v="flash" class="${KGFX.flash?'on':''}">✨ Destellos</button><button data-k="fx" data-v="vib" class="${KGFX.vib?'on':''}">📱 Vibración</button><button data-k="fx" data-v="num" class="${KGFX.num?'on':''}">💥 Números de daño</button><button data-k="fx" data-v="model" class="${KGFX.model?'on':''}">🧟 Modelos 3D</button></div>
+ <div class="kfx"><button data-k="fx" data-v="shake" class="${KGFX.shake?'on':''}">📳 Temblor</button><button data-k="fx" data-v="flash" class="${KGFX.flash?'on':''}">✨ Destellos</button><button data-k="fx" data-v="vib" class="${KGFX.vib?'on':''}">📱 Vibración</button><button data-k="fx" data-v="num" class="${KGFX.num?'on':''}">💥 Números de daño</button><button data-k="fx" data-v="model" class="${KGFX.model?'on':''}">🧟 Modelos 3D</button><button data-k="fx" data-v="ink" class="${KGFX.ink?'on':''}">🖌 Estilo tinta</button></div>
  <button data-k="ago" class="kgo">¡A LUCHAR! ▶</button></div>`}
 KGH.aw=b=>{const t=b.dataset.t,A=KARM,o=A.w.indexOf(t);if(o>=0&&o!==A.sel){A.w[o]=A.w[A.sel]}A.w[A.sel]=t;A.sel=1-A.sel;sfx('swish');kgRenderArm()};
 KGH.asel=b=>{KARM.sel=+b.dataset.j;kgRenderArm()};
 KGH.asty=b=>{const t=KARM.w[+b.dataset.j];KARM.sty[t]=b.dataset.v||null;sfx('swish');kgRenderArm()};
-KGH.fx=b=>{const v=b.dataset.v;KGFX[v]=!KGFX[v];kgFxSave();kgRenderArm()};
+KGH.fx=b=>{const v=b.dataset.v;KGFX[v]=!KGFX[v];kgFxSave();if(v==='ink')inkApply();kgRenderArm()};
 KGH.ago=()=>{const A=KARM;try{localStorage.setItem('stickronin_arm',JSON.stringify({w:A.w,sty:A.sty}))}catch(_){}
  RUN.wpn=A.w.map(t=>genWeapon(t));RUN.sty={};for(const t of A.w)if(A.sty[t]&&RYUM.u[t])RUN.sty[t]=A.sty[t];wIdx=0;refreshSM();updWUI();sfx('ready');kgOfferScreen('start')};
 // ---------- marcador en pantalla ----------
@@ -3773,16 +3806,16 @@ function drawCharZ(J,col,rad,hr){for(const[a,b]of BONES)bSeg(ZB_SEG,J[a],J[b],ra
 const BLK={r:0,g:0,b:0};
 function blobShadow(x,y,z,r){const gy=y<=.06?0:groundAt(x,y+.2,z),h=Math.max(0,y-gy),k=clamp(1-h/3,.25,1);bSph(DSK,[x,gy+.02,z],r*k,BLK)}
 function draw(){
- poolBegin();const zmOn=KGFX.model&&window.ZM;if(zmOn){zmBoot();ZM.begin()}
+ poolBegin();const zmOn=KGFX.model&&window.ZM;const inkO=!!KGFX.ink&&quality>0;for(const m of INK_B)m.visible=inkO;if(zmOn){zmBoot();ZM.begin();ZM.ink=inkO}if(KGFX.ink&&tick%90===0)inkScan(); // contornos fuera en calidad 0
  for(const r of rags){
   const ak=r.ash?ashK(r.life):1,k=(r.keep||r.convert?1:clamp(1-(r.life-7)/1,0,1))*ak;if(k<=.02)continue;const rc=ashCol(r.col,ak);
   const rad=r.hr<.15?.035:.05;
-  let zI=false;if(zmOn&&ZM.ready&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);zI=ZM.add(J,r.yaw,(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),r.col,r.ash?1-ak:0)}
+  let zI=false;if(zmOn&&ZM.ready&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);zI=ZM.add(J,r.yaw,(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),inkTone(r.col),r.ash?1-ak:0)}
   if(!zI)for(const s of r.sticks){const A=r.pts[s.a],B=r.pts[s.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],rad*k,rc)}
   const h=r.pts[0];if(!zI)bSph(ZB_SPH,[h.x,h.y,h.z],r.hr*k,rc);
   for(let i=1;i<r.pts.length;i++){const p=r.pts[i];if(p.stump)bSph(ZB_SPH,[p.x,p.y,p.z],(r.hr<.15?.04:.058)*k,REDC)}
  }
- for(const r of frags){if(zmOn&&ZM.ready){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);if(ZM.add(J,r.yaw,r.zombie?r.zombie.s:1,zmVis(r.sticks),r.col))continue}for(const s2 of r.sticks){const A=r.pts[s2.a],B=r.pts[s2.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],r.hr<.15?.035:.05,r.col)}const h=r.pts[0];bSph(ZB_SPH,[h.x,h.y,h.z],r.hr,r.col)}
+ for(const r of frags){if(zmOn&&ZM.ready){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:zmYaw(J,0);if(ZM.add(J,r.yaw,r.zombie?r.zombie.s:1,zmVis(r.sticks),inkTone(r.col)))continue}for(const s2 of r.sticks){const A=r.pts[s2.a],B=r.pts[s2.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],r.hr<.15?.035:.05,r.col)}const h=r.pts[0];bSph(ZB_SPH,[h.x,h.y,h.z],r.hr,r.col)}
  camera.updateMatrixWorld();FRM.multiplyMatrices(camera.projectionMatrix,camera.matrixWorldInverse);FRUS.setFromProjectionMatrix(FRM);
  let nNear=0;
  for(const e of zs){if(e.spider)continue;
@@ -3794,8 +3827,8 @@ function draw(){
   if(e.spawnT>0){const k=1-e.spawnT/(e.mini?.35:.55);J=J.map(p=>p&&[p[0],e.y+(p[1]-e.y)*k,p[2]])}
   const ms=e.mass||0,rad=.048*(e.mini?.8:1)*(1+.7*ms)*(e.bw||1),hr=.145*e.s*(1+.25*ms)*(e.hs||1);
   blobShadow(e.x,e.y,e.z,.36*e.s*(1+.5*ms));
-  if(zmOn&&ZM.add(J,e.yaw,e.s*(1+.15*(e.mass||0)),null,e.ks?kgTint(e):e.col)){if(near)nNear++;continue}
-  const zc=e.ks?kgTint(e):e.col;if(near){nNear++;drawCharZ(J,zc,rad,hr);
+  const ec=inkTone(e.col);if(zmOn&&ZM.add(J,e.yaw,e.s*(1+.15*(e.mass||0)),null,e.ks?kgTint(e,ec):ec)){if(near)nNear++;continue}
+  const zc=e.ks?kgTint(e,ec):ec;if(near){nNear++;drawCharZ(J,zc,rad,hr);
    const F=dirW(e.yaw,[0,0,1]),R=dirW(e.yaw,[1,0,0]),h=J[0],es=.12*e.s;
    bSph(ZB_SPH,[h[0]+F[0]*es+R[0]*.05*e.s,h[1]+.02,h[2]+F[2]*es+R[2]*.05*e.s],.025,REDC);bSph(ZB_SPH,[h[0]+F[0]*es-R[0]*.05*e.s,h[1]+.02,h[2]+F[2]*es-R[2]*.05*e.s],.025,REDC);
   }else{

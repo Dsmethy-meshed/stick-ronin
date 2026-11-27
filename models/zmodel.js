@@ -5,7 +5,7 @@
    Todos los cuerpos se dibujan en UNA llamada (InstancedMesh). Un tramo cortado se encoge a 0 (no se corta la malla).
    J: 0 cabeza, 1 cuello/hombros, 2 pecho, 3 pelvis, 4-5 codo/mano izq., 6-7 codo/mano der., 8-9 rodilla/pie izq., 10-11 rodilla/pie der. */
 (function(){
-const ZM={ready:false,failed:false,K:1.96,cap:120,glow:.12,base:null,n:0};
+const ZM={ready:false,failed:false,K:1.96,cap:120,glow:.12,base:null,n:0,ink:false,inkU:{value:.028}};
 // el orden importa: es el que guarda prep_tripo.py en el color de cada vértice
 const SEGS=[[3,2],[2,1],[1,0],[1,4,[2,1]],[4,5],[1,6,[2,1]],[6,7],[3,8,[3,2]],[8,9],[3,10,[3,2]],[10,11]],NS=SEGS.length,TW=NS*4;
 const segKey=(a,b)=>a<b?a+'-'+b:b+'-'+a;
@@ -31,6 +31,7 @@ ZM.load=async function(url,scene){
   ZM.data=new Float32Array(TW*ZM.cap*4);ZM.tex=new THREE.DataTexture(ZM.data,TW,ZM.cap,THREE.RGBAFormat,THREE.FloatType);ZM.tex.magFilter=ZM.tex.minFilter=THREE.NearestFilter;ZM.tex.needsUpdate=true;
   ZM.base=new THREE.Color(0x7d8c6a);
   const mat=new THREE.MeshLambertMaterial({color:0xffffff,emissive:new THREE.Color(ZM.glow,ZM.glow,ZM.glow),side:THREE.DoubleSide});
+  mat.customProgramCacheKey=()=>'zmBody';
   mat.onBeforeCompile=sh=>{sh.uniforms.zmTex={value:ZM.tex};sh.uniforms.zmH={value:ZM.cap};
    sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform sampler2D zmTex;uniform float zmH;attribute vec3 zmSeg;attribute float zmBody;attribute float zmDis;varying vec3 zmP;varying float zmD;\nmat4 zmM(float s){float y=(zmBody+.5)/zmH,x=s*4.;return mat4(texture2D(zmTex,vec2((x+.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+1.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+2.5)/'+TW+'.,y)),texture2D(zmTex,vec2((x+3.5)/'+TW+'.,y)));}')
     .replace('#include <beginnormal_vertex>','mat4 zmA=zmM(zmSeg.x),zmB=zmM(zmSeg.y);float zmHA=zmA[3][3],zmHB=zmB[3][3],zmWA=zmSeg.z*zmHA,zmWB=(1.-zmSeg.z)*zmHB,zmV=zmWA+zmWB;\nvec3 objectNormal=normalize(mat3(zmA)*normal*zmWA+mat3(zmB)*normal*zmWB+1e-6);\n#ifdef USE_TANGENT\nvec3 objectTangent=vec3(tangent.xyz);\n#endif')
@@ -46,6 +47,12 @@ ZM.load=async function(url,scene){
   for(let i=0;i<ZM.cap;i++)mesh.setMatrixAt(i,new THREE.Matrix4());
   mesh.instanceColor=new THREE.InstancedBufferAttribute(new Float32Array(ZM.cap*3),3);mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);mesh.count=0;
   scene.add(mesh);ZM.mesh=mesh;
+  // contorno de tinta (estilo tinta): la misma malla, solo caras traseras, en negro e inflada ZM.inkU por la normal; usa el mismo parche (cortes y ceniza)
+  const om=new THREE.MeshLambertMaterial({color:0x000000,side:THREE.BackSide});
+  om.onBeforeCompile=sh=>{mat.onBeforeCompile(sh);sh.uniforms.zmOW=ZM.inkU;
+   sh.vertexShader=sh.vertexShader.replace('#include <common>','#include <common>\nuniform float zmOW;').replace('#include <morphtarget_vertex>','if(zmV>=.5)transformed+=objectNormal*zmOW;\n#include <morphtarget_vertex>')};
+  om.customProgramCacheKey=()=>'zmOutline';
+  const ol=new THREE.InstancedMesh(g,om,ZM.cap);ol.frustumCulled=false;for(let i=0;i<ZM.cap;i++)ol.setMatrixAt(i,new THREE.Matrix4());ol.count=0;ol.visible=false;scene.add(ol);ZM.outline=ol;
   ZM.RJ=rig.RJ.map(v=>new THREE.Vector3(...v));
   ZM.roots=SEGS.map(([a,b,par])=>par?new THREE.Vector3(...rig.root[segKey(a,b)]):null);
   ZM.ready=true;return true
@@ -74,7 +81,7 @@ ZM.add=function(J,yaw,s,vis,col,dis){if(!ZM.ready||ZM.n>=ZM.cap)return false;
   if(Math.abs(f-1)>.02){const u=_d,g=f-1;_s.set(1+g*u.x*u.x,g*u.x*u.y,g*u.x*u.z,0,g*u.y*u.x,1+g*u.y*u.y,g*u.y*u.z,0,g*u.z*u.x,g*u.z*u.y,1+g*u.z*u.z,0,0,0,0,1);_m.premultiply(_s)}
   const e=_m.elements;e[12]+=anchor.x;e[13]+=anchor.y;e[14]+=anchor.z;D.set(e,off)}
  ZM.mesh.setColorAt(row,col||ZM.base);ZM.dis.array[row]=dis||0;return true};
-ZM.end=function(){if(!ZM.ready)return;ZM.mesh.count=ZM.n;ZM.tex.needsUpdate=true;ZM.mesh.instanceColor.needsUpdate=true;ZM.dis.needsUpdate=true};
+ZM.end=function(){if(!ZM.ready)return;ZM.mesh.count=ZM.n;ZM.outline.count=ZM.n;ZM.outline.visible=ZM.ink&&ZM.n>0;ZM.mesh.material.emissive.setScalar(ZM.ink?.015:ZM.glow);ZM.tex.needsUpdate=true;ZM.mesh.instanceColor.needsUpdate=true;ZM.dis.needsUpdate=true};
 ZM.segKey=segKey;
 window.ZM=ZM;
 })();
