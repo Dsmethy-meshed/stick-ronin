@@ -36,6 +36,8 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Cacería: una sola arma, solo se cambia al empezar o tras morir. **Prueba:** t16 (dos pestañas: coge una, la otra sale 🔒, ⇄ no cambia, tras morir puede coger otra y se vuelve a bloquear).
 - [x] Limpieza: fuera masa de zombis (malla y buffers), carrera lateral por la pared, `skyTarget`, parry PvE viejo (`deflect`/`counterAttack`), kamon de prueba viejos del dojo (ahora da kamon Kago) y variables sueltas. **Prueba:** carga sin errores; t1/t2/t7/t13/t16/t17.
 - [x] Equilibrio: tienda con precios crecientes y 1 onigiri por visita, menos tama, zombis ×1,05 por oleada, +4 % de daño recibido por oleada, curación 15, base ×1,3. **Prueba:** t17 (40→60→80, tama 300→170, onigiri bloqueado).
+- [x] Tienda rotativa con límite (2 por visita, 6 por partida, a veces 3/7), Omiki más raro y flojo, nueva escala de vida de zombis/yokai/jefes, enemigos +5 %/oleada. **Prueba:** t18 (4 objetos, 2 compras y 🔒, tope 6/6; vida 6/21/52/193).
+- [x] Enemigo 天邪鬼 Amanojaku en azoteas: dispara, huye con gancho, muere con tu gancho. **Prueba:** t18 en el dojo (en azotea, 3 disparos = −24, huye al acercarte, el gancho lo apunta y lo mata); t1/t2/t7/t13/t16 sin errores.
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia

@@ -949,6 +949,8 @@ function findHook(){
  }
  if(SIEGE.kHook){const K=siegeKarura(),g=SIEGE.kHook;if(K&&g.boss===K&&karuraHookable(K)&&P.ride!==K){const dx=g.x-P.x,dz=g.z-P.z,dy=g.y-P.y,d=Math.hypot(dx,dz);
   if(d<16&&dy>-2&&dy<6.5&&(d<2.5||(dx*cf[0]+dz*cf[1])/d>-.2)&&losClear(eye,[g.x,g.y,g.z])){const s=d*.3-3;if(s<bs){bs=s;best=g}}}}
+ for(const S of zs){if(!S.alive||S.kind!=='amanojaku'||S.zip)continue;const dx=S.x-P.x,dz=S.z-P.z,dy=S.y-P.y,d=Math.hypot(dx,dz);if(d>16||dy<-1||dy>10)continue;if(d>2&&(dx*cf[0]+dz*cf[1])/d<-.2)continue;
+  if(!losIgn(eye,[S.x,S.y+1,S.z],S.roof))continue;const s=d*.3-4;if(s<bs){bs=s;best={x:S.x,y:S.y+1,z:S.z,amj:S,n:[0,0,0],ax:S.x,ay:S.y,az:S.z}}}
  hookTarget=best;
 }
 function startHook(){
@@ -962,6 +964,7 @@ function updateHook(){
  gp.sagV+=((gp.phase==='throw'?.6:.05)-gp.sag)*120*DT;gp.sagV*=.86;gp.sag+=gp.sagV*DT;
  if(gp.phase==='throw'){
   const k=Math.min(1,gp.t/.14);gp.tip=lerp3(hand,tgt,eOut2(k));P.vx*=.85;P.vz*=.85;P.vy=Math.max(P.vy-G*DT*.4,-3);
+  if(g.amj){g.x=g.amj.x;g.y=g.amj.y+1;g.z=g.amj.z;if(k>=1){amjHooked(g.amj);return}}
   if(k>=1){gp.phase='pull';gp.t=0;gp.sag=.35;gp.sagV=-6;sfx('zip');shake=Math.max(shake,.05)}
  }else{
   if(g.boss){if(!g.boss.alive||!karuraHookable(g.boss)){P.grap=null;return}const dd=Math.hypot(g.ax-P.x,g.ay-P.y,g.az-P.z);if(dd<1.8||gp.t>1.4){P.grap=null;if(dd<4)karuraMount('P',g.boss);return}}
@@ -2271,7 +2274,7 @@ function drawSpiders(){
 }
 /* ================= YOKAI (mitología japonesa) ================= */
 const YC=h=>new THREE.Color(h);
-const YCOL={oni:YC(0xb3261e),oniH:YC(0xe8dcc0),club:YC(0x2a1d14),kappa:YC(0x3f7a3a),shell:YC(0x26361f),dish:YC(0x9fd3e0),kasa:YC(0xa8322b),paper:YC(0xd9b26a),eye:YC(0xffffff),pupil:YC(0x111111),tongue:YC(0xd1242c),kimono:YC(0x5a3a78),face:YC(0xf3e6d8),hair:YC(0x0d0b0b),tengu:YC(0xc0392b),robe:YC(0x2f3d2c),wing:YC(0x151313),ooni:YC(0x2c3b6e),ooniH:YC(0xe0b23a),ooniEye:YC(0xfff07a),mane:YC(0xf1ece4),tigerY:YC(0xe09a1c),tigerB:YC(0x161210),iron:YC(0x34363a),karura:YC(0x4a1418),kface:YC(0xc0392b),kwing:YC(0x1d1416)};
+const YCOL={amj:YC(0x5b3a8c),oni:YC(0xb3261e),oniH:YC(0xe8dcc0),club:YC(0x2a1d14),kappa:YC(0x3f7a3a),shell:YC(0x26361f),dish:YC(0x9fd3e0),kasa:YC(0xa8322b),paper:YC(0xd9b26a),eye:YC(0xffffff),pupil:YC(0x111111),tongue:YC(0xd1242c),kimono:YC(0x5a3a78),face:YC(0xf3e6d8),hair:YC(0x0d0b0b),tengu:YC(0xc0392b),robe:YC(0x2f3d2c),wing:YC(0x151313),ooni:YC(0x2c3b6e),ooniH:YC(0xe0b23a),ooniEye:YC(0xfff07a),mane:YC(0xf1ece4),tigerY:YC(0xe09a1c),tigerB:YC(0x161210),iron:YC(0x34363a),karura:YC(0x4a1418),kface:YC(0xc0392b),kwing:YC(0x1d1416)};
 const YK_KINDS=['oni','kappa','kasa','rokuro','tengu'];
 // onis de colores: todos cogen y lanzan zombis, pero cada color tiene su propio ataque
 // aka (rojo): mazazo · ao (azul): rápido, lanza 2 zombis seguidos · ki (amarillo): salta y suelta una onda (sáltala) · midori (verde): embiste en línea · kuro (negro): enorme y duro, mazazo más amplio
@@ -2295,16 +2298,16 @@ function ykOnDeath(S){if(S.kind!=='kasa')return;const p=[S.x,S.y,S.z];
   if(SIEGE.on)for(const b of SIEGE.bots)if(!b.down&&Math.hypot(b.x-p[0],b.z-p[2])<Rr)siegeHurtBot(b,12,{x:p[0],z:p[2]});
   for(const z of zs)if(z.alive&&!z.spider&&!z.kind&&Math.hypot(z.x-p[0],z.z-p[2])<Rr)launchZombie(z,[(z.x-p[0])*3,7,(z.z-p[2])*3])}}
 function oniRaid(n){for(let i=0;i<n;i++){const S=spawnYokai('oni',i/n*Math.PI*2+rand(-.2,.2));S.raid=true;S.spawnT=0}banner('👹 ¡INCURSIÓN ONI! ×'+n);sfx('charge');shake=Math.max(shake,.4)}
-const YK_NAME={oni:'鬼 ¡ONI!',kappa:'河童 ¡KAPPA!',kasa:'唐傘 ¡KASA-OBAKE!',rokuro:'ろくろ首 ¡ROKUROKUBI!',tengu:'天狗 ¡TENGU!',ooni:'大鬼 ¡Ō-ONI!',karura:'迦楼羅 ¡KARURA!'};
+const YK_NAME={amanojaku:'天邪鬼 ¡AMANOJAKU!',oni:'鬼 ¡ONI!',kappa:'河童 ¡KAPPA!',kasa:'唐傘 ¡KASA-OBAKE!',rokuro:'ろくろ首 ¡ROKUROKUBI!',tengu:'天狗 ¡TENGU!',ooni:'大鬼 ¡Ō-ONI!',karura:'迦楼羅 ¡KARURA!'};
 let yokaiT=12,raidT=10,raidW=0;
 // jefes en el modo normal: cada 5 oleadas (5 Ō-oni, 10 Karura, 15 Ō-oni…)
 function spBoss(){const kk=(wave/5)%2===1?'ooni':'karura',S=spawnYokai(kk);if(kk==='karura')Object.assign(S,{gustCd:KAR.gustCd,diveCd:KAR.diveCd,snCd:KAR.snCd,pitch:0,ph:0,flees:0});banner(kk==='ooni'?'👹 JEFE · 大鬼 Ō-ONI':'🦅 JEFE · 迦楼羅 KARURA');shake=Math.max(shake,.5)}
 function spawnYokai(kind,ang,opt){
  const a=ang??Math.random()*Math.PI*2,x=clamp(P.x+Math.sin(a)*13,-18,18),z=clamp(P.z+Math.cos(a)*13,-18,18),y=groundAt(x,30,z)+(kind==='tengu'?4:0);
- const D={oni:{s:1.45,r:.55,h:2.5,hp:5},kappa:{s:.72,r:.3,h:1.1,hp:1},kasa:{s:1,r:.35,h:1.4,hp:1},rokuro:{s:1,r:.3,h:1.75,hp:2},tengu:{s:1,r:.32,h:1.7,hp:2},ooni:{s:2.3,r:1,h:4.3,hp:40},karura:{s:1.6,r:1.1,h:3,hp:KAR.hp}}[kind];
+ const D={amanojaku:{s:.85,r:.3,h:1.5,hp:1.5},oni:{s:1.45,r:.55,h:2.5,hp:5},kappa:{s:.72,r:.3,h:1.1,hp:1},kasa:{s:1,r:.35,h:1.4,hp:1},rokuro:{s:1,r:.3,h:1.75,hp:2},tengu:{s:1,r:.32,h:1.7,hp:2},ooni:{s:2.3,r:1,h:4.3,hp:40},karura:{s:1.6,r:1.1,h:3,hp:KAR.hp}}[kind];
  const S={spider:true,kind,alive:true,x,y,z,vx:0,vy:0,vz:0,...D,maxHp:D.hp,mini:false,iaiT:0,inRag:null,spawnT:0,stun:0,grounded:true,mass:0,
   yaw:Math.atan2(P.x-x,P.z-z),t:Math.random()*9,st:'walk',stT:0,atkCd:rand(1,2),hurtT:0,ph:0,orb:Math.random()*6.3,zig:1,J:null};
- {const w=Math.max(1,wave),k=(kind==='ooni'||kind==='karura')?1+.1*(w-1):1+.12*(w-1);S.hp=S.maxHp=Math.round(D.hp*k*10)/10} // yokai y jefes también se endurecen
+ {const w=Math.max(1,wave),k=((kind==='ooni'||kind==='karura')?1+.1*(w-1):1+.15*(w-1))*KG.ykExp**(w-1);S.hp=S.maxHp=Math.round(D.hp*k*10)/10} // yokai y jefes también se endurecen
  if(kind==='oni')oniVariant(S);else if(opt&&opt.var==='mini'){S.var='mini';S.vname='';S.vcol=YV.kasa.v.ao.col;S.s=.6;S.r=.22;S.h=.85;S.hp=S.maxHp=1}else ykVariant(S,opt&&opt.var);
  if(kgOn())kgSpawnY(S);zs.push(S);if(!(opt&&opt.quiet))banner(S.vname||YK_NAME[kind]);sfx('charge');dust([x,y,z],8,2);return S;
 }
@@ -2323,7 +2326,7 @@ function yokaiHit(S,hit,dmg){
  ykOnDeath(S);
  banner(S.kind==='karura'?'🦅 ¡KARURA DERROTADO!':S.kind==='ooni'?'👹 ¡Ō-ONI DERROTADO!':S.kind==='oni'?'¡ONI ABATIDO!':'');
 }
-function YK_BODY(S){return S.vcol&&S.kind!=='oni'?S.vcol:S.kind==='oni'&&S.var?ONI_V[S.var].col:S.kind==='karura'?YCOL.karura:S.kind==='ooni'?YCOL.ooni:S.kind==='oni'?YCOL.oni:S.kind==='kappa'?YCOL.kappa:S.kind==='rokuro'?YCOL.kimono:S.kind==='tengu'?YCOL.robe:YCOL.kasa}
+function YK_BODY(S){return S.vcol&&S.kind!=='oni'?S.vcol:S.kind==='oni'&&S.var?ONI_V[S.var].col:S.kind==='karura'?YCOL.karura:S.kind==='ooni'?YCOL.ooni:S.kind==='oni'?YCOL.oni:S.kind==='kappa'?YCOL.kappa:S.kind==='rokuro'?YCOL.kimono:S.kind==='tengu'?YCOL.robe:S.kind==='amanojaku'?YCOL.amj:YCOL.kasa}
 function ykHum(S,head,neck,pel,hL,hR,fL,fR){return finishPose(head,neck,pel,hL,hR,fL,fR).map(l=>toW(S,S.yaw,mul3(l,S.s)))}
 function ykWalk(S,sp){const ph=S.ph,mv=sp>.3,bob=mv?Math.abs(Math.sin(ph))*.05:0;return{pel:[0,.9-bob,0],neck:[0,1.42-bob,.08],head:[0,1.57-bob,.1],
  fL:mv?[-.15,Math.max(0,Math.cos(ph))*.14,Math.sin(ph)*.3]:[-.15,0,.06],fR:mv?[.15,Math.max(0,Math.cos(ph+Math.PI))*.14,Math.sin(ph+Math.PI)*.3]:[.15,0,-.06],
@@ -2331,6 +2334,24 @@ function ykWalk(S,sp){const ph=S.ph,mv=sp>.3,bob=mv?Math.abs(Math.sin(ph))*.05:0
 function ykNear(S,d,dy){return!P.dead&&Math.hypot(P.x-S.x,P.z-S.z)<d&&Math.abs(P.y-S.y)<(dy||1.6)}
 function ykSteer(S,sp,acc){const dx=P.x-S.x,dz=P.z-S.z,d=Math.hypot(dx,dz)||1;S.yaw=Math.atan2(dx,dz);S.vx+=(dx/d*sp-S.vx)*Math.min(1,DT*acc);S.vz+=(dz/d*sp-S.vz)*Math.min(1,DT*acc)}
 const YK={
+ // 天邪鬼 Amanojaku: dispara desde las azoteas; si te acercas, se va con su gancho a otro tejado
+ amanojaku:{update(S,dh){S.vx=S.vy=S.vz=0;S.zipCd-=DT;
+   if(S.zip){const Z=S.zip;Z.t+=DT;const k=Math.min(1,Z.t/AMJ.zipT),e=k*k*(3-2*k);S.x=Z.a[0]+(Z.b[0]-Z.a[0])*e;S.z=Z.a[2]+(Z.b[2]-Z.a[2])*e;S.y=Z.a[1]+(Z.b[1]-Z.a[1])*e+Math.sin(k*Math.PI)*2.2;S.yaw=Math.atan2(Z.b[0]-Z.a[0],Z.b[2]-Z.a[2]);
+    if(k>=1){S.zip=null;S.y=Z.b[1];S.roof=Z.roof;S.st='aim';S.atkCd=Math.max(S.atkCd,.7);dust([S.x,S.y,S.z],5,1.2)}return}
+   S.yaw=Math.atan2(P.x-S.x,P.z-S.z);
+   const close=!P.dead&&(dh<AMJ.flee||(dh<9&&Math.abs(P.y-S.y)<1.3)||(P.grap&&P.grap.g&&P.grap.g.amj!==S&&dh<10));
+   if(close&&S.zipCd<=0){const q=amjSpot(true,S.roof);if(q){S.zip={a:[S.x,S.y,S.z],b:[q.x,q.y,q.z],t:0,roof:q.b};S.zipCd=AMJ.zipCd;S.st='aim';sfx('hook');return}}
+   if(S.st==='aim'&&S.atkCd<=0&&!P.dead&&dh<24){S.st='draw';S.stT=0;tell(S,1.2)}
+   if(S.st==='draw'){S.stT+=DT;if(S.stT>=AMJ.aim){S.st='aim';S.atkCd=rand(...AMJ.shotCd);const o=[S.x,S.y+1.15*S.s,S.z],t=[P.x+P.vx*.25,P.y+1.1,P.z+P.vz*.25],dx=t[0]-o[0],dy=t[1]-o[1],dz=t[2]-o[2],l=Math.hypot(dx,dy,dz)||1;
+     if(!losIgn(o,[P.x,P.y+1.2,P.z],S.roof)){S.blind=(S.blind||0)+1;if(S.blind>=2&&S.zipCd<=0){const q=amjSpot(false,S.roof);if(q){S.blind=0;S.zip={a:[S.x,S.y,S.z],b:[q.x,q.y,q.z],t:0,roof:q.b};S.zipCd=AMJ.zipCd;sfx('hook')}}}else{S.blind=0;S.shots=(S.shots||0)+1;EP.push({x:o[0],y:o[1],z:o[2],vx:dx/l*AMJ.spd,vy:dy/l*AMJ.spd,vz:dz/l*AMJ.spd,t:2,dmg:AMJ.dmg,amj:1});sfx('swish')}}}
+   S.ph+=DT*3},
+  pose(S){const dr=S.st==='draw',zp=!!S.zip,c=dr?.08:0;S.J=ykHum(S,[0,1.42-c,.12],[0,1.25-c,.06],[0,.72-c,0],zp?[-.25,1.7,.2]:[-.22,1.2,.45],zp?[.25,1.7,.2]:dr?[.18,1.25,.05]:[.24,.9,.2],[-.16,zp?.25:0,.05],[.16,zp?.25:0,-.05])},
+  draw(S,col){const J=S.J;if(!J)return;drawChar(J,col,.05,.001);const h=J[0],F=[Math.sin(S.yaw),0,Math.cos(S.yaw)],Rr=[Math.cos(S.yaw),0,-Math.sin(S.yaw)],k=S.s||1;
+   for(const sd of[-1,1])limb([h[0]+Rr[0]*.07*sd,h[1]+.08,h[2]+Rr[2]*.07*sd],[h[0]+Rr[0]*.11*sd,h[1]+.24,h[2]+Rr[2]*.11*sd],.025,YCOL.oniH);
+   head([h[0]+F[0]*.1,h[1]+.02,h[2]+F[2]*.1],.035,YCOL.ooniEye);
+   const hd=J[7],bw=[hd[0]+F[0]*.45*k,hd[1]+.05,hd[2]+F[2]*.45*k];limb(hd,bw,.025,YCOL.club);
+   if(S.zip){limb(J[5],[S.zip.b[0],S.zip.b[1]+.2,S.zip.b[2]],.014,COL.rope)}
+   if(S.st==='draw')head(bw,.07+.04*Math.sin(time*30),YCOL.ooniEye)}},
  // 鬼 Oni: gigante rojo con kanabō; lento, aguanta 5 golpes y aplasta el suelo
  oni:{update(S,dh){
    const V=S.var||'aka';
@@ -2536,7 +2557,7 @@ function updateRocks(){for(let i=ROCKS.length-1;i>=0;i--){const R=ROCKS[i];R.t+=
   const gy=groundAt(R.x,R.y+.5,R.z);if(R.y<=gy+.2||R.t>4||pointBox(R.x,R.y,R.z)&&pointBox(R.x,R.y,R.z)!==GROUND){const p=[R.x,Math.max(gy,R.y),R.z];ring(p,1.8,.35);dust(p,14,2.4,true);sfx('blunt');shake=Math.max(shake,.12);
    for(const z of zs)if(z.alive&&!z.kind&&!z.spider&&Math.hypot(z.x-p[0],z.z-p[2])<1.6)launchZombie(z,[(z.x-p[0])*3,7,(z.z-p[2])*3]);ROCKS.splice(i,1);zombieLand(R,p)}}}
 function zombieLand(R,p){const z=addZombie(p[0],p[1],p[2],R.mini);const zz=z||zs[zs.length-1];if(zz){zz.spawnT=0;try{launchZombie(zz,[R.vx*.3,4,R.vz*.3])}catch(e){}}}
-function ykClimb(S){if(S.kind==='oni'||S.kind==='ooni'||S.kind==='karura'||S.kind==='tengu'||S.st==='air'||S.st==='neck')return;const dx=P.x-S.x,dz=P.z-S.z,d=Math.hypot(dx,dz)||1,fx=dx/d,fz=dz/d,r=(S.r||.35)+.25;
+function ykClimb(S){if(S.kind==='amanojaku'||S.kind==='oni'||S.kind==='ooni'||S.kind==='karura'||S.kind==='tengu'||S.st==='air'||S.st==='neck')return;const dx=P.x-S.x,dz=P.z-S.z,d=Math.hypot(dx,dz)||1,fx=dx/d,fz=dz/d,r=(S.r||.35)+.25;
  const b=pointBox(S.x+fx*r,S.y+.7,S.z+fz*r);if(b&&b!==GROUND&&(P.y>S.y+.6||d>1.5)){S.climbT=.15;S.vy=Math.max(S.vy,S.kind==='kasa'?6:4.8);S.vx=fx*1.2;S.vz=fz*1.2;S.yaw=Math.atan2(dx,dz);if(tick%8===0)dust([S.x+fx*r,S.y+.4,S.z+fz*r],1,.6)}
  else{const b2=pointBox(S.x+fx*r,S.y+.08,S.z+fz*r);if(b2&&b2!==GROUND&&b2.y1-S.y<1.1&&b2.y1>S.y){S.y=b2.y1+.03;S.x+=fx*r;S.z+=fz*r;S.vy=0;S.climbT=0}else if(S.climbT>0)S.climbT-=DT}}
 function drawRocks(){for(const R of ROCKS)drawTumbler([R.x,R.y,R.z],R.spin,Math.atan2(R.vx,R.vz),R.mini?.55:1)}
@@ -2704,11 +2725,11 @@ const KG={
  pdWin:.35,pdCd:1.5,pdMul:2, // esquiva perfecta: ventana desde que empiezas el dash (s), recarga y daño del golpe siguiente
  siegeHp:3,botHits:4, // asedio: zombis con ×3 de vida; un bot los mata en 4 golpes (sus golpes no usan tus bendiciones)
  base:1.3,                               // valor de toda bendición (sin rarezas); el {n} de los textos ya va ×base
- lvmul:[1,1.5,1.85,2.1],                 // Omiki: +50 %, +35 %, +25 % del valor base
- zhp:w=>(.6+.2*(w-1))*1.05**(w-1),       // vida de zombi: 6, 8, 11, 14… 37 en la 10, 111 en la 20 (en pantalla)
- edmg:.04,                               // daño que te hacen: +4 % por oleada
+ lvmul:[1,1.3,1.55,1.75],                // Omiki: +30 %, +25 %, +20 % del valor base
+ zhp:w=>(.6+.25*(w-1))*1.07**(w-1),      // vida de zombi: 6, 21 en la 5, 52 en la 10, 194 en la 20 (en pantalla)
+ edmg:.05,                               // daño que te hacen: +4 % por oleada
  waveHeal:15,                            // vida al superar una oleada
- ykHp:.12,bossHp:.1,                     // crecimiento por oleada de yokai y jefes
+ ykHp:.12,bossHp:.1,ykExp:1.04,                     // crecimiento por oleada de yokai y jefes
  champ:w=>Math.min(.12,.02+.0055*(w-1)), // probabilidad de campeón (tatari)
  arm:{yoroi:2,oni:4,kuro:8,mini:1,boss:15},// armadura (×10 en pantalla); escala como la vida de yokai
  shop:{omiki:40,omikiUp:20,heal:30,kamon:60,kamonUp:30,hokora:25},reroll:n=>15+10*n, // Omiki y kamon suben de precio con cada compra; 1 onigiri por visita
@@ -2846,8 +2867,8 @@ function kgCalc(){
  const I=s=>K.slot[s]&&K.slot[s].ka==='inari'?K.slot[s].v:0;
  SM.spd*=1+.3*I('kiri');SM.chg*=1+.4*I('tame');SM.cd/=Math.max(.35,1-.35*I('waza'));SM.par*=1+.5*I('kaeshi');
  if(K.pas.megumi)K.tamaK*=1.5;
- SM.dmg*=Math.sqrt(1+1.2*ups)*mult;SM.def=Math.max(.35,1-def);
- P.hpMax=Math.max(40,100+hp);if(P.hp>P.hpMax)P.hp=P.hpMax;
+ SM.dmg*=Math.sqrt(1+1.2*ups)*mult*(1+(RUN.kg.dmgB||0));SM.def=Math.max(.35,1-def);
+ P.hpMax=Math.max(40,100+hp+(RUN.kg.hpB||0));if(P.hp>P.hpMax)P.hp=P.hpMax;
 }
 // de dónde viene el golpe (para saber qué ranura actúa)
 function kgSrc(hit){if(hit&&hit.proc)return'proc';if(P.dashT>0)return'hashiri';if(time-(P.parryT0??-9)<.4)return'kaeshi';if(time-(P.wazaT??-9)<1.2)return'waza';if(time-(P.tameT??-9)<.7)return'tame';return'kiri'}
@@ -2941,7 +2962,7 @@ function kgWoundPop(e){const k=e.ks,cap=(KS.sp.hachi||KS.duo.tosho&&k.frz>0)?1e9
  if(KS.duo.tsukikizu&&k.mk>0){d*=3;crit=3;k.mk=0;const s=new Set([e]);for(let i=0;i<3;i++){const t=nearestAlive(e.x,e.z,5,s);if(!t)break;s.add(t);kgWound(t,0,k.wdP);flashLine([e.x,e.y+1,e.z],[t.x,t.y+1,t.z],.2)}}
  k.wd=0;k.wdA=0;ring([e.x,e.y+.1,e.z],1.1,.3);if(!goreLite())spray([e.x,e.y+1.1,e.z],[0,1,0],14,5,.8);sfx('blunt');kgDeal(e,d,{wound:1,crit,col:KAMI.hachi.c})}
 // cada paso: estados, zonas, clones, flechas enemigas, auras
-function kgStep(){
+function kgStep(){amjTick();
  if(!KS.on||state!=='play')return;
  if(P.onGround)P.dj=0;P.chimaT=Math.max(0,(P.chimaT||0)-DT);if(P.iaiX&&time-(P.tameT??-9)>.8)P.iaiX=0;if(P.sinceDash>1.2)P.shinsoku=0;
  if(KS.hg.tengu&&!P.onGround&&held.jump&&P.vy<-2.2&&!P.grap)P.vy=-2.2;
@@ -2979,7 +3000,7 @@ function kgStep(){
  for(const T of TUR){T.t-=DT;T.cd-=DT;if(T.cd<=0){const t=nearestAlive(T.x,T.z,16);if(t){T.cd=.5;T.yaw=Math.atan2(t.x-T.x,t.z-T.z);addProj({k:'bullet',x:T.x+Math.sin(T.yaw)*.6,y:P.y+1.3,z:T.z+Math.cos(T.yaw)*.6,vx:Math.sin(T.yaw)*44,vy:0,vz:Math.cos(T.yaw)*44,life:.45,pierce:2,direct:true,dmg:2,R:.45,bounce:0});sfx('blunt')}}}
  TUR=TUR.filter(T=>T.t>0);
  // flechas enemigas (yumi-zombi y reflejos)
- for(const p of EP){p.t-=DT;p.x+=p.vx*DT;p.z+=p.vz*DT;const dx=P.x-p.x,dz=P.z-p.z;
+ for(const p of EP){p.t-=DT;p.x+=p.vx*DT;p.y+=(p.vy||0)*DT;p.z+=p.vz*DT;if(p.vy&&pointBox(p.x,p.y,p.z))p.t=0;const dx=P.x-p.x,dz=P.z-p.z;
   if(Math.hypot(dx,dz)<.7&&Math.abs(P.y+1.1-p.y)<1.3&&!P.dead){p.t=0;
    if(P.parryT>0||(KS.ham.kaeshikaze&&P.atk)||(KS.ham.fudo&&P.charge&&P.charge.kind==='cleave')){const t=nearestAlive(P.x,P.z,14),a=t?Math.atan2(t.x-P.x,t.z-P.z):Math.atan2(-p.vx,-p.vz);addProj({k:'arrow',x:P.x,y:P.y+1.2,z:P.z,vx:Math.sin(a)*40,vy:0,vz:Math.cos(a)*40,life:.6,pierce:2,direct:true,dmg:2,R:.5,bounce:0});sparks([P.x,P.y+1.2,P.z],[0,1,0],10,[1,.9,.5]);sfx('parry')}
    else hurtPlayer(p.dmg,{x:p.x-p.vx*.05,z:p.z-p.vz*.05})}
@@ -3031,7 +3052,7 @@ function kgDash(dx,dz){P.dashT0=time;if(!KS.on)return;P.kgDash=new Set();P.since
  if(KS.duo.kitsunebi)addProj({k:'fire',x:P.x,y:P.y+1.2,z:P.z,vx:0,vy:2,vz:0,life:3.5,rad:1.5});
  if(KS.sp.inari)kgZone('decoy',P.x,P.z,1,2,1)}
 // esquiva perfecta: te iban a golpear justo durante (o recién acabado) el dash
-function kgPerfect(f){if(time<(P.pdCd||0))return false;P.pdCd=time+KG.pdCd;slowT=Math.max(slowT,.45);hitstop=Math.max(hitstop,.06);P.pdBuff=time+2.5;P.inv=Math.max(P.inv,.45);
+function kgPerfect(f){if(time<(P.pdCd||0))return false;P.pdCd=time+Math.max(.6,KG.pdCd-(RUN.kg.pdB||0));slowT=Math.max(slowT,.45);hitstop=Math.max(hitstop,.06);P.pdBuff=time+2.5;P.inv=Math.max(P.inv,.45);
  kgWave([P.x,P.y,P.z],2.6,'#bfefff',.45);kgNum([P.x,P.y+2.3,P.z],'避',1.9,'#bfefff');sfx('parry');kgVib([20,30,60],true);shake=Math.max(shake,.15);
  if(f&&f.alive){if(!f.kind&&!f.spider)f.stun=Math.max(f.stun||0,.8);else f.atkCd=Math.max(f.atkCd||0,1.2)}if(EF.rayo)chainLightning();kgParry(f);return true}
 // tras la esquiva perfecta (antes, tras el parry): efecto de la ranura 返
@@ -3144,7 +3165,7 @@ function kgSpawnZ(e){if(!KS.on)return;const w=Math.max(1,wave);e.hp=e.maxHp=KG.z
   if(t==='yoroi'){e.yr=e.yrMax=KG.arm.yoroi*(1+KG.ykHp*(w-1));e.speed*=.85}if(t==='yumi'){e.arT=rand(1,2.5)}if(t==='kagami'){e.glow=false;e.glT=rand(1,2)}break}}
  if(Math.random()<KG.champ(w)*(curse==='champ'?2:1)){const pool=Object.keys(TATARI).filter(k=>w>=TATARI[k].w&&(k!=='o'||Math.random()<.3)&&(k!=='niji'||Math.random()<.2));kgChamp(e,pick(pool))}
  if(curse==='fast')e.speed*=1.3}
-function kgSpawnY(S){if(!KS.on)return;const w=Math.max(1,wave),k=1+KG.ykHp*(w-1);
+function kgSpawnY(S){if(!KS.on)return;const w=Math.max(1,wave),k=(1+KG.ykHp*(w-1))*KG.ykExp**(w-1);
  if(S.kind==='oni')S.yr=S.yrMax=(S.var==='kuro'?KG.arm.kuro:KG.arm.oni)*k;
  else if(S.kind==='ooni'||S.kind==='karura'){S.yr=S.yrMax=KG.arm.boss*(1+KG.bossHp*(w-1));S.phase=0}
  else if(S.var&&S.var!=='mini'&&YV[S.kind]&&S.var!==YV[S.kind].def)S.yr=S.yrMax=S.maxHp*KG.arm.mini;
@@ -3277,7 +3298,7 @@ function kgPool(kind){const G=RUN.kg,out=[];
  const K=KAMI[ka];if(!G.pas[ka]&&(K.st?Object.values(G.slots).some(c=>c.ka===ka):Object.values(G.slots).some(c=>c.ka==='inari')))out.push({t:'pas',ka,w:1.3});
  for(const id in DUO){const D=DUO[id];if(G.duo[id]||(D.a!==ka&&D.b!==ka))continue;const o=D.a===ka?D.b:D.a;if(kgHas(o)&&kgHas(ka))out.push({t:'duo',id,w:3})}
  if(!G.shinpo[ka]&&(kgCount(ka)>=3||G.nijiSp&&kgHas(ka)))out.push({t:'sp',ka,w:G.nijiSp?50:4});
- const L=kgBlessList().filter(b=>(b.c.lv||1)<4);if(L.length)out.push({t:'omiki',ref:pick(L),w:.8});
+ const L=kgBlessList().filter(b=>(b.c.lv||1)<4);if(L.length)out.push({t:'omiki',ref:pick(L),w:.3});
  return out.filter(o=>!G.banned.includes(kgId(o)))}
 function kgDraw(pool,n,ex){const out=[],P2=pool.slice();while(out.length<n&&P2.length){const s=P2.reduce((a,o)=>a+(o.w||1),0);let r=Math.random()*s,i=0;for(;i<P2.length-1;i++){r-=P2[i].w||1;if(r<=0)break}const o=P2.splice(i,1)[0];if(ex&&ex.some(x=>kgId(x)===kgId(o)))continue;out.push(o)}return out}
 function kgMakeOffer(kind){const G=RUN.kg,n=(kind!=='start'&&G.boons.card4)?4:3;let o=kgDraw(kgPool(kind),n);
@@ -3320,7 +3341,7 @@ function kgRenderOffer(anim){const G=RUN.kg,hk=G.hok&&G.hok[G.hokSel];const kami
  if(anim){KGO.classList.add('lock');setTimeout(()=>KGO&&KGO.classList.remove('lock'),650)}
  if(KOFFK==='start')kgTip()}
 function kgTip(){try{if(localStorage.getItem('stickronin_kgtip'))return;localStorage.setItem('stickronin_kgtip','1')}catch(_){return}
- const t=document.createElement('div');t.className='ktip';t.innerHTML=`<b>加護 Bendiciones</b><span>⚔ Cada carta va a un botón: ataque, cargado, especial, dash o esquiva perfecta</span><span>避 Haz dash justo cuando te van a golpear: cámara lenta y tu siguiente golpe hace ×2,5</span><span>⛩ Al acabar cada oleada, el kami de su santuario te ofrece 3</span><span>✦ 2 kami distintos = dúo · 3 del mismo = ★ legendaria</span><span>鬼 3 kamon del mismo juego = te transformas (Henge)</span><button data-k="tipx">¡Entendido!</button>`;KGO.appendChild(t)}
+ const t=document.createElement('div');t.className='ktip';t.innerHTML=`<b>加護 Bendiciones</b><span>⚔ Cada carta va a un botón: ataque, cargado, especial, dash o esquiva perfecta</span><span>避 Haz dash justo cuando te van a golpear: cámara lenta y tu siguiente golpe hace ×2</span><span>⛩ Al acabar cada oleada, el kami de su santuario te ofrece 3</span><span>✦ 2 kami distintos = dúo · 3 del mismo = ★ legendaria</span><span>鬼 3 kamon del mismo juego = te transformas (Henge)</span><button data-k="tipx">¡Entendido!</button>`;KGO.appendChild(t)}
 let kgLP=null;
 function kgPDown(e){const c=e.target.closest('.kcard');if(!c)return;clearTimeout(kgLP);kgLP=setTimeout(()=>{kgLP='done';kgDetail(+c.dataset.i)},450)}
 function kgPUp(){if(kgLP!=='done')clearTimeout(kgLP)}
@@ -3377,17 +3398,42 @@ function kgPickOni(i,c){const o=KONI[i],G=RUN.kg;if(!o)return;G.done.oni=wave;
  if(o.t!=='skip'){kgBurst(c,o.t==='oni'?'#d1242c':'#ffe7a8');setTimeout(()=>kgEndQueue(),1800)}else kgEndQueue()}
 // tienda del tanuki (tras cada jefe)
 const KGH={};
-const kgPrice=k=>{const S=KG.shop,b=(RUN.kg.buy||{})[k]||0;return k==='omiki'?S.omiki+S.omikiUp*b:k==='kamon'?S.kamon+S.kamonUp*b:S.heal};
+// ---------- 天邪鬼 Amanojaku: tirador de azoteas que huye con su gancho (tu gancho lo derriba) ----------
+const AMJ={from:3,max:w=>Math.min(3,1+Math.floor((w-3)/4)),every:[9,16],shotCd:[1.9,2.8],aim:.45,spd:17,dmg:8,flee:6.5,zipT:.55,zipCd:2.6,roofMin:2.4};
+// línea de visión ignorando el tejado en el que está el Amanojaku (si no, el propio borde lo tapa)
+function losIgn(a,b,ign){for(let i=1;i<12;i++){const t=i/12,x=lerp(a[0],b[0],t),y=lerp(a[1],b[1],t),z=lerp(a[2],b[2],t);for(const B of BOXES){if(B===ign)continue;if(x>B.x0&&x<B.x1&&y>B.y0&&y<B.y1&&z>B.z0&&z<B.z1)return false}}return true}
+function amjRoofs(){return BOXES.filter(b=>b.y1>=AMJ.roofMin&&b.y1<12&&(b.x1-b.x0)>1.1&&(b.z1-b.z0)>1.1&&Math.abs((b.x0+b.x1)/2)<18&&Math.abs((b.z0+b.z1)/2)<18)}
+function amjSpot(far,not){const R=amjRoofs();let best=null,bs=-1e9;for(let i=0;i<16&&R.length;i++){const b=pick(R);if(b===not)continue;const x=rand(b.x0+.35,b.x1-.35),z=rand(b.z0+.35,b.z1-.35),d=Math.hypot(x-P.x,z-P.z);if(d<6||d>21)continue;
+  const s=(far?d:-Math.abs(d-12))+(losIgn([x,b.y1+1.2,z],[P.x,P.y+1.2,P.z],b)?100:0);if(s>bs){bs=s;best={x,z,y:b.y1,b}}}return best}
+function spawnAmanojaku(){const p=amjSpot(false);if(!p)return null;const S=spawnYokai('amanojaku',0,{quiet:true});S.x=p.x;S.z=p.z;S.y=p.y;S.roof=p.b;S.st='aim';S.atkCd=rand(1.2,2);S.zipCd=1;dust([S.x,S.y,S.z],6,1.5);banner('天邪鬼 ¡AMANOJAKU en las azoteas! · lánzale el gancho');return S}
+function amjTick(){if(!KS.on||TRAIN||SIEGE.on||wave<AMJ.from||state!=='play')return;const G=RUN.kg;G.amjT=(G.amjT??rand(4,8))-DT;if(G.amjT>0)return;G.amjT=rand(...AMJ.every);
+ if(zs.filter(z=>z.alive&&z.kind==='amanojaku').length<AMJ.max(wave))spawnAmanojaku()}
+// tu gancho lo alcanza: lo derribas de un tirón
+function amjHooked(S){if(!S.alive)return;P.grap=null;S.zip=null;S.hurtT=0;kgArc([P.x,P.y+1.3,P.z],[S.x,S.y+1,S.z],kcol('#e8e0d0'),.3,.05);
+ yokaiHit(S,{vel:[(P.x-S.x)*1.4,4,(P.z-S.z)*1.4],kgAbs:999,blunt:1},999);hitstop=Math.max(hitstop,.1);shake=Math.max(shake,.3);banner('¡DERRIBADO!');kgVib([30,40,60],true)}
+// ---------- tienda del tanuki: 4 objetos que rotan, límite de compras ----------
+const SHOP={perVisit:2,perRun:6,gen:{p:.15,visit:3,run:7},omikiP:.35,
+ items:{
+  omiki:{i:'🍶',n:'Omiki',c:45,lim:1,d:L=>L.length?'Sube '+L[0].n+' a Nv '+((L[0].c.lv||1)+1):'Nada que subir',ok:L=>L.length>0,fx:L=>{L[0].c.lv=(L[0].c.lv||1)+1}},
+  heal:{i:'🍙',n:'Onigiri',c:30,lim:1,d:()=>'Cura 30 % de vida',ok:()=>P.hp<P.hpMax,fx:()=>{P.hp=Math.min(P.hpMax,P.hp+P.hpMax*.3)}},
+  kamon:{i:'🎴',n:'Kamon',c:50,lim:1,d:()=>'Uno al azar para tu Henge',fx:()=>kgAddKamon(pick(KAMON_IDS))},
+  kamonP:{i:'🎯',n:'Kamon dirigido',c:70,lim:1,d:()=>'Uno del juego que más tienes',fx:()=>{const sets=KS.sets||{},best=Object.keys(HENGE).filter(h=>!KS.hg[h]).sort((a,b)=>(sets[b]||0)-(sets[a]||0))[0],L=KAMON_IDS.filter(id=>KAMON[id].set===best);kgAddKamon(pick(L.length?L:KAMON_IDS))}},
+  vida:{i:'❤',n:'Amuleto',c:55,lim:1,d:()=>'+15 de vida máxima',fx:()=>{RUN.kg.hpB=(RUN.kg.hpB||0)+15;refreshSM();P.hp+=15}},
+  dano:{i:'⚔',n:'Talismán',c:60,lim:1,d:()=>'+10 % de daño',fx:()=>{RUN.kg.dmgB=(RUN.kg.dmgB||0)+.1;refreshSM()}},
+  dados:{i:'🎲',n:'Dados',c:25,lim:1,d:()=>'+2 cambios de cartas gratis',fx:()=>{RUN.kg.rr+=2}},
+  ban:{i:'🚫',n:'Sello',c:20,lim:1,d:()=>'+1 destierro',fx:()=>{RUN.kg.ban++}},
+  sake:{i:'避',n:'Omamori',c:40,lim:1,d:()=>'Esquiva perfecta: −0,3 s de recarga',fx:()=>{RUN.kg.pdB=(RUN.kg.pdB||0)+.3}}}};
+function shopRoll(){const G=RUN.kg;if(G.shopW===wave&&G.shopL)return;G.shopW=wave;G.shopN=0;G.shopGen=Math.random()<SHOP.gen.p;if(G.shopGen)G.genRun=1;
+ let ids=Object.keys(SHOP.items).filter(k=>k!=='omiki');ids=ids.sort(()=>Math.random()-.5).slice(0,Math.random()<SHOP.omikiP?3:4);if(ids.length<4)ids.push('omiki');G.shopL=ids.sort(()=>Math.random()-.5);G.shopB={}}
+const shopCaps=()=>{const G=RUN.kg;return{visit:G.shopGen?SHOP.gen.visit:SHOP.perVisit,run:G.genRun?SHOP.gen.run:SHOP.perRun}};
+function shopLocked(){const G=RUN.kg,C=shopCaps();return(G.shopN||0)>=C.visit||(G.buyT||0)>=C.run}
 function kgShop(){kgOverlay('cards shop').dataset.mode='shop';kgRenderShop()}
-function kgRenderShop(){const L=kgBlessList().filter(b=>(b.c.lv||1)<4).sort((a,b)=>(a.c.lv||1)-(b.c.lv||1)),t=RUN.tama,S={omiki:kgPrice('omiki'),heal:kgPrice('heal'),kamon:kgPrice('kamon')},hd=RUN.kg.done.heal2===wave;
- KGO.innerHTML=`<div class="krays" style="--kc:#b08a60"></div><div class="kwrap">${kgHead('🦝 TIENDA DEL TANUKI','Gasta tus 魂')}<div class="kshop">
- <button data-k="sOmiki" class="kitem" ${t<S.omiki||!L.length?'disabled':''}><i>🍶</i><b>Omiki</b><span>${L.length?'Sube '+L[0].n+' a Nv '+((L[0].c.lv||1)+1):'Nada que subir'}</span><em>${S.omiki} 魂</em></button>
- <button data-k="sHeal" class="kitem" ${t<S.heal||P.hp>=P.hpMax||hd?'disabled':''}><i>🍙</i><b>Onigiri</b><span>${hd?'Ya comiste uno':'Cura 30 % de vida (1 por visita)'}</span><em>${S.heal} 魂</em></button>
- <button data-k="sKamon" class="kitem" ${t<S.kamon?'disabled':''}><i>🎴</i><b>Kamon</b><span>Uno al azar para tu Henge</span><em>${S.kamon} 魂</em></button></div>
+function kgRenderShop(){shopRoll();const G=RUN.kg,L=kgBlessList().filter(b=>(b.c.lv||1)<4).sort((a,b)=>(a.c.lv||1)-(b.c.lv||1)),t=RUN.tama,C=shopCaps(),lock=shopLocked(),left=Math.max(0,Math.min(C.visit-(G.shopN||0),C.run-(G.buyT||0)));
+ const it=G.shopL.map(k=>{const I=SHOP.items[k],sold=(G.shopB[k]||0)>=I.lim,c=I.c,ok=!I.ok||I.ok(L);return`<button data-k="sBuy" data-v="${k}" class="kitem${sold?' sold':''}" ${sold||lock||t<c||!ok?'disabled':''}><i>${I.i}</i><b>${I.n}</b><span>${sold?'✔ Comprado':I.d(L)}</span><em>${sold?'—':c+' 魂'}</em></button>`}).join('');
+ KGO.innerHTML=`<div class="krays" style="--kc:#b08a60"></div><div class="kwrap">${kgHead('🦝 TIENDA DEL TANUKI',G.shopGen?'✨ ¡Tanuki generoso! Hoy puedes comprar 3':'Gasta tus 魂')}<div class="kfoot" style="justify-content:center"><span class="kb" style="pointer-events:none">${lock?'🔒 No puedes comprar más':'🛒 Te quedan '+left+' compra'+(left===1?'':'s')} · partida ${G.buyT||0}/${C.run}</span></div><div class="kshop">${it}</div>
  <button data-k="sGo" class="kgo">Continuar ▶</button></div>`}
-KGH.sOmiki=()=>{const L=kgBlessList().filter(b=>(b.c.lv||1)<4).sort((a,b)=>(a.c.lv||1)-(b.c.lv||1)),c=kgPrice('omiki');if(!L.length||RUN.tama<c)return;RUN.tama-=c;const B=RUN.kg.buy=RUN.kg.buy||{};B.omiki=(B.omiki||0)+1;L[0].c.lv=(L[0].c.lv||1)+1;refreshSM();sfx('parry');kgVib(30);kgRenderShop()};
-KGH.sHeal=()=>{const c=kgPrice('heal');if(RUN.tama<c||RUN.kg.done.heal2===wave)return;RUN.tama-=c;RUN.kg.done.heal2=wave;P.hp=Math.min(P.hpMax,P.hp+P.hpMax*.3);sfx('ready');kgRenderShop()};
-KGH.sKamon=()=>{const c=kgPrice('kamon');if(RUN.tama<c)return;RUN.tama-=c;const B=RUN.kg.buy=RUN.kg.buy||{};B.kamon=(B.kamon||0)+1;kgAddKamon(pick(KAMON_IDS));sfx('ready');kgRenderShop()};
+KGH.sBuy=b=>{const k=b.dataset.v,I=SHOP.items[k],G=RUN.kg,L=kgBlessList().filter(x=>(x.c.lv||1)<4).sort((a,c)=>(a.c.lv||1)-(c.c.lv||1));if(!I||shopLocked()||(G.shopB[k]||0)>=I.lim||RUN.tama<I.c||(I.ok&&!I.ok(L)))return;
+ RUN.tama-=I.c;G.shopB[k]=(G.shopB[k]||0)+1;G.shopN=(G.shopN||0)+1;G.buyT=(G.buyT||0)+1;I.fx(L);refreshSM();sfx('parry');kgVib(30);kgRenderShop()};
 KGH.sGo=()=>{RUN.kg.done.shop=wave;kgEndQueue()};
 // ---------- flujo de fin de oleada ----------
 function kgEndQueue(){const G=RUN.kg,d=G.done,w=wave;
@@ -3570,7 +3616,8 @@ function startDojo(){startGame();zs.length=0;miniQueue.length=0;TRAIN={god:true,
 function dojoSpawn(kind,n){
  for(let i=0;i<n;i++){const a=Math.random()*6.283,d=rand(5,8),x=clamp(P.x+Math.sin(a)*d,-19,19),z=clamp(P.z+Math.cos(a)*d,-19,19);
   if(kind==='zombie'||kind==='mini'){addZombie(x,groundAt(x,30,z),z,kind==='mini');const e=zs[zs.length-1];if(TRAIN.freeze){e.spd0=e.speed;e.speed=0}}
-  else if(kind==='spider'){spawnSpider();const S=zs[zs.length-1];S.x=x;S.z=z;S.y=groundAt(x,30,z)}
+  else if(kind==='amanojaku'){spawnAmanojaku()}
+ else if(kind==='spider'){spawnSpider();const S=zs[zs.length-1];S.x=x;S.z=z;S.y=groundAt(x,30,z)}
   else{const S=spawnYokai(kind,a);S.x=x;S.z=z;S.y=groundAt(x,30,z)+(kind==='tengu'?4:0)}}
 }
 function dojoFreeze(on){TRAIN.freeze=on;for(const e of zs){if(e.kind||e.spider){e.atkCd=on?1e9:1;continue}if(on){if(e.spd0===undefined)e.spd0=e.speed;e.speed=0;e.atkCd=1e9}else{if(e.spd0!==undefined)e.speed=e.spd0;e.atkCd=1}}}
@@ -3578,7 +3625,7 @@ function renderDojo(){const T=TRAIN,W=RUN.wpn[T.slot];
  let h=`<div class="dh"><b>⚙ DOJO</b><button data-d="close">Volver ▶</button></div>`;
  h+=`<div class="sec">Arma en ranura ${T.slot+1}: ${W.name}</div><div class="row"><button data-d="slot" data-v="0" class="${T.slot===0?'on':''}">Ranura ① ${TYPE_N[RUN.wpn[0].type]}</button><button data-d="slot" data-v="1" class="${T.slot===1?'on':''}">Ranura ② ${TYPE_N[RUN.wpn[1].type]}</button></div>`;
  h+=`<div class="sec">Elegir arma</div><div class="gr">${TYPES.map(t=>`<button class="wb${W.type===t?' on':''}" data-d="wpn" data-v="${t}"><span>${TYPE_I[t]}</span>${TYPE_N[t]}</button>`).join('')}</div><div class="sec" style="text-transform:none;opacity:.85">${WDESC[W.type]}</div>`;
- h+=`<div class="sec">Hacer aparecer</div><div class="gr">${[['zombie',1,'Zombie'],['zombie',10,'10 zombies'],['zombie',50,'50 zombies'],['mini',5,'5 minis'],['spider',1,'Araña'],['oni',1,'鬼 Oni'],['kappa',1,'河童 Kappa'],['kasa',1,'唐傘 Kasa'],['rokuro',1,'ろくろ首'],['tengu',1,'天狗 Tengu']].map(([k,n,l])=>`<button data-d="sp" data-v="${k}" data-n="${n}">${l}</button>`).join('')}</div>`;
+ h+=`<div class="sec">Hacer aparecer</div><div class="gr">${[['zombie',1,'Zombie'],['zombie',10,'10 zombies'],['zombie',50,'50 zombies'],['mini',5,'5 minis'],['spider',1,'Araña'],['oni',1,'鬼 Oni'],['kappa',1,'河童 Kappa'],['kasa',1,'唐傘 Kasa'],['rokuro',1,'ろくろ首'],['tengu',1,'天狗 Tengu'],['amanojaku',1,'天邪鬼 Amanojaku']].map(([k,n,l])=>`<button data-d="sp" data-v="${k}" data-n="${n}">${l}</button>`).join('')}</div>`;
  h+=`<div class="sec">Dar kamon (3 del mismo juego = Henge)</div><div class="gr">${KAMON_IDS.map(id=>`<button data-d="km" data-v="${id}"><span>${KAMON[id].ico}</span>${KAMON[id].n}${RUN.kg.kam[id]?' ×'+RUN.kg.kam[id]:''}</button>`).join('')}</div>`;
  h+=`<div class="sec">Opciones</div><div class="row"><button data-d="god" class="${T.god?'on':''}">Invencible</button><button data-d="freeze" class="${T.freeze?'on':''}">Enemigos quietos</button></div><div class="row" style="margin-top:6px"><button data-d="clear">Borrar enemigos</button><button data-d="forge">⛩ Probar bendiciones</button><button data-d="exit">Salir al menú</button></div>`;
  $('dojo').innerHTML=`<div class="fin">${h}</div>`}
@@ -3742,7 +3789,7 @@ function showInfo(){const o=$('ov');o.style.display='flex';const k=a=>keyName(CT
  <p>👑 Cada 5 oleadas sale un jefe (5: Ō-oni, 10: Karura, y se alternan) y la oleada no acaba hasta vencerlo. Tras vencerlos: martillo de Amatsumara (oleadas 5 y 10), trato del oni si no te han tocado y tienda del tanuki. Zombis, yokai y jefes tienen más vida cuanto más avanzas</p>
  <p>📱 Desde la oleada 5 (o con muchos enemigos) el juego pasa a modo ligero: la sangre ya no salpica, forma charcos en el suelo que crecen, y los cuerpos que salen volando caen con una animación sencilla, para que vaya fluido en el móvil</p>
  <p>⚡ Todas las armas tienen su habilidad especial desde el principio. El botón muestra los segundos que faltan</p>
- <p>⚔ Antes de empezar eliges 2 armas en la armería: cada una dice si es fácil o difícil y su crítico 会心 (por ejemplo, la kama hace ×3 por la espalda). Venciendo a un jefe con un arma desbloqueas su estilo 流, que sube de nivel con las bajas. Abajo puedes apagar el temblor, los destellos, la vibración y los números de daño 💥</p><p>⛩ 加護 Bendiciones: en cada oleada aparece el santuario de un kami (cada 3 oleadas, dos: toca el que quieras). Al acabarla te ofrece 1 de 3 cartas. Cada carta va a un botón (ataque, cargado, especial, dash o esquiva perfecta 避: dash justo cuando te van a golpear = cámara lenta y siguiente golpe ×2,5) y aplica el estado de su kami: rayo, viento, fuego, hielo, herida, marca lunar o encanto. 2 kami distintos abren dúos 結; 3 del mismo, su legendaria ★. 🎲 cambia las cartas y 🚫 destierra una. A veces aparece un pacto 💀 de Shinigami: maldición 3 oleadas y luego un premio</p><p>鬼 Kamon: los sueltan yokai y onis. 3 del mismo juego (Oni, Tengu, Kitsune, Ryū o Shinobi) te transforman (Henge). 魂 La tama se gasta en la tienda del tanuki, en cambiar cartas y en curarte en el santuario</p><p>🛡 La barra amarilla es armadura: rómpela con golpes fuertes (aturde y da tama). Los enemigos con un kanji encima son campeones 祟 con un truco y mejor botín</p><p><button class="edl" type="button" onpointerdown="event.stopPropagation()" onclick="kgShowCodex()">📖 Códice: kami, dúos, Henge, campeones y armas</button></p>
+ <p>⚔ Antes de empezar eliges 2 armas en la armería: cada una dice si es fácil o difícil y su crítico 会心 (por ejemplo, la kama hace ×3 por la espalda). Venciendo a un jefe con un arma desbloqueas su estilo 流, que sube de nivel con las bajas. Abajo puedes apagar el temblor, los destellos, la vibración y los números de daño 💥</p><p>⛩ 加護 Bendiciones: en cada oleada aparece el santuario de un kami (cada 3 oleadas, dos: toca el que quieras). Al acabarla te ofrece 1 de 3 cartas. Cada carta va a un botón (ataque, cargado, especial, dash o esquiva perfecta 避: dash justo cuando te van a golpear = cámara lenta y siguiente golpe ×2) y aplica el estado de su kami: rayo, viento, fuego, hielo, herida, marca lunar o encanto. 2 kami distintos abren dúos 結; 3 del mismo, su legendaria ★. 🎲 cambia las cartas y 🚫 destierra una. A veces aparece un pacto 💀 de Shinigami: maldición 3 oleadas y luego un premio</p><p>鬼 Kamon: los sueltan yokai y onis. 3 del mismo juego (Oni, Tengu, Kitsune, Ryū o Shinobi) te transforman (Henge). 魂 La tama se gasta en la tienda del tanuki, en cambiar cartas y en curarte en el santuario</p><p>🛡 La barra amarilla es armadura: rómpela con golpes fuertes (aturde y da tama). Los enemigos con un kanji encima son campeones 祟 con un truco y mejor botín. Desde la oleada 3, el 天邪鬼 Amanojaku dispara desde las azoteas y huye con su gancho si te acercas: lánzale tu gancho y cae de un golpe. La tienda del tanuki cambia en cada visita: puedes comprar 2 cosas por visita y 6 por partida (a veces el tanuki es generoso)</p><p><button class="edl" type="button" onpointerdown="event.stopPropagation()" onclick="kgShowCodex()">📖 Códice: kami, dúos, Henge, campeones y armas</button></p>
  <p style="opacity:.75">Teclado: ${['u','l','d','r'].map(k).join('')} mover · ${k('jump')} saltar · ${k('atk')} atacar · ${k('dash')} especial · ${k('hook')} gancho · ${k('swap')} arma · ${k('menu')} pausa · también con mando</p>
  ${best?`<p style="opacity:.75">Tu récord: ${best} bajas</p>`:''}</div><button class="edl" id="bBack" type="button">← Volver</button>`}
 /* ================= MULTIJUGADOR (fase 1: sala compartida) =================
