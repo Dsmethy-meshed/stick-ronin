@@ -1,6 +1,6 @@
 # Stick Rōnin 3D — contexto del proyecto
 
-Survivor 3D de stickmans con armas japonesas, pensado sobre todo para **móvil (Android)**: oleadas de zombis, yokai y jefes, forja de armas y multijugador.
+Survivor 3D de stickmans con armas japonesas, pensado sobre todo para **móvil (Android)**: oleadas de zombis, yokai y jefes, bendiciones de los kami (Kago) y multijugador.
 El desarrollador es Daniel. Escribe en español y juega en Android (a veces en PC). **Responde siempre en español.**
 
 Versión publicada: **v1.6 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmethy-meshed/stick-ronin`, rama `main`.
@@ -20,7 +20,7 @@ Versión publicada: **v1.6 (26 nov 2026)**, en GitHub Pages: repositorio `Dsmeth
    - Subir siempre nombrando la rama (`git push origin dev`). En `.claude/settings.json` (`permissions.ask`) un push a `main`, un `git push` sin rama, `--all`, `--mirror` y `gh pr merge` piden confirmación. Si rsc reescribe ese archivo, comprobar que esas reglas siguen ahí.
 2. **El editor de animaciones (`editor.html`) puede estar en GitHub** como copia de seguridad (cambio del 26 nov 2026). Hay que tener en cuenta que en Pages es público por su enlace.
 3. **Nada de grabar ni enviar vídeos de gameplay**, salvo que lo pida expresamente.
-4. **Cuando cambies algo del juego, aplícalo a todo lo relacionado:** guías, textos de ayuda, menú ℹ Info, descripciones de armas, guía de la forja, notas de versión y hoja de cálculo de equilibrio. No te saltes pasos.
+4. **Cuando cambies algo del juego, aplícalo a todo lo relacionado:** guías, textos de ayuda, menú ℹ Info, descripciones de armas, textos de las bendiciones, notas de versión y hoja de cálculo de equilibrio. No te saltes pasos.
 5. **Todas las animaciones de ataque deben poder editarse en el editor.** Sé consecuente: si añades o cambias un ataque, que el editor lo tenga.
 6. **Cada vez que publiques en `main`** (en `dev` no hace falta):
    - sube `GAME_VER`, `GAME_DATE` y `GAME_NOTES` en `index.html`;
@@ -121,9 +121,9 @@ Servicios externos que usa el juego:
 - `updateWaves()` y `waveCount(n) = min(220, round(6·1,5^(n−1)))`. En las oleadas de jefe, la mitad.
 - `TRAIN` (dojo, sala MP, asedio) desactiva las oleadas, el guardado y el ranking.
 
-### Kago 加護: bendiciones de los kami (modo normal, desde el 27 nov 2026)
-Sustituye a la forja (que solo sigue en el asedio). Inspirado en Hades e Isaac; diseño en `reports/Mejoras por sinergias estilo Hades.md` (carpeta principal). Todo el código está en el bloque «KAGO» de `index.html`; los números, en `KG` y en las tablas `KAMI`, `DUO`, `SHINPO`, `TSUCHI`, `RYU`, `KAMON`, `HENGE`, `TATARI`, `ZTYPE`, `WBASE` y `KAI`.
-- `kgOn()` = modo normal o dojo (no asedio ni multijugador). `RUN.kg` guarda la partida; `KS` (lo recalcula `kgCalc` desde `refreshSM`) dice qué está activo.
+### Kago 加護: bendiciones de los kami (modo normal, dojo y asedio, desde el 27 nov 2026)
+Sustituye por completo a la forja vieja: ya no hay rarezas de armas, metal, bolsa ni forja en ningún modo. Inspirado en Hades e Isaac; diseño en `reports/Mejoras por sinergias estilo Hades.md` (carpeta principal). Todo el código está en el bloque «KAGO» de `index.html`; los números, en `KG` y en las tablas `KAMI`, `DUO`, `SHINPO`, `TSUCHI`, `RYU`, `KAMON`, `HENGE`, `TATARI`, `ZTYPE`, `WBASE` y `KAI`.
+- `kgOn()` = modo normal, dojo o asedio (no Cacería ni sala multijugador, donde todas las armas son iguales y `SM` vale 1). `RUN.kg` guarda la partida; `KS` (lo recalcula `kgCalc` desde `refreshSM`) dice qué está activo.
 - **Daño numérico:** 1 unidad = 10 en pantalla. Zombis `KG.zhp(w)=0,6+0,2·(w−1)` (`e.hp`); `kgZHit` (desde `killZombie`) y `kgYDmg` (desde `yokaiHit`) aplican `WBASE` del arma, `SM.dmg` (√ de mejoras × familias), crítico **Kaishin** `KAI` por arma, armadura y estados. `kgDeal` = daño directo sin crítico. `KGPD` fuerza el daño base de los cargados en línea; `KGPJ` pasa el proyectil.
 - **Armadura** `e.yr/e.yrMax` (ojo: `e.arm` ya era el largo del brazo del zombi): yoroi-zombi, onis, variantes de minijefe y jefes (vuelve a 66 % y 33 %). Romperla aturde (`kgBreak`).
 - **8 kami × 5 ranuras** (`kiri` ataque, `tame` cargado, `waza` especial, `hashiri` dash, `kaeshi` parry) + pasiva por kami (solo si su estado está en una ranura), 12 dúos, 8 Shinpō (3 bendiciones del kami), Omiki (nivel 1-4). Rareza Nami/Jō/Toku/Gō ×1/1,5/2/2,5.
@@ -133,8 +133,8 @@ Sustituye a la forja (que solo sigue en el asedio). Inspirado en Hades e Isaac; 
 - **Martillos Tsuchi** (2 por arma) y **estilos Ryū** (1 por arma, se desbloquean venciendo a un jefe con ella; maestría por bajas en `localStorage stickronin_ryu`) cambian cómo funciona el arma **sin animaciones nuevas** (por eso el editor no cambia).
 - **Kamon/Henge:** caen de yokai y onis (`LOOT` con `kid`); 3 del mismo juego → Henge (Oni, Tengu, Kitsune, Ryū, Shinobi) con cambio visual (`kgDrawPlayer`).
 - **Campeones tatari** (kanji flotante, `kgLabels`) y variantes nuevas: yoroi, yumi, sōhei, kagami, tanuki. Tope de 90 vivos (`KG.cap`).
-- Todas las armas tienen especial (`specOK`); en el asedio sigue `SPEC_RAR`. Interruptores Temblor/Destellos/Vibración en la armería (`KGFX`).
-- La forja vieja del modo normal se borró del código el 27 nov 2026 (bolsa, huecos, afilar, forja de sangre, fundir, botín de armas, cartas y estilos de la forja). De `AR` solo queda lo que usan el asedio y los efectos de kamon: `stats`, rarezas, `rarRange`, `oniChance`, `lvStep`, `bloodT`, `eff` y `maxProj`.
+- Todas las armas tienen especial (`specOK`). Interruptores Temblor/Destellos/Vibración en la armería (`KGFX`).
+- La forja vieja se borró del código el 27 nov 2026, también la del asedio: bolsa, huecos, afilar, forja de sangre, fundir, metal ⛓, botín de armas y de jefe, rarezas y legendarias de arma. `genWeapon(type)` solo crea `{uid,kind,type,name}`. De `AR` solo quedan `eff` (efectos que usan los kamon Kago y el dojo) y `maxProj`.
 - La armería solo se abre en una partida normal de verdad: `startGame()` la lanza en un microtask y comprueba `!TRAIN`, así que el dojo, la sala MP, el asedio y la prueba de yokai no la ven.
 
 ### Multijugador (`NET`)
@@ -146,8 +146,8 @@ Sustituye a la forja (que solo sigue en el asedio). Inspirado en Hades e Isaac; 
 - **Asedio (cooperativo):** de momento solo con 3 bots IA (`SIEGE`, `botStep`, `siegeAI`).
   - Los enemigos atacan al objetivo más cercano.
   - Revivir: estar 1,5 s encima del caído.
-  - Armas: se empieza con una al azar. Hay 2 en mano (⇄) y 2 en la bolsa, que solo se usa en la forja del asedio, donde se mejoran con ⛓ metal.
-  - La rareza de lo que sale depende de la oleada.
+  - Armas: se empieza con una al azar y una bendición. 2 en mano (⇄); las del suelo se equipan con ✔ o se dejan con ✖.
+  - Mejoras: bendiciones Kago (`openForge` al acabar cada oleada y santuarios ⛩). Sin martillo, trato del oni ni tienda. Zombis con ×`KG.siegeHp` de vida; los golpes de los bots hacen daño fijo (`kgAbs`, mata en `KG.botHits` golpes) y no activan tus bendiciones.
   - Jefe cada 3 oleadas, alternando.
 
 ---
@@ -183,10 +183,10 @@ Sustituye a la forja (que solo sigue en el asedio). Inspirado en Hades e Isaac; 
 ## Hoja de cálculo de equilibrio
 «Stick Rōnin 3D · Ajustes de equilibrio» (artefacto Sheets de Claude: https://claude.ai/artifact/W6mqzuZSbWiED7KTjNELvC). Tiene estas pestañas:
 - **Escalado:** zombis por oleada, golpes, vida de yokai y jefes, incursiones y jefes.
-- **Especial:** recargas por rareza.
+- **Especial:** recargas por rareza (ya no se usa: desde el 27 nov 2026 no hay rarezas de arma).
 - **Onis.**
 - **Minijefes:** las 16 variantes.
-- **Legendarias.** (las de la forja vieja; con Kago solo cuentan en el asedio, igual que «Especial»)
+- **Legendarias.** (de la forja vieja; ya no se usa en ningún modo)
 - **Kago:** reglas y números del sistema de bendiciones.
 - **Armas:** dificultad, daño base, Kaishin, martillos y estilo de cada arma.
 - **Kami:** estado, las 5 ranuras, pasiva y Shinpō de cada kami.

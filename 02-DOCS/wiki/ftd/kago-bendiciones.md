@@ -10,7 +10,7 @@ status: in-progress
 Cambiar el sistema de mejoras (forja con 5 verbos y multiplicadores de ±12 %) por uno basado en sinergias como Hades e Isaac. Las estadísticas tienen que notarse mucho y las 12 armas tienen que servir en todas las fases, unas fáciles y otras exigentes. Daniel pidió la versión completa del informe `reports/Mejoras por sinergias estilo Hades.md`, no la mínima.
 
 ## Alcance
-Solo el modo normal y el dojo. El asedio y la Cacería no cambian. No hay animaciones nuevas: el editor no cambia.
+Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacería solo pierde las rarezas de arma. No hay animaciones nuevas: el editor no cambia.
 
 ## Checklist (con cómo se prueba)
 - [x] Daño numérico ×10, vida de zombi por oleada, `WBASE` por arma y crítico Kaishin por arma. **Prueba:** t2, 1627 bajas en 3 combinaciones sin errores.
@@ -27,6 +27,7 @@ Solo el modo normal y el dojo. El asedio y la Cacería no cambian. No hay animac
 - [x] Hoja de equilibrio: pestañas Kago, Armas, Kami y Enemigos, y columnas K-M en Escalado. **Prueba:** lectura de la revisión 9 (6, 8, 10, 12, 14…). No se ha borrado nada.
 - [x] Borrar la forja vieja del modo normal (código, números de `AR` y ~120 reglas CSS sin uso) sin tocar la del asedio. **Prueba:** t1 (flujo normal), t2 (combinaciones), t5 (asedio: botín del jefe, forja ⛓ y mejora) y t6, todo con `{"n":0}`; `node --check` correcto.
 - [x] Arreglo: la armería ya no se abre al entrar al dojo, la sala MP, el asedio o la prueba de yokai. **Prueba:** t5/t6 (dojo → estado `dojo` sin armería; normal → armería).
+- [x] Asedio con Kago: bendición al empezar, santuarios ⛩ y cartas al acabar cada oleada; sin metal, bolsa, rarezas ni forja del asedio; bots con daño fijo. Cacería y sala MP con armas sin rareza. **Prueba:** t7 (asedio: inicio, cartas, oleada 2, recoger arma, jefe), t8 (sala MP), t1/t2/t6 sin errores.
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
