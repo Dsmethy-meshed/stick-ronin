@@ -32,6 +32,7 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Efectos muy visibles (estados, zonas, rayos, ondas, estela del dash, brillo del arma) y especial/dash como poderes del kami. **Prueba:** t10 (capturas de los 8 kami), t3 rendimiento CPU ×4: 53,4 → 49,1 fps; t1/t2/t7/t8 sin errores.
 - [x] Interruptor de números de daño (encendido fuera de github.io). **Prueba:** t12.
 - [x] Parry fuera en normal/asedio → esquiva perfecta 避 con el dash; parry PvP con anti-machaque y bloqueo al fallar. **Prueba:** t13/t14 (esquiva: 0 daño, cámara lenta, ×2,5, recarga; PvP: 0,18 / 0,05 / bloqueo 0,45 s), t1/t2/t7/t8 sin errores.
+- [x] Cacería: armas del suelo con bendiciones que crecen con el tiempo. **Prueba:** t15 con dos pestañas (?bc=1): B ve las armas con sus kami, A recoge Nv3, golpe con 🔥❄🌸 → 100→70, quemadura hasta 58, 55 % de velocidad, controles al revés; A ve los estados de B y B el brillo del arma de A.
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
