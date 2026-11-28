@@ -49,6 +49,9 @@ Simulación con Playwright (fuera del repo): el jugador machaca atacar 20 s rode
 - [x] Amanojaku raro: 1 como mucho, nunca en oleadas seguidas, más probable cuanto más tiempo pasas abajo.
 - **Prueba** (oleadas 5-8, jugador quieto abajo, 110 s cada una): antes «oleada 5: jefe a los 2 s, Amanojaku a los 4 s, incursión a los 13 s»; ahora «oleada 5: jefe a los 2 s, yokai a los 45 s, Amanojaku a los 60 s, yokai a los 76 s», y en las demás, eventos separados ≥14 s, con el Amanojaku solo en la 5 y la 7.
 
+## Shuriken metralleta (petición de Daniel, 28 nov 2026)
+- [x] Mantener = ráfaga continua (~8/s) corriendo al 95 %; recalentado a los 3 s; abanico de kunai al soltar tras 1 s. Solo el shuriken dispara corriendo: el yumi, la tanegashima y la ofuda frenan al disparar. **Prueba** (paso a paso, zona despejada, 1,5 s): shuriken manteniendo 6,2 m/s, igual que sin disparar; yumi 5,4; tanegashima 3,4; 8 disparos/s; recalentado a los 3 s.
+
 ## Bendiciones de ataque (ranura 斬)
 - [x] Kagutsuchi, Yuki-onna y Tsukuyomi suman +50 % de daño al golpe (×1,3 → +65 % en pantalla), como Hachiman y Benzaiten. Yuki-onna pone 2 pilas de escarcha por golpe. Textos actualizados.
 - [ ] Pendiente de hablar con Daniel: Raijin sigue muy por encima porque reparte daño en área; los % fijos se notan poco por los umbrales de golpes (p. ej. katana 12 × 1,65 = 19,8 < 21 en la oleada 5).
