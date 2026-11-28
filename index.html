@@ -3418,7 +3418,7 @@ const kgId=o=>o.t+':'+(o.ka||o.id||'')+':'+(o.s||'');
 function kgPool(kind){const G=RUN.kg,out=[];
  if(kind==='start'){for(const ka of KAMI_IDS.filter(k=>k!=='inari'))out.push({t:'slot',ka,s:'kiri',w:1});return out}
  const ka=(G.hok&&G.hok[G.hokSel]&&G.hok[G.hokSel].ka)||pick(KAMI_IDS);
- for(const[s]of KSLOT){const cur=G.slots[s];const w=cur&&cur.ka===ka?.5:cur?.9:1.2;out.push({t:'slot',ka,s,w})}
+ for(const[s]of KSLOT){const cur=G.slots[s];if(cur&&cur.ka===ka)continue;const w=cur?.9:1.2;out.push({t:'slot',ka,s,w})}// no ofrecer la que ya tienes en esa ranura (cogerla te bajaba a nivel 1)
  const K=KAMI[ka];if(!G.pas[ka]&&(K.st?Object.values(G.slots).some(c=>c.ka===ka):Object.values(G.slots).some(c=>c.ka==='inari')))out.push({t:'pas',ka,w:1.3});
  for(const id in DUO){const D=DUO[id];if(G.duo[id]||(D.a!==ka&&D.b!==ka))continue;const o=D.a===ka?D.b:D.a;if(kgHas(o)&&kgHas(ka))out.push({t:'duo',id,w:3})}
  if(!G.shinpo[ka]&&(kgCount(ka)>=3||G.nijiSp&&kgHas(ka)))out.push({t:'sp',ka,w:G.nijiSp?50:4});
