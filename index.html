@@ -1034,7 +1034,7 @@ function startGame(horde){TRAIN=null;loadKF();resetGame();updWUI();horde300=hord
 function fwdW(){return[Math.sin(P.yaw),0,Math.cos(P.yaw)]}
 function nearestZombie(maxD,dir,maxAng){let best=null,bd=1e9;for(const z of zs){if(!z.alive||z.iaiT>0)continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz);if(d>maxD||Math.abs(z.y-P.y)>2.2)continue;const a=Math.abs(angDiff(dir,Math.atan2(dx,dz)));if(a>maxAng)continue;const s=d+a*1.5;if(s<bd){bd=s;best=z}}return best}
 function canAct(){if(P&&(P.whirl||P.kHold||P.khook&&P.khook.ph==='out'))return false;const a=P.atk;if(!a)return true;if(a.type==='iai')return false;if(a.kf)return kfCanAct(a);const d=a.def,T2=d.wind+d.strike,T3=T2+d.hold;return(d.slam||d.plunge||d.spin||d.wave)?a.t>=T3+d.rec*.4:a.t>=T2+d.hold*.6}
-function switchWeapon(){if(mpHunt()){banner('🔒 En la Cacería llevas una sola arma: al morir puedes coger otra');return}if(SIEGE.on&&!RUN.wpn[1-wIdx]){banner('Solo llevas un arma: recoge otra del suelo');return}if(P&&(P.atk||P.charge))return;wIdx=(wIdx+1)%2;const b=$('wbtn');b.textContent='⇄ '+weapon().name+hbIcons(RUN&&RUN.wpn[wIdx]);if(RUN)refreshSM();$('bDash').textContent=SPN[weapon().special]||'DASH';b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),400);sfx('whoosh')}
+function switchWeapon(){if(mpHunt()){banner('🔒 En la Cacería llevas una sola arma: al morir puedes coger otra');return}if(SIEGE.on&&!RUN.wpn[1-wIdx]){banner('Solo llevas un arma: recoge otra del suelo');return}if(P&&(P.atk||P.charge))return;wIdx=(wIdx+1)%2;const b=$('wbtn');b.textContent='⇄ '+weapon().name+fjTag(RUN&&RUN.wpn[wIdx])+hbIcons(RUN&&RUN.wpn[wIdx]);if(RUN)refreshSM();$('bDash').textContent=SPN[weapon().special]||'DASH';b.classList.add('flash');setTimeout(()=>b.classList.remove('flash'),400);sfx('whoosh')}
 function startIai(md){
  let dir=md.m>.2?Math.atan2(md.x,md.z):P.yaw;const t=nearestZombie(8,dir,.9);if(t)dir=Math.atan2(t.x-P.x,t.z-P.z);
  P.yaw=dir;P.atk={type:'iai',t:0,dur:.44,s:[P.x,P.y,P.z],hitE:new Set(),ended:false};P.dashT=0;P.inv=Math.max(P.inv,.5);sfx('iai');
@@ -1582,7 +1582,7 @@ function updatePlayer(){
  if(P.dashBuf>0&&W.special!=='charge'&&specOK()&&P.atk&&P.atk.type!=='iai'&&!canAct()&&P.dashCd<=0){P.specQ=1;P.dashBuf=0}
  if(P.specQ){P.atkQ=0;P.atkBuf=0;if(P.dead||P.grap||P.trap){P.specQ=0}else if(!P.atk||canAct()){P.specQ=0;P.atk=null;P.dashBuf=1}}
  if(P.spAim)spAimStep(W,md);
- if(P.grabZ)grabStep();if(THROWN.length)thrownStep();
+ if(P.grabZ)grabStep();if(THROWN.length)thrownStep();menaStep();
  if(P.dashBuf>0&&W.special!=='charge'&&specOK()){if(P.dashCd<=0&&!P.sky&&!P.odDive&&(canAct()||P.trap||P.charge)&&!P.grap&&!P.throwK&&!P.vault&&(P.onGround||P.wall||P.airDash>0||P.trap)){if(SPAIM[W.special]&&held.dash&&!P.trap){if(!P.spAim)P.spAim={t:0,d:P.yaw}}else{if(W.special==='throw')startThrow(md);else doSpecial(W,md);specUsed()}}P.dashBuf=0}
  if(P.throwK)updateThrow();
  if(P.whirl)updWhirl(md);if(P.kHold||P.khook)updKHook(md);
@@ -2701,14 +2701,14 @@ const WDESC={katana:'Equilibrada. El 3.er golpe gira y lanza un corte de viento.
  kama:'Dos hoces muy rápidas; el 4.º golpe es un torbellino. Mantener: lanzar las hoces. Especial: aparecer a su espalda.',tanegashima:'Mosquete pesado: apunta solo al más cercano (diana roja); la bala atraviesa y estalla. Saltar: disparas al suelo y sales despedido, hasta 3 veces en el aire, con daño en área abajo (lleva tu bendición de ataque). Mantener: apuntar. Especial: mantenlo para ver la guía (arrastra el dedo para apuntar) y suelta: descarga de perdigones que te lanza hacia atrás.',
  yumi:'Apunta solo al enemigo más cercano (marca roja) y puedes disparar corriendo hacia atrás. Toque: ráfaga de 3 flechas (recarga 0,4 s). Mantener: flecha gigante que atraviesa toda la línea (tarda en cargar). Especial: bomba de humo y saltas; flotando apuntas un círculo en el suelo (stick para moverlo, mantén para apuntar más), disparas una flecha explosiva ahí y sales despedido con una voltereta; luego flotas. En el aire: disparar te mantiene flotando; a la 3ª flecha caes clavando el gancho con onda de choque.',shuriken:'Shuriken que rebotan, muy ágil. Toque en combo: 1 shuriken, luego 2 seguidos y luego 5 de golpe en abanico (tras ese, espera un poco más). Mantener: abanico de kunai. Especial: bomba de humo y desapareces.'};
 var RUN=null;let SM={},EF={},LOOT=[],PROJ=[],UID=1,DELAY=[];
-function genWeapon(type){return{uid:UID++,kind:'arma',type,name:TYPE_N[type]}} // todas las armas son iguales: lo que cambia son las bendiciones
+function genWeapon(type,rar){return{uid:UID++,kind:'arma',type,name:TYPE_N[type],rar:rar||0,afi:1}} // todas las armas son iguales: lo que cambia son las bendiciones
 function newRun(){return{kg:kgNew(),sty:{},wpn:[genWeapon('katana'),genWeapon('maza')],tama:0,kc:0,sedC:0}}
 function refreshSM(){
  if(!RUN)RUN=newRun();
  for(const k of['dmg','spd','rng','chg','cd','spc','par','mov'])SM[k]=1;SM.def=1;
  EF={};
 
- if(P)kgCalc();kgHudUpd();
+ if(P)kgCalc();fjApply();kgHudUpd();
 }
 // ---- muertes: botín y efectos ----
 function onKill(e,hit){
@@ -2755,13 +2755,13 @@ function quake(fall,force){const r=EF.terremoto;if(!force&&(!r||fall<2))return;c
 // ---- botín en el suelo ----
 function updateLoot(){
  for(const L of LOOT){L.t+=DT;if(P.dead)continue;if(Math.hypot(L.x-P.x,L.z-P.z)<1.15&&Math.abs(L.y-P.y)<1.6){L.got=true;
-  if(L.item.kind==='orb'){if(state==='play'){kgOrbOpen(L.item.ka)}else{L.got=false;continue}}else if(L.item.kid)kgAddKamon(L.item.kid);sfx('ready');sparks([L.x,L.y+1,L.z],[0,1,0],10,[1,.9,.5])}}
+  if(L.item.kind==='piedra'){const S=RUN.kg.stones||(RUN.kg.stones={});S[L.item.st]=(S[L.item.st]||0)+1;banner(FJ.st[L.item.st].k+' +1 '+FJ.st[L.item.st].n)}else if(L.item.kind==='arma'){fjPickWeapon(L.item)}else if(L.item.kind==='orb'){if(state==='play'){kgOrbOpen(L.item.ka)}else{L.got=false;continue}}else if(L.item.kid)kgAddKamon(L.item.kid);sfx('ready');sparks([L.x,L.y+1,L.z],[0,1,0],10,[1,.9,.5])}}
  LOOT=LOOT.filter(L=>!L.got&&L.t<60);
 }
 const ORBC={};
 function drawArsenal(){
- for(const L of LOOT){const c=AR_RC[2],b=Math.sin(L.t*3)*.08;limb([L.x,L.y,L.z],[L.x,L.y+2.4,L.z],.025+.01*Math.sin(L.t*6),c);
-  const y=L.y+.75+b,a=L.t*2;if(L.item.kind==='orb'){const oc=ORBC[L.item.ka]||(ORBC[L.item.ka]=new THREE.Color(KAMI[L.item.ka].c));head([L.x,y+.15,L.z],.26+.03*Math.sin(L.t*8),oc);limb([L.x,L.y,L.z],[L.x,L.y+3.2,L.z],.05,oc)}else if(L.item.kind==='kamon')head([L.x,y,L.z],.16,c);else{const d=[Math.cos(a)*.45,.25,Math.sin(a)*.45];limb([L.x-d[0],y-d[1],L.z-d[2]],[L.x+d[0],y+d[1],L.z+d[2]],L.item.type==='maza'?.06:.03,c)}}
+ for(const L of LOOT){const c=L.item.kind==='arma'?AR_RC[L.item.rar||0]:AR_RC[2],b=Math.sin(L.t*3)*.08;limb([L.x,L.y,L.z],[L.x,L.y+2.4,L.z],.025+.01*Math.sin(L.t*6),c);
+  const y=L.y+.75+b,a=L.t*2;if(L.item.kind==='piedra'){head([L.x,y,L.z],.15,FJC[L.item.st]);head([L.x+.12,y-.06,L.z],.09,FJC[L.item.st])}else if(L.item.kind==='orb'){const oc=ORBC[L.item.ka]||(ORBC[L.item.ka]=new THREE.Color(KAMI[L.item.ka].c));head([L.x,y+.15,L.z],.26+.03*Math.sin(L.t*8),oc);limb([L.x,L.y,L.z],[L.x,L.y+3.2,L.z],.05,oc)}else if(L.item.kind==='kamon')head([L.x,y,L.z],.16,c);else{const d=[Math.cos(a)*.45,.25,Math.sin(a)*.45];limb([L.x-d[0],y-d[1],L.z-d[2]],[L.x+d[0],y+d[1],L.z+d[2]],L.item.type==='maza'?.06:.03,c)}}
  for(const p of PROJ){if(p.k==='ofuda'){const l=Math.hypot(p.vx,p.vz)||1,ux=p.vx/l*.13,uz=p.vz/l*.13,w=Math.sin(time*22+p.x)*.05;limb([p.x-ux,p.y+w,p.z-uz],[p.x+ux,p.y-w,p.z+uz],.045,OFU_W);limb([p.x-ux*.3,p.y,p.z-uz*.3],[p.x+ux*.3,p.y,p.z+uz*.3],.05,OFU_R)}
   if(p.k==='shur'){const a=time*30,s=.16;limb([p.x-Math.cos(a)*s,p.y,p.z-Math.sin(a)*s],[p.x+Math.cos(a)*s,p.y,p.z+Math.sin(a)*s],.025,AR_RC[0]);limb([p.x-Math.sin(a)*s,p.y,p.z+Math.cos(a)*s],[p.x+Math.sin(a)*s,p.y,p.z-Math.cos(a)*s],.025,AR_RC[0])}
   else if(p.k==='fire'){head([p.x,p.y,p.z],.17,AR_RC[1]);head([p.x,p.y,p.z],.08,AR_RC[0])}
@@ -2785,13 +2785,13 @@ let lastSpecLbl='',KGskip=0,KGPJ=null;
 function specHUD(){const b=$('bDash');if(!b||!P)return;const W=weapon(),it=RUN&&RUN.wpn[wIdx];let t=SPN[W.special]||'DASH',dim=false;
  if(!specFree()&&it&&(P.spCd||0)>0){t=SPN[W.special]+' '+Math.ceil(P.spCd);dim=true}
  const k=t+dim;if(k!==lastSpecLbl){lastSpecLbl=k;b.textContent=t;b.style.opacity=dim?.6:1}}
-function updWUI(){lastSpecLbl='';const b=$('wbtn');b.textContent='⇄ '+weapon().name+hbIcons(RUN&&RUN.wpn[wIdx]);$('bDash').textContent=SPN[weapon().special]||'DASH';if(RUN)b.style.boxShadow='inset 0 0 0 2px #ffd04a'}
+function updWUI(){lastSpecLbl='';const b=$('wbtn');b.textContent='⇄ '+weapon().name+fjTag(RUN&&RUN.wpn[wIdx])+hbIcons(RUN&&RUN.wpn[wIdx]);$('bDash').textContent=SPN[weapon().special]||'DASH';if(RUN)b.style.boxShadow='inset 0 0 0 2px #ffd04a'}
 /* ================= KAGO 加護 · bendiciones de los kami (Hades) + kamon Henge (Isaac) =================
    Escala: 1 unidad interna de daño/vida = 10 en pantalla. TODO lo ajustable está en KG y en las tablas de abajo. */
 const KG={
  pdWin:.35,pdCd:1.5,pdMul:2, // esquiva perfecta: ventana desde que empiezas el dash (s), recarga y daño del golpe siguiente
  siegeHp:3,botHits:4, // asedio: zombis con ×3 de vida; un bot los mata en 4 golpes (sus golpes no usan tus bendiciones)
- orb:{p:.08,n:2}, // orbe del kami: lo suelta un minijefe con variante (8 %), como mucho 1 por oleada; abre 2 cartas de ese kami
+ orb:{p:.08,n:2,shop:.35}, // orbe del kami: lo suelta un minijefe con variante (8 %), como mucho 1 por oleada; abre 2 cartas de ese kami
  kiriSwap:.06,                           // peso de las cartas que cambian tu bendición de ataque (斬) ya puesta: muy raras (las demás ranuras ocupadas: .9, libres: 1.2)
  base:1.3,                               // valor de toda bendición (sin rarezas); el {n} de los textos ya va ×base
  lvmul:[1,1.3,1.55,1.75],                // Omiki: +30 %, +25 %, +20 % del valor base
@@ -3144,7 +3144,7 @@ function kgZone(k,x,z,r,t,v,o){if(ZN.length>40)ZN.shift();const Z=Object.assign(
 // ---------- enganches con el combate ----------
 // al golpear (cuerpo a cuerpo o disparo directo): estados de la ranura que toque
 function kgOnHit(e,hit,d){
- const src=hit.src,W=weapon().id;
+ const src=hit.src,W=weapon().id;if(FJX.vamp&&(src==='kiri'||src==='tame')&&time-(P.vampT??-9)>.25){P.vampT=time;P.hp=Math.min(P.hpMax,P.hp+1)}
  if(e.ks&&e.ks.sh>0&&src!=='proc')kgBolt([e.x,e.y+1.1,e.z],2,d*.5,new Set([e]));
  if(src==='kiri'||src==='tame'){P.streak=(P.streak||0)+1;
   const s=KS.slot.kiri;if(src==='kiri'&&s){switch(s.ka){
@@ -3264,13 +3264,15 @@ function kgOnKill(e,hit){if(!KS.on)return;const G=RUN.kg,c=[e.x,(e.y||0)+1,e.z];
  if(e.zt==='tanuki'){kgDropKamon(e);kgTama(10);banner('🦝 ¡Tanuki atrapado!')}
  if((e.kind==='oni'&&Math.random()<.5)||(e.kind&&e.kind!=='oni'&&e.kind!=='ooni'&&e.kind!=='karura'&&Math.random()<.22))kgDropKamon(e);
  if(e.kind&&e.var&&!e.raid&&e.kind!=='ooni'&&e.kind!=='karura'&&RUN.kg.orbW!==wave&&Math.random()<KG.orb.p)kgDropOrb(e);
+ fjOnKill(e);
  if((e.kind==='ooni'||e.kind==='karura')){kgDropKamon(e);ryuUnlock(weapon().id);kgVib([40,60,80],true)}
  const sty=RUN.sty&&RUN.sty[weapon().id];if(sty&&!(hit&&hit.proc))ryuKill(sty)}
 function kgBreath(){const F=[Math.sin(P.yaw),Math.cos(P.yaw)];banner('🐉 ¡ALIENTO DE DRAGÓN!');sfx('boom');shake=Math.max(shake,.3);
  for(let i=0;i<22;i++){const a=P.yaw+rand(-.45,.45),sp=rand(10,16);addP({k:'s',x:P.x+F[0]*.6,y:P.y+1.4,z:P.z+F[1]*.6,vx:Math.sin(a)*sp,vy:rand(-.5,1),vz:Math.cos(a)*sp,life:.45,max:.45,size:.16,c:[1,rand(.3,.7),.1]})}
  for(const e of zs){if(!e.alive)continue;const dx=e.x-P.x,dz=e.z-P.z,d=Math.hypot(dx,dz);if(d<6&&(dx*F[0]+dz*F[1])/(d||1)>.55){kgDeal(e,2*SM.dmg,{col:'#ff7a2a'});kgBurn(e,2,1.5)}}}
 function kgDropOrb(e){RUN.kg.orbW=wave;const ka=pick(KAMI_IDS);LOOT.push({x:e.x,y:groundAt(e.x,e.y+1,e.z),z:e.z,item:{uid:UID++,kind:'orb',ka},t:0});banner(KAMI[ka].ico+' ¡Orbe de '+KAMI[ka].n+'!');sfx('ready')}
-function kgOrbOpen(ka){KORB=ka;state='forge';hudShow(false);P.atk=null;P.charge=null;KOFF=null;kgOfferScreen('orb')}
+function kgOrbOpen(ka){if(Math.random()<KG.orb.shop){const ids=Object.keys(SHOP.items).filter(k=>{const I=SHOP.items[k];const L=kgBlessList().filter(b=>(b.c.lv||1)<4);return!I.ok||I.ok(L)}),k=pick(ids),I=SHOP.items[k],L=kgBlessList().filter(b=>(b.c.lv||1)<4).sort((a,b)=>(a.c.lv||1)-(b.c.lv||1));I.fx(L);refreshSM();kgSynFX({col:KAMI[ka].c,ico:I.i,kan:'🦝',name:'Regalo: '+I.n,desc:typeof I.d==='function'?I.d(L):''});sfx('ready');return}
+ KORB=ka;state='forge';hudShow(false);P.atk=null;P.charge=null;KOFF=null;kgOfferScreen('orb')}
 let KORB=null;
 function kgDropKamon(e){if(LOOT.length>=14)return;const id=pick(KAMON_IDS);LOOT.push({x:e.x,y:groundAt(e.x,e.y+1,e.z),z:e.z,item:{uid:UID++,kind:'kamon',kid:id},t:0})}
 function kgAddKamon(id){const G=RUN.kg,before=Object.assign({},KS.hg);G.kam[id]=(G.kam[id]||0)+1;refreshSM();const k=KAMON[id],n=KS.sets[k.set]||0;
@@ -3325,7 +3327,7 @@ function kgWaveStart(){if(!KS.on||horde300)return;const G=RUN.kg;
  let a=pk(),b=pk();while(b===a)b=pick(KAMI_IDS);
  const pos=()=>{const ang=Math.random()*6.283,r=rand(5,9);const x=clamp(P.x+Math.cos(ang)*r,-14,14),z=clamp(P.z+Math.sin(ang)*r,-14,14);return{x,z,y:groundAt(x,30,z)}};
  G.hok=two?[Object.assign({ka:a},pos()),Object.assign({ka:b},pos())]:[Object.assign({ka:a},pos())];G.hokSel=0;
- banner(two?'⛩ Dos santuarios: toca el que quieras':'⛩ '+KAMI[a].ico+' '+KAMI[a].n+' bendecirá esta oleada');kgHudUpd()}
+ banner(two?'⛩ Dos santuarios: toca el que quieras':'⛩ '+KAMI[a].ico+' '+KAMI[a].n+' bendecirá esta oleada');kgHudUpd();setTimeout(menaSpawn,1600)}
 function kgHokStep(){const G=RUN.kg;if(!G||!G.hok||G.hok.length<2)return;for(let i=0;i<G.hok.length;i++){const h=G.hok[i];if(i!==G.hokSel&&Math.hypot(P.x-h.x,P.z-h.z)<1.6&&Math.abs(P.y-h.y)<2){G.hokSel=i;banner('⛩ '+KAMI[h.ka].ico+' '+KAMI[h.ka].n+' elegido');sfx('ready');ring([h.x,h.y,h.z],1.5,.4);kgHudUpd()}}}
 function kgNoHeal(){const G=RUN&&RUN.kg;return KS.on&&G&&G.pact&&G.pact.left>0&&G.pact.c==='noheal'}
 // ---------- dibujo ----------
@@ -3576,7 +3578,10 @@ const SHOP={perVisit:2,perRun:6,gen:{p:.15,visit:3,run:7},omikiP:.35,
   dano:{i:'⚔',n:'Talismán',c:60,lim:1,d:()=>'+10 % de daño',fx:()=>{RUN.kg.dmgB=(RUN.kg.dmgB||0)+.1;refreshSM()}},
   dados:{i:'🎲',n:'Dados',c:25,lim:1,d:()=>'+2 cambios de cartas gratis',fx:()=>{RUN.kg.rr+=2}},
   ban:{i:'🚫',n:'Sello',c:20,lim:1,d:()=>'+1 destierro',fx:()=>{RUN.kg.ban++}},
-  sake:{i:'避',n:'Omamori',c:40,lim:1,d:()=>'Esquiva perfecta: −0,3 s de recarga',fx:()=>{RUN.kg.pdB=(RUN.kg.pdB||0)+.3}}}};
+  sake:{i:'避',n:'Omamori',c:40,lim:1,d:()=>'Esquiva perfecta: −0,3 s de recarga',fx:()=>{RUN.kg.pdB=(RUN.kg.pdB||0)+.3}},
+  arenisca:{i:'荒',n:'Arenisca',c:15,lim:1,d:()=>'Piedra de afilar (hasta Buena)',fx:()=>{const S=RUN.kg.stones||(RUN.kg.stones={});S.arenisca=(S.arenisca||0)+1}},
+  toishi:{i:'砥',n:'Toishi tradicional',c:40,lim:1,d:()=>'Piedra de afilar (hasta Letal, 2 % Divina)',fx:()=>{const S=RUN.kg.stones||(RUN.kg.stones={});S.toishi=(S.toishi||0)+1}},
+  extrana:{i:'妖',n:'Piedra extraña',c:30,lim:1,d:()=>'Afilada con efecto o Terrorífica',fx:()=>{const S=RUN.kg.stones||(RUN.kg.stones={});S.extrana=(S.extrana||0)+1}}}};
 function shopRoll(){const G=RUN.kg;if(G.shopW===wave&&G.shopL)return;G.shopW=wave;G.shopN=0;G.shopGen=Math.random()<SHOP.gen.p;if(G.shopGen)G.genRun=1;
  let ids=Object.keys(SHOP.items).filter(k=>k!=='omiki');ids=ids.sort(()=>Math.random()-.5).slice(0,Math.random()<SHOP.omikiP?3:4);if(ids.length<4)ids.push('omiki');G.shopL=ids.sort(()=>Math.random()-.5);G.shopB={}}
 const shopCaps=()=>{const G=RUN.kg;return{visit:G.shopGen?SHOP.gen.visit:SHOP.perVisit,run:G.genRun?SHOP.gen.run:SHOP.perRun}};
@@ -3595,6 +3600,7 @@ function kgEndQueue(){const G=RUN.kg,d=G.done,w=wave;
   if(w%5===0){G.rr++;if(G.boons.omiki){const L=kgBlessList().filter(b=>(b.c.lv||1)<4);if(L.length){const b=pick(L);b.c.lv++;banner('🍶 Omiki del pacto: '+b.n)}}}refreshSM()}
  saveRun();
  if(d.cards!==w)return kgOfferScreen('wave');
+ if(d.afi!==w&&fjStonesN()>0)return fjForge();
  if(w%5===0&&!TRAIN){if(d.ham!==w&&G.ham.length<2&&(w===5||w===10))return kgTsuchi();if(d.oni!==w&&!G.hurtBoss)return kgOni();if(d.shop!==w)return kgShop()}
  kgHide();refreshSM();closeForge();if(!TRAIN||SIEGE.on)kgWaveStart();kgResumeFX()}
 function kgCloseStart(){state='play';hudShow(true);refreshSM();updWUI();P.inv=Math.max(P.inv,1);kgWaveStart();kgResumeFX()}
@@ -3629,7 +3635,8 @@ function kgCodex(){const kami=KAMI_IDS.map(k=>{const K=KAMI[k];return`<div class
  const hg=Object.keys(HENGE).map(s=>`<div class="cx" style="--kc:${HENGE[s].c}"><b>${HENGE[s].k} ${HENGE[s].n}</b><span>${HENGE[s].d}</span><small>${KAMON_IDS.filter(k=>KAMON[k].set===s).map(k=>KAMON[k].ico+' '+KAMON[k].n).join(' · ')}</small></div>`).join('');
  const ta=Object.keys(TATARI).map(t=>`<div class="cx" style="--kc:${TATARI[t].c}"><b>${TATARI[t].k} ${t==='o'?'Ō':t[0].toUpperCase()+t.slice(1)}</b><span>${TATARI[t].d}</span></div>`).join('');
  const ar=Object.keys(TYPE_N).map(t=>`<div class="cx"><b>${TYPE_N[t]} · ${KAI[t].sk}</b><span>会心 ×${String(KAI[t].m).replace('.',',')}: ${KAI[t].d}</span><small>⚒ ${TSUCHI[t].map(h=>h[1]+': '+h[2]).join(' · ')}<br>流 ${RYU[t][1]}: ${RYU[t][2]}</small></div>`).join('');
- return`<h3>⛩ Los 8 kami</h3>${kami}<h3>結 Musubi (dúos)</h3>${duo}<h3>変 Henge</h3>${hg}<h3>祟 Campeones</h3>${ta}<h3>⚔ Armas</h3>${ar}`}
+ const fj=`<div class="cx"><b>等級 Rareza</b><span>${FJ.rarN.map((n,i)=>`<b style="color:${FJ.rarC[i]}">${n}</b> ×${String(FJ.rarM[i]).replace('.',',')}`).join(' · ')}</span><small>Recoge un arma igual (mismo tipo y rareza) y se fusiona en la siguiente. Las sueltan minijefes, onis y jefes.</small></div>`+`<div class="cx"><b>研 Afilado</b><span>${FJ.afi.map(a=>(a.k?a.k+' ':'')+a.n).join(' · ')}</span><small>Terrorífica: una estadística +60 % y otra −30 %. Divina: +50 % de daño y +20 % a todo.</small></div>`+Object.keys(FJ.st).map(k=>`<div class="cx" style="--kc:${FJ.st[k].c}"><b>${FJ.st[k].k} ${FJ.st[k].n}</b><span>${FJ.st[k].d}</span></div>`).join('')+`<div class="cx"><b>⛏ Menas</b><span>Al empezar cada oleada aparecen rocas con vetas: 3 golpes y sueltan una piedra. También las dan los minijefes.</span></div>`;
+ return`<h3>⛩ Los 8 kami</h3>${kami}<h3>結 Musubi (dúos)</h3>${duo}<h3>変 Henge</h3>${hg}<h3>祟 Campeones</h3>${ta}<h3>⚔ Armas</h3>${ar}<h3>鍛 Forja</h3>${fj}`}
 
 function kgShowCodex(){let d=$('kgCodex');if(!d){d=document.createElement('div');d.id='kgCodex';document.body.appendChild(d);d.addEventListener('click',e=>{if(e.target.closest('button'))d.style.display='none'})}d.innerHTML='<button>✖ Cerrar códice</button>'+kgCodex();d.style.display='block';d.scrollTop=0}
 
@@ -3638,6 +3645,83 @@ function kgShowCodex(){let d=$('kgCodex');if(!d){d=document.createElement('div')
 function aimDir(md,maxD,cone){let dir=md.m>.2?Math.atan2(md.x,md.z):P.yaw;const t=nearestZombie(maxD,dir,cone)||(md.m>.2?null:nearestZombie(Math.min(maxD,8),dir,Math.PI));// sin joystick y nadie delante: al más cercano (rodeado ya no disparas al vacío)
  if(t)dir=Math.atan2(t.x-P.x,t.z-P.z);P.yaw=dir;P.heading=dir;return dir}
 function shot(k,dir,o){if(NET.on&&mpHunt()&&k!=='chainfx'){const L0=k==='chain'||k==='kama'||k==='fan'?.4:.6;mpRoute({t:'shot',k,p:[r2(P.x+Math.sin(dir)*L0),r2(P.y+(o.y||1.3)),r2(P.z+Math.cos(dir)*L0)],v:[r2(Math.sin(dir)*o.v),r2(o.vy||0),r2(Math.cos(dir)*o.v)],l:o.life||.5})}const L=k==='chain'||k==='kama'||k==='fan'?.4:.6;addProj({k,x:P.x+Math.sin(dir)*L,y:P.y+(o.y||1.3),z:P.z+Math.cos(dir)*L,vx:Math.sin(dir)*o.v,vy:o.vy||0,vz:Math.cos(dir)*o.v,life:o.life,pierce:o.pierce,direct:true,dmg:o.dmg||1,R:o.R,blunt:o.blunt,home:(NET.on&&mpHunt())?0:o.home,bounce:o.bounce||0,ret:o.ret,outD:o.outD,d:0,big:o.big})}
+// ===== FORJA 鍛: rareza, fusión al recoger, piedras de afilar y menas (28 nov 2026) =====
+const FJ={
+ rarN:['Común','Rara','Épica','Legendaria'],rarC:['#cfc6b8','#4aa3ff','#b65cff','#ffb020'],rarM:[1,1.15,1.3,1.5],
+ rarRoll:w=>{const r=Math.random(),L=w>=8?Math.min(.08,.006*w):0,E=Math.min(.22,.02+.015*w),Ra=Math.min(.45,.15+.03*w);return r<L?3:r<L+E?2:r<L+E+Ra?1:0},
+ afi:[{k:'鈍',n:'Mala',d:-.15},{k:'',n:'Normal',d:0},{k:'良',n:'Buena',d:.1},{k:'鋭',n:'Afilada',d:.2},{k:'必殺',n:'Letal',d:.35},{k:'魔',n:'Terrorífica',d:0},{k:'神',n:'Divina',d:.5}],
+ st:{arenisca:{k:'荒砥',n:'Arenisca',c:'#b8a68a',cap:2,p:.7,d:'Hasta Buena'},toishi:{k:'天然砥',n:'Toishi tradicional',c:'#9fc1e0',cap:4,p:.5,div:.02,d:'Hasta Letal · 2 % Divina'},extrana:{k:'妖石',n:'Piedra extraña',c:'#b65cff',d:'Afilada con efecto (bueno o malo) o Terrorífica'}},
+ stW:{arenisca:6,toishi:3,extrana:1},save:.25,pity:.1,
+ terr:{up:.6,down:.3,stats:[['dmg','daño'],['spd','velocidad'],['rng','alcance'],['cd','recarga del especial'],['chg','carga'],['mov','movimiento']]},
+ odd:{vamp:{n:'Vampírica',g:1,d:'cada golpe cura 1 (1 cada 0,25 s)'},ligera:{n:'Ligera',g:1,d:'+15 % de velocidad de ataque'},fragil:{n:'Frágil',g:0,d:'recibes +20 % de daño'},pesada:{n:'Pesada',g:0,d:'−12 % de movimiento'}},
+ drop:{stoneMini:.3,wMini:.15,wOni:.3},mena:{n:[2,3],hits:3}};
+const FJC={};for(const k in FJ.st)FJC[k]=new THREE.Color(FJ.st[k].c);
+let FJX={};
+function fjTag(it){if(!it||!kgOn())return'';const a=FJ.afi[it.afi??1];return(it.rar?' '+'★'.repeat(it.rar):'')+(a.k?' '+a.k:'')}
+function fjApply(){FJX={};const it=RUN&&RUN.wpn&&RUN.wpn[wIdx],b=typeof $==='function'&&$('wbtn');if(b)b.style.color=it&&kgOn()?FJ.rarC[it.rar||0]:'';if(!it||!kgOn())return;
+ const a=it.afi??1;SM.dmg*=FJ.rarM[it.rar||0]*(1+FJ.afi[a].d);
+ if(a===5&&it.tx){SM[it.tx.up]*=1+FJ.terr.up;SM[it.tx.dn]*=1-FJ.terr.down}
+ if(a===6)for(const k of['spd','rng','chg','cd','spc','mov'])SM[k]*=1.2;
+ if(it.odd){FJX[it.odd]=1;if(it.odd==='ligera')SM.spd*=1.15;if(it.odd==='pesada')SM.mov*=.88;if(it.odd==='fragil')SM.def*=1.2}}
+function fjStonesN(){const S=RUN.kg.stones||{};return Object.values(S).reduce((a,b)=>a+b,0)}
+function fjRollStone(){const W=FJ.stW,t=Object.values(W).reduce((a,b)=>a+b,0);let r=Math.random()*t;for(const k in W){r-=W[k];if(r<=0)return k}return'arenisca'}
+function fjDropStone(x,y,z,st){LOOT.push({x,y,z,item:{uid:UID++,kind:'piedra',st:st||fjRollStone()},t:0})}
+function fjDropWeapon(e,rmin){const types=[...new Set(RUN.wpn.filter(Boolean).map(w=>w.type))];if(!types.length||LOOT.length>=14)return;
+ LOOT.push({x:e.x+rand(-.6,.6),y:groundAt(e.x,e.y+1,e.z),z:e.z+rand(-.6,.6),item:{uid:UID++,kind:'arma',type:pick(types),rar:Math.max(rmin||0,FJ.rarRoll(wave))},t:0})}
+function fjOnKill(e){if(!kgOn()||TRAIN&&TRAIN.siege)return;const D=FJ.drop,gy=groundAt(e.x,e.y+1,e.z);
+ if(e.kind==='ooni'||e.kind==='karura'){fjDropWeapon(e,1);fjDropStone(e.x+.8,gy,e.z,'toishi');return}
+ if(e.kind&&e.var&&!e.raid){if(Math.random()<D.stoneMini)fjDropStone(e.x,gy,e.z);if(Math.random()<D.wMini)fjDropWeapon(e)}
+ else if(e.kind==='oni'&&Math.random()<D.wOni)fjDropWeapon(e)}
+function fjPickWeapon(item){const i=RUN.wpn.findIndex((w,j)=>w&&w.type===item.type&&j===wIdx)>=0?wIdx:RUN.wpn.findIndex(w=>w&&w.type===item.type);
+ const C=FJ.rarC[item.rar];if(i<0){kgTama(4);return}const eq=RUN.wpn[i];eq.rar=eq.rar||0;
+ if(item.rar===eq.rar&&eq.rar<3){eq.rar++;kgSynFX({col:FJ.rarC[eq.rar],ico:'🔥',kan:'合',name:'¡FUSIÓN! '+TYPE_N[eq.type]+' '+FJ.rarN[eq.rar],desc:'Daño base ×'+FJ.rarM[eq.rar]});ring([P.x,P.y,P.z],2.5,.4);sparks([P.x,P.y+1.2,P.z],[0,1,0],24,[1,.6,.2]);sfx('parry');shake=Math.max(shake,.25)}
+ else if(item.rar>eq.rar){eq.rar=item.rar;banner('⬆ '+TYPE_N[eq.type]+' '+FJ.rarN[eq.rar]);sfx('ready')}
+ else{const t=3+4*item.rar;kgTama(t);banner('🔥 Fundida: +'+t+' 魂');sfx('blunt')}
+ refreshSM();updWUI()}
+// menas: rocas con vetas que aparecen al empezar cada oleada; 3 golpes y sueltan una piedra
+const MENAS=[];
+const MENA_G=new THREE.DodecahedronGeometry(.5,0),MENA_M=new THREE.MeshLambertMaterial({color:0x2b2a30,flatShading:true});
+function menaSpawn(){for(const M of MENAS)scene.remove(M.g);MENAS.length=0;if(!kgOn()||TRAIN&&TRAIN.siege)return;
+ const n=FJ.mena.n[0]+(Math.random()<.5?1:0);
+ for(let i=0;i<n;i++){let x=0,z=0,y=0;for(let k=0;k<12;k++){const a=Math.random()*6.283,r=rand(4,12);x=clamp(P.x+Math.cos(a)*r,-15,15);z=clamp(P.z+Math.sin(a)*r,-15,15);y=groundAt(x,30,z);if(!pointBox(x,y+.5,z))break}
+  const st=fjRollStone(),g=new THREE.Group(),rock=new THREE.Mesh(MENA_G,MENA_M);rock.scale.set(1,.8,1);rock.rotation.set(rand(0,3),rand(0,3),0);rock.castShadow=true;g.add(rock);
+  for(let j=0;j<4;j++){const v=new THREE.Mesh(new THREE.OctahedronGeometry(.13,0),new THREE.MeshBasicMaterial({color:FJ.st[st].c}));const a=j/4*6.283+rand(-.3,.3);v.position.set(Math.cos(a)*.36,rand(.05,.4),Math.sin(a)*.36);v.rotation.set(rand(0,3),rand(0,3),0);g.add(v)}
+  g.position.set(x,y+.32,z);scene.add(g);MENAS.push({x,y,z,st,hp:FJ.mena.hits,g,hitId:-1,pulse:0})}
+ if(n)banner('⛏ ¡Menas! Rómpelas para conseguir piedras de afilar')}
+function menaHit(M){M.hp--;M.pulse=.15;sparks([M.x,M.y+.6,M.z],[0,1,0],10,[1,.9,.6]);sfx('block');shake=Math.max(shake,.06);
+ if(M.hp<=0){M.dead=1;scene.remove(M.g);dust([M.x,M.y,M.z],10,2.5,true);ring([M.x,M.y,M.z],1.4,.3);sparks([M.x,M.y+.6,M.z],[0,1,0],20,FJ.st[M.st].c==='#b65cff'?[.7,.4,1]:[.9,.85,.7]);sfx('blunt');fjDropStone(M.x,M.y,M.z,M.st)}}
+function menaStep(){if(!MENAS.length)return;const a=P.atk;
+ for(const M of MENAS){if(M.dead)continue;if(M.pulse>0){M.pulse-=DT;M.g.scale.setScalar(1+M.pulse*1.5)}else M.g.scale.setScalar(1);M.g.children[0].rotation.y+=DT*.3;
+  const d=Math.hypot(P.x-M.x,P.z-M.z);if(Math.abs(P.y-M.y)>2)continue;if(d<.65&&d>1e-3){const k=(.65-d)/d;P.x+=(P.x-M.x)*k;P.z+=(P.z-M.z)*k}// la roca es sólida
+  if(a&&d<2.1&&M.hitId!==a.id&&(a.kf||a.t>=(a.def?a.def.wind:0))){M.hitId=a.id;menaHit(M);continue}
+  if(P.dashT>0&&d<1.2){if(M.dashT!==P.dashStartT){M.dashT=P.dashStartT;menaHit(M)}continue}
+  for(const pj of PROJ){if(pj.life>0&&Math.hypot(pj.x-M.x,pj.z-M.z)<.7&&Math.abs(pj.y-M.y-.4)<1){pj.life=0;menaHit(M);break}}}
+ for(let i=MENAS.length-1;i>=0;i--)if(MENAS[i].dead)MENAS.splice(i,1)}
+// pantalla 研 AFILAR (entre oleadas, si tienes piedras)
+let FJSEL=null,FJMSG='';
+function fjForge(){FJSEL=null;FJMSG='';kgOverlay('cards').dataset.mode='afi';fjRender(true)}
+function fjCard(it,i){const a=FJ.afi[it.afi??1],C=FJ.rarC[it.rar||0];const ex=(it.afi===5&&it.tx?`<div class="kdesc">⬆ ${FJ.terr.stats.find(x=>x[0]===it.tx.up)[1]} +60 % · ⬇ ${FJ.terr.stats.find(x=>x[0]===it.tx.dn)[1]} −30 %</div>`:'')+(it.odd?`<div class="kdesc">${FJ.odd[it.odd].g?'✨':'☠'} ${FJ.odd[it.odd].n}: ${FJ.odd[it.odd].d}</div>`:'');
+ return`<div class="kcard shine" data-k="fjW" data-i="${i}" style="--kc:${C};--rc:${C};--d:${(i*.08+.1).toFixed(2)}s"><div class="kin"><div class="kbg">${a.k||'刃'}</div><div class="ktop"><span class="kico">${wIcon(it.type,C,40)}</span><span class="ktag" style="color:${C}">${FJ.rarN[it.rar||0]} ${'★'.repeat(it.rar||0)}</span></div><div class="kname">${TYPE_N[it.type]}</div><div class="kdesc">Afilado: <b>${a.k} ${a.n}</b> · daño ×${(FJ.rarM[it.rar||0]*(1+a.d)).toFixed(2)}</div>${ex}</div></div>`}
+function fjRender(anim){const S=RUN.kg.stones||{};
+ KGO.innerHTML=`<div class="krays" style="--kc:#9fc1e0"></div><div class="kwrap${anim?' anim':''}">${kgHead('研 AFILAR','Elige una piedra y toca un arma')}
+ <div class="krow">${Object.keys(FJ.st).map(k=>{const T=FJ.st[k],n=S[k]||0;return`<button class="kb" data-k="fjSt" data-s="${k}" ${n?'':'disabled'} style="border-color:${FJSEL===k?T.c:'#555'};box-shadow:${FJSEL===k?'0 0 14px '+T.c:'none'};min-width:96px"><span style="color:${T.c};font-size:18px">${T.k}</span><br>${T.n} ×${n}<br><small style="opacity:.7">${T.d}</small></button>`}).join('')}</div>
+ ${FJMSG?`<div class="kgod" style="--kc:#ffd23a">${FJMSG}</div>`:''}
+ <div class="krow">${RUN.wpn.map((w,i)=>w?fjCard(w,i):'').join('')}</div>
+ <div class="kfoot"><button class="kb" data-k="fjGo">Seguir ▶</button><span class="khelp">La piedra puede salvarse (25 %) · si falla, la siguiente vez es más fácil</span></div></div>`}
+function fjSharpen(st,it){const T=FJ.st[st],a=it.afi??1;let msg,ok=true;
+ if(st==='extrana'){if(Math.random()<.5){it.afi=3;it.tx=null;const ks=Object.keys(FJ.odd);it.odd=pick(ks);msg=(FJ.odd[it.odd].g?'✨ ':'☠ ')+'Afilada · '+FJ.odd[it.odd].n+': '+FJ.odd[it.odd].d}
+  else{it.afi=5;it.odd=null;const L=FJ.terr.stats.map(x=>x[0]),up=pick(L);let dn=pick(L);while(dn===up)dn=pick(L);it.tx={up,dn};msg='魔 ¡TERRORÍFICA! doble filo'}}
+ else{if(a===6||(a!==5&&a>=T.cap&&!(T.div&&a<6))){return'Esta piedra no puede afilarla más'}
+  if(T.div&&Math.random()<T.div){it.afi=6;it.tx=null;it.odd=null;msg='神 ¡¡DIVINA!!'}
+  else if(a!==5&&a>=T.cap){msg='No sube (solo un milagro la haría divina)'}
+  else if(Math.random()<T.p+(it.pity||0)){it.afi=a===5?Math.min(4,T.cap):a+1;if(a===5)it.tx=null;it.odd=it.afi===3?it.odd:null;it.pity=0;msg='⬆ '+FJ.afi[it.afi].k+' '+FJ.afi[it.afi].n}
+  else{it.pity=(it.pity||0)+FJ.pity;ok=false;msg='✖ Falla… la próxima es más fácil'}}
+ const S=RUN.kg.stones;if(Math.random()<FJ.save)msg+=' · ¡la piedra aguanta!';else S[st]--;
+ sfx(ok?'parry':'block');kgVib(ok?40:15);refreshSM();updWUI();return msg}
+KGH.fjSt=b=>{const k=b.dataset.s;if(!(RUN.kg.stones||{})[k])return;FJSEL=FJSEL===k?null:k;FJMSG=FJSEL?FJ.st[k].n+': toca el arma':'';fjRender(false)};
+KGH.fjW=b=>{const it=RUN.wpn[+b.dataset.i];if(!it)return;if(!FJSEL){FJMSG='Primero elige una piedra';fjRender(false);return}if(!(RUN.kg.stones[FJSEL]>0)){FJSEL=null;fjRender(false);return}
+ FJMSG=fjSharpen(FJSEL,it);if(!(RUN.kg.stones[FJSEL]>0))FJSEL=null;fjRender(false);const c=KGO.querySelector(`[data-k="fjW"][data-i="${b.dataset.i}"]`);if(c)kgBurst(c,FJ.rarC[it.rar||0])};
+KGH.fjGo=()=>{RUN.kg.done.afi=wave;kgEndQueue()};
 // ===== TEKKŌ: agarre y lanzamiento =====
 const GRAB={hold:.28,v:15,vy:2.5,hitR:1.4,hitDmg:3,boomR:2.2,boomDmg:2};let THROWN=[];
 function grabStart(z){P.grabZ={z,t:0};P.atk=null;P.charge=null;z.stun=9;z.atkWind=0;sfx('parry');shake=Math.max(shake,.12);kgVib(20)}
@@ -3765,7 +3849,7 @@ function aimRelease(W,t,md){const t0=t;
   case'kamas':{const d=aimDir(md,8*rg,.9);for(const o of[-.35,.35])shot('kama',d+o,{v:17,life:1.8,pierce:99,dmg:1.2,R:.6,ret:1,outD:(5+2*k)*rg});P.shotT=.25;sfx('spin');break}
  }
 }
-function startDash(dir,sp,t,kind,air){P.wall=null;P.atk=null;P.charge=null;P.skidT=0;P.trap=null;P.yaw=dir;P.heading=dir;P.dashT=t;P.vx=Math.sin(dir)*sp;P.vz=Math.cos(dir)*sp;P.dashKind=kind;P.dashAir=air||0;P.dashHit=new Set();P.inv=Math.max(P.inv,t+.1);P.sinceDash=0;dust([P.x,P.y,P.z],4,1.4);sfx('whoosh')}
+function startDash(dir,sp,t,kind,air){P.dashStartT=time;P.wall=null;P.atk=null;P.charge=null;P.skidT=0;P.trap=null;P.yaw=dir;P.heading=dir;P.dashT=t;P.vx=Math.sin(dir)*sp;P.vz=Math.cos(dir)*sp;P.dashKind=kind;P.dashAir=air||0;P.dashHit=new Set();P.inv=Math.max(P.inv,t+.1);P.sinceDash=0;dust([P.x,P.y,P.z],4,1.4);sfx('whoosh')}
 function dashHits(kind){if(kind==='none')return;const F=[Math.sin(P.yaw),0,Math.cos(P.yaw)];let n=0;
  for(const z of zs){if(!z.alive||z.iaiT>0||P.dashHit.has(z))continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz);if(d>(z.r||.3)+P.r+.75||z.y>P.y+1.6||z.y+(z.h||1.8)<P.y+.2)continue;P.dashHit.add(z);n++;
   if(kind==='cut')procKill(z,[F[0]*6+dx,3,F[2]*6+dz],false,true,1.5);
