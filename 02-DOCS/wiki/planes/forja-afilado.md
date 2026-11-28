@@ -1,6 +1,6 @@
 # Propuesta: forja sencilla 鍛 — rarezas, fusión y piedras de afilar
 
-28 nov 2026 · idea de Daniel, pendiente de que apruebe las decisiones del final. **No hay nada programado.**
+28 nov 2026 · idea de Daniel. **Hecho y subido a `dev`** (ver «Estado» al final).
 
 Objetivo: dar una **vía segura para subir el daño del arma** (ahora depende de bendiciones y críticos) sin volver a la forja vieja (bolsa, huecos, metal, temple…). Convive con las bendiciones Kago: estas cambian *cómo* pegas y la forja, *cuánto*.
 
@@ -71,3 +71,16 @@ Legendaria y Divina = ×1,5 × 1,5 = **×2,25** de daño base. Es mucho, pero cu
 2. ¿Las armas del suelo, **solo de tus 2 tipos** o de cualquiera (y la puedes cambiar)?
 3. ¿Piedras **solo en la tienda** (cada 5 oleadas) o también como botín de minijefes?
 4. ¿Algo que quites o cambies de los niveles y las piedras?
+
+---
+
+## Estado (28 nov 2026)
+Decisiones: piedras de minijefes y de **menas** que aparecen al empezar cada oleada (Daniel); el orbe del kami también puede dar cosas de la tienda (Daniel); fusión con **2** armas iguales y armas del suelo **solo de tus 2 tipos** (lo propuesto; Daniel no lo cambió). La fusión es automática al recoger (sin menú).
+- [x] Rareza y afilado en el daño y las estadísticas (`fjApply`). **Prueba:** katana común + común → rara, daño ×1,15 y ★ en el botón.
+- [x] Botín de minijefes, onis y jefes (`fjOnKill`). **Prueba:** un kappa con variante soltó piedra y arma; al recogerla la katana pasó a épica.
+- [x] Menas (`menaSpawn`, `menaStep`). **Prueba:** al 3.er golpe la mena se rompe y suelta su piedra; la roca es sólida.
+- [x] Pantalla 研 AFILAR (`fjForge`). **Prueba:** arenisca → Buena; extraña → Terrorífica (alcance +60 %, carga −30 %) y la piedra aguantó.
+- [x] Piedras en la tienda; orbe con regalo de la tienda (35 %). **Prueba:** con probabilidad 1 el orbe aplicó un objeto de la tienda y siguió la partida.
+- [x] Códice ℹ Info con el apartado 鍛 Forja.
+- [ ] Probar en el móvil y ajustar probabilidades; hoja de equilibrio sin actualizar.
+- [ ] Brillo del arma según afilado (ahora solo se ve en el botón y en la pantalla de afilar).
