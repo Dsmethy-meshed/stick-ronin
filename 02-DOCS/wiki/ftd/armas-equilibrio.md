@@ -27,6 +27,14 @@ Simulación con Playwright (fuera del repo): el jugador machaca atacar 20 s rode
 - [x] **Kanabō:** 2 → 2,4 (tumba de un golpe en la oleada 5). **Nitō:** 0,6 → 0,75.
 - [x] Editor: `GEN_ATK` con los nuevos `c4` y `t3` (`GEN_V` g7) y clips de katana iguales que en el juego.
 
+## Tanegashima rehecha (petición de Daniel, 28 nov 2026)
+- [x] Autoapuntado con diana roja (como el yumi). **Prueba:** el especial sin arrastrar giró hacia los 6 zombis y los mató.
+- [x] Saltar = disparo al suelo, 3 veces antes de tocar suelo, daño en área abajo con la bendición de 斬 y extra por kami. **Prueba:** saltos 1-3 dan `gunJ` 1-3 y el 4.º no sale; el 1.º con Raijin mató 7 de 8 alrededor; vuelve a 0 al aterrizar.
+- [x] Especial más fuerte (7 perdigones de 3,5 + cono) y desplaza más. **Prueba:** 8,7 m de retroceso (antes 15 × 0,22 ≈ 3,3 m).
+- [x] Guía de lanzamiento al mantener el especial; arrastrar sobre el botón apunta; soltar lanza. **Prueba:** `spGuide` visible mientras se mantiene; se lanza al soltar.
+- [ ] Probar en el móvil el arrastre sobre el botón (en el PC solo se simuló).
+- [ ] El disparo hacia el suelo es una pose fija, no un clip del editor (igual que los demás disparos).
+
 ## Bendiciones de ataque (ranura 斬)
 - [x] Kagutsuchi, Yuki-onna y Tsukuyomi suman +50 % de daño al golpe (×1,3 → +65 % en pantalla), como Hachiman y Benzaiten. Yuki-onna pone 2 pilas de escarcha por golpe. Textos actualizados.
 - [ ] Pendiente de hablar con Daniel: Raijin sigue muy por encima porque reparte daño en área; los % fijos se notan poco por los umbrales de golpes (p. ej. katana 12 × 1,65 = 19,8 < 21 en la oleada 5).

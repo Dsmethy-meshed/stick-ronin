@@ -783,6 +783,7 @@ function bindBtn(el,k){
  const up=()=>{el.classList.remove('on');held[k]=false};el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
 }
 bindBtn($('bAtk'),'atk');bindBtn($('bJump'),'jump');bindBtn($('bDash'),'dash');bindBtn($('bHook'),'hook');
+{const b=$('bDash');b.addEventListener('pointerdown',e=>{SPDRAG={x0:e.clientX,y0:e.clientY,dx:0,dy:0}});b.addEventListener('pointermove',e=>{if(SPDRAG&&held.dash){SPDRAG.dx=e.clientX-SPDRAG.x0;SPDRAG.dy=e.clientY-SPDRAG.y0}});b.addEventListener('pointerup',()=>{setTimeout(()=>{SPDRAG=null},50)})}
 $('wbtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();switchWeapon()});
 const cvs=renderer.domElement;
 cvs.addEventListener('pointerdown',e=>{
@@ -1500,7 +1501,8 @@ const bowSp=(()=>{const c=document.createElement('canvas');c.width=c.height=128;
 const skyRet=(()=>{const m=new THREE.Mesh(new THREE.RingGeometry(1.95,2.25,48),new THREE.MeshBasicMaterial({color:0xff3b2a,transparent:true,opacity:.85,depthWrite:false,depthTest:false}));m.rotation.x=-Math.PI/2;m.renderOrder=998;m.visible=false;scene.add(m);return m})();
 const kikenSp=(()=>{const c=document.createElement('canvas');c.width=c.height=128;const g=c.getContext('2d');g.fillStyle='rgba(0,0,0,.55)';g.beginPath();g.arc(64,64,58,0,7);g.fill();g.fillStyle='#ff2a1a';g.font='bold 86px serif';g.textAlign='center';g.textBaseline='middle';g.fillText('危',64,70);
  const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,transparent:true}));sp.scale.set(.9,.9,.9);sp.renderOrder=40;sp.visible=false;scene.add(sp);return sp})();
-function aimPoseData(W){const k=P.shotT>0?P.shotT/.25:0,c=P.charge&&P.charge.kind==='aim'?clamp(P.charge.t,0,1):0;
+function aimPoseData(W){if(W.run==='gun'&&P.gunJT>0)return{hL:[-.06,1.02,.24],hR:[.1,1.18,.04],blade:nrm3([0,-1,.18]),neck:[0,1.41,.1],head:[0,1.52,.18]};// disparo hacia el suelo (salto con el mosquete)
+ const k=P.shotT>0?P.shotT/.25:0,c=P.charge&&P.charge.kind==='aim'?clamp(P.charge.t,0,1):0;
  if(W.run==='gun')return{hL:[-.04,1.33,.52],hR:[.12,1.31,.08-.08*k],blade:nrm3([0,.04+.05*k,1]),neck:[0,1.42,.12],head:[0,1.55,.2]};
  if(W.run==='bow')return{hL:[-.04,1.36,.6],hR:[.07,1.36,.14-.18*c+.25*k],blade:nrm3([0,1,.1]),neck:[0,1.43,.08],head:[0,1.57,.12]};
  if(W.id==='tessen')return{hL:[-.25,1.15,.3],hR:[.28,1.25+.15*c,-.2*c+.45*k],blade:nrm3([1,.3,.2]),neck:[0,1.42,.1],head:[0,1.56,.14]};
@@ -1569,7 +1571,7 @@ function updOdDive(md){const D=P.odDive;if(!D)return;if(P.dead||P.trap||P.grap||
 }
 function updatePlayer(){
  const md=moveDir(),W=weapon();bowUpdTarget();P.bowFace=Math.max(0,(P.bowFace||0)-DT);P.flipT=Math.max(0,(P.flipT||0)-DT);updSky(md);updOdDive(md);
- if(input.jumpP)P.jumpBuf=.13;if(P.sky)P.jumpBuf=0;P.shotCd=Math.max(0,(P.shotCd||0)-DT);P.shotT=Math.max(0,(P.shotT||0)-DT);P.spinFx=Math.max(0,(P.spinFx||0)-DT);
+ if(input.jumpP)P.jumpBuf=.13;if(P.sky)P.jumpBuf=0;if(P.onGround&&!(P.gunJT>0))P.gunJ=0;P.gunJT=Math.max(0,(P.gunJT||0)-DT);P.shotCd=Math.max(0,(P.shotCd||0)-DT);P.shotT=Math.max(0,(P.shotT||0)-DT);P.spinFx=Math.max(0,(P.spinFx||0)-DT);
  if(input.atkP&&P.odDive&&P.odDive.ph!=='dive'){if(P.odDive.t>.05||P.odDive.ph==='apex')P.odDive.q=1;P.atkBuf=0;P.atkQ=0}
  else if(input.atkP){if(!kgOn()){const g=time-(P.lastAtkP??-9);P.lastAtkP=time;if(!(P.parryLock>0))P.parryT=(g<HUNT.mash?HUNT.mashWin:HUNT.win)*(SM.par||1)}if((P.atk&&P.atk.type!=='iai'||P.charge&&P.charge.t<.25)&&!weapon().tap)P.atkQ=Math.min(2,(P.atkQ||0)+1);else P.atkBuf=Math.max(.18,weapon().tap?(P.shotCd||0)+.08:0)}if(P.parryT>0){P.parryT-=DT;if(P.parryT<=0){P.parryT=0;P.parryLock=HUNT.lock}}P.parryLock=Math.max(0,(P.parryLock||0)-DT);P.parryAnim=Math.max(0,(P.parryAnim||0)-DT);
  if(P.guardBreak>0){P.guardBreak-=DT;P.atkBuf=0;P.charge=null}
@@ -1581,7 +1583,8 @@ function updatePlayer(){
  if(P.trap&&P.trap.t<.4)P.dashBuf=0;
  if(P.dashBuf>0&&W.special!=='charge'&&specOK()&&P.atk&&P.atk.type!=='iai'&&!canAct()&&P.dashCd<=0){P.specQ=1;P.dashBuf=0}
  if(P.specQ){P.atkQ=0;P.atkBuf=0;if(P.dead||P.grap||P.trap){P.specQ=0}else if(!P.atk||canAct()){P.specQ=0;P.atk=null;P.dashBuf=1}}
- if(P.dashBuf>0&&W.special!=='charge'&&specOK()){if(P.dashCd<=0&&!P.sky&&!P.odDive&&(canAct()||P.trap||P.charge)&&!P.grap&&!P.throwK&&!P.vault&&(P.onGround||P.wall||P.airDash>0||P.trap)){if(W.special==='throw')startThrow(md);else doSpecial(W,md);specUsed()}P.dashBuf=0}
+ if(P.spAim)spAimStep(W,md);
+ if(P.dashBuf>0&&W.special!=='charge'&&specOK()){if(P.dashCd<=0&&!P.sky&&!P.odDive&&(canAct()||P.trap||P.charge)&&!P.grap&&!P.throwK&&!P.vault&&(P.onGround||P.wall||P.airDash>0||P.trap)){if(SPAIM[W.special]&&held.dash&&!P.trap){if(!P.spAim)P.spAim={t:0,d:P.yaw}}else{if(W.special==='throw')startThrow(md);else doSpecial(W,md);specUsed()}}P.dashBuf=0}
  if(P.throwK)updateThrow();
  if(P.whirl)updWhirl(md);if(P.kHold||P.khook)updKHook(md);
  if(P.dashBuf>0&&P.dashCd<=0&&canAct()&&!P.grap&&(P.onGround||P.wall||P.airDash>0||P.trap)){
@@ -1661,6 +1664,7 @@ function updatePlayer(){
  if(P.odDive){const D=P.odDive;if(D.ph==='dive'){if(md.m>.2)P.heading=turnTo(P.heading,Math.atan2(md.x,md.z),8*DT);P.speed=approach(P.speed||0,4.2*md.m,14*DT);P.vx=Math.sin(P.heading)*P.speed;P.vz=Math.cos(P.heading)*P.speed}else if(D.ph!=='toss'){P.vx*=.8;P.vz*=.8}else{P.vx*=.85;P.vz*=.85;P.speed*=.85}}
  // salto (sin doble salto: pisotón Sekiro sobre cabezas)
  if(P.trap)P.jumpBuf=0;
+ if(P.jumpBuf>0&&!P.grap&&!(a&&!canAct())&&W.id==='tanegashima'&&!P.wall&&!P.sky&&!P.odDive&&!P.vault&&(P.gunJ||0)<GUN.jumps+(KS.slot&&KS.slot.kiri&&KS.slot.kiri.ka==='inari'?1:0))gunJump(W);
  if(P.jumpBuf>0&&!P.grap&&!(a&&!canAct())){
   if(P.wall){const n=P.wallN,into=md.x*-n[0]+md.z*-n[2];P.jumpBuf=0;P.atk=null;
    P.lastHang={n:n.slice(),y:P.y,t:time};
@@ -2694,7 +2698,7 @@ const WDESC={katana:'Equilibrada. El 3.er golpe gira y lanza un corte de viento.
  nito:'Dos katanas, muy ágil. Mantener: modo demonio (corres más rápido cortando todo lo que tocas). Especial: doble paso en zigzag.',odachi:'Enorme, barridos larguísimos. Combo: tajo der→izq, izq→der y diagonal final. Mantener: tajo vertical imparable (te golpean menos mientras cargas). Especial: lanza la espada hacia arriba y te teletransportas a ella para reposicionarte. En el aire a más de 3 m, atacar = picado con onda enorme (puedes usar el gancho durante la caída).',
  naginata:'Barridos amplios a media distancia. Mantener: giro sobre el asta. Especial: salto con pértiga que acaba en barrido.',yari:'Estocadas que atraviesan en línea. Mantener: lanzada que ensarta y arrastra a los enemigos hacia ti. Especial: estocada larga en carrera.',
  kusarigama:'Arcos rápidos y largos con la cadena. Mantener: torbellino de 3 s a tu alrededor (arco corto, largo, corto, largo…), luego vuelve a empezar. Especial: lanza la hoz hacia donde apuntas y te arrastras tras ella; mantenlo para lanzarla más lejos (la que más llega de todas).',tessen:'Abanico, el más rápido; el 3.er golpe es un giro que aparta a todos. Mantener: ráfaga de viento. Especial: planeo de viento que aparta a todos.',
- kama:'Dos hoces muy rápidas; el 4.º golpe es un torbellino. Mantener: lanzar las hoces. Especial: aparecer a su espalda.',tanegashima:'Mosquete pesado: bala perforante que estalla al impactar, recarga lenta. Mantener: apuntar. Especial: descarga que te lanza hacia atrás.',
+ kama:'Dos hoces muy rápidas; el 4.º golpe es un torbellino. Mantener: lanzar las hoces. Especial: aparecer a su espalda.',tanegashima:'Mosquete pesado: apunta solo al más cercano (diana roja); la bala atraviesa y estalla. Saltar: disparas al suelo y sales despedido, hasta 3 veces en el aire, con daño en área abajo (lleva tu bendición de ataque). Mantener: apuntar. Especial: mantenlo para ver la guía (arrastra el dedo para apuntar) y suelta: descarga de perdigones que te lanza hacia atrás.',
  yumi:'Apunta solo al enemigo más cercano (marca roja) y puedes disparar corriendo hacia atrás. Toque: ráfaga de 3 flechas (recarga 0,4 s). Mantener: flecha gigante que atraviesa toda la línea (tarda en cargar). Especial: bomba de humo y saltas; flotando apuntas un círculo en el suelo (stick para moverlo, mantén para apuntar más), disparas una flecha explosiva ahí y sales despedido con una voltereta; luego flotas. En el aire: disparar te mantiene flotando; a la 3ª flecha caes clavando el gancho con onda de choque.',shuriken:'Shuriken que rebotan, muy ágil. Toque en combo: 1 shuriken, luego 2 seguidos y luego 5 de golpe en abanico (tras ese, espera un poco más). Mantener: abanico de kunai. Especial: bomba de humo y desapareces.'};
 var RUN=null;let SM={},EF={},LOOT=[],PROJ=[],UID=1,DELAY=[];
 function genWeapon(type){return{uid:UID++,kind:'arma',type,name:TYPE_N[type]}} // todas las armas son iguales: lo que cambia son las bendiciones
@@ -3626,14 +3630,53 @@ function kgShowCodex(){let d=$('kgCodex');if(!d){d=document.createElement('div')
 function aimDir(md,maxD,cone){let dir=md.m>.2?Math.atan2(md.x,md.z):P.yaw;const t=nearestZombie(maxD,dir,cone)||(md.m>.2?null:nearestZombie(Math.min(maxD,8),dir,Math.PI));// sin joystick y nadie delante: al más cercano (rodeado ya no disparas al vacío)
  if(t)dir=Math.atan2(t.x-P.x,t.z-P.z);P.yaw=dir;P.heading=dir;return dir}
 function shot(k,dir,o){if(NET.on&&mpHunt()&&k!=='chainfx'){const L0=k==='chain'||k==='kama'||k==='fan'?.4:.6;mpRoute({t:'shot',k,p:[r2(P.x+Math.sin(dir)*L0),r2(P.y+(o.y||1.3)),r2(P.z+Math.cos(dir)*L0)],v:[r2(Math.sin(dir)*o.v),r2(o.vy||0),r2(Math.cos(dir)*o.v)],l:o.life||.5})}const L=k==='chain'||k==='kama'||k==='fan'?.4:.6;addProj({k,x:P.x+Math.sin(dir)*L,y:P.y+(o.y||1.3),z:P.z+Math.cos(dir)*L,vx:Math.sin(dir)*o.v,vy:o.vy||0,vz:Math.cos(dir)*o.v,life:o.life,pierce:o.pierce,direct:true,dmg:o.dmg||1,R:o.R,blunt:o.blunt,home:(NET.on&&mpHunt())?0:o.home,bounce:o.bounce||0,ret:o.ret,outD:o.outD,d:0,big:o.big})}
+// ===== TANEGASHIMA: salto con el mosquete y guía del especial =====
+const GUN={jumps:3,jVy:11,jR:2.2,jDmg:1.5,jH:7, // 3 saltos antes de tocar suelo; área y daño (golpe normal: usa la bendición de 斬)
+ sp:{n:7,spread:.75,dmg:3.5,cone:4.5,coneA:.5,coneDmg:2,back:24,backT:.3,hop:5}}; // especial DESCARGA
+function gunJump(W){
+ P.gunJ=(P.gunJ||0)+1;P.jumpBuf=0;P.atk=null;P.charge=null;P.skidT=0;P.coyote=0;P.onGround=false;P.jumping=true;P.gunJT=.3;P.shotT=.25;
+ P.vy=GUN.jVy*(W.jmp||1)*(1+(KS.jmp||0))*(P.gunJ>1?.9:1);P.floatT=.45;
+ const gy=groundAt(P.x,P.y+.1,P.z),h=P.y-gy,ka=KS.slot&&KS.slot.kiri?KS.slot.kiri.ka:null,v=KS.slot&&KS.slot.kiri?KS.slot.kiri.v:1;
+ const c=[P.x,gy,P.z],Rr=GUN.jR*(ka==='fujin'?1.4:1);
+ smoke([P.x,P.y+.4,P.z],5);sparks([P.x,P.y+.3,P.z],[0,-1,0],12,[1,.75,.35]);sfx('blunt');sfx('whoosh');shake=Math.max(shake,.16);kgVib(15);
+ if(h>GUN.jH)return;
+ flashLine([P.x,P.y+.7,P.z],c,.14);ring(c,Rr,.32);dust(c,8,2.5,true);
+ const hitL=[];
+ for(const z of zs){if(!z.alive||z.iaiT>0)continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz);if(d>Rr+(z.r||.3)||z.y>gy+2||z.y+(z.h||1.8)<gy-.5)continue;
+  hitL.push(z);const k=1/(d||1);procKill(z,[dx*k*5,6,dz*k*5],true,true,GUN.jDmg*(ka==='hachi'?1.3:1))}
+ // extra de la bendición de ataque en el salto
+ if(ka==='raijin')kgBolt([c[0],c[1]+1,c[2]],3,.8*v,new Set());
+ else if(ka==='kagu')kgZone('fire',c[0],c[2],1.6,2.5,v);
+ else if(ka==='yuki'){ring(c,3,.3);for(const z of zs)if(z.alive&&Math.hypot(z.x-c[0],z.z-c[2])<3)kgFrost(z,2)}
+ else if(ka==='tsuku'&&P.gunJ>=GUN.jumps)for(const z of hitL)if(z.alive)kgMark(z);
+ else if(ka==='benzai')kgZone('petal',c[0],c[2],1.6,2,v);
+}
+// guía de lanzamiento (como al lanzar habilidades en un MOBA): mantener el especial apunta, soltar lo lanza
+const SPAIM={recoil:{len:GUN.sp.cone+2.5,ang:GUN.sp.coneA+.12,back:3.4}};
+let SPDRAG=null;
+const spGuide=(()=>{const g=new THREE.Group();const S=SPAIM.recoil;
+ const cone=new THREE.Mesh(new THREE.CircleGeometry(S.len,28,-Math.PI/2-S.ang,S.ang*2),new THREE.MeshBasicMaterial({color:0xc8102e,transparent:true,opacity:.32,depthWrite:false,side:THREE.DoubleSide}));cone.rotation.x=-Math.PI/2;g.add(cone);
+ const edge=new THREE.Mesh(new THREE.RingGeometry(S.len-.12,S.len,28,1,-Math.PI/2-S.ang,S.ang*2),new THREE.MeshBasicMaterial({color:0xc8102e,transparent:true,opacity:.85,depthWrite:false,side:THREE.DoubleSide}));edge.rotation.x=-Math.PI/2;g.add(edge);
+ const am=new THREE.MeshBasicMaterial({color:0x111111,transparent:true,opacity:.7,depthWrite:false,side:THREE.DoubleSide});
+ const shaft=new THREE.Mesh(new THREE.PlaneGeometry(.22,S.back-.5),am);shaft.rotation.x=-Math.PI/2;shaft.position.z=-(S.back-.5)/2-.3;g.add(shaft);
+ const head=new THREE.Mesh(new THREE.CircleGeometry(.42,3),am);head.rotation.x=-Math.PI/2;head.rotation.z=-Math.PI/2;head.position.z=-S.back;g.add(head);
+ g.visible=false;g.renderOrder=5;scene.add(g);return g})();
+function spAimDir(md){
+ if(SPDRAG&&Math.hypot(SPDRAG.dx,SPDRAG.dy)>18){const l=Math.hypot(SPDRAG.dx,SPDRAG.dy),ix=SPDRAG.dx/l,iy=SPDRAG.dy/l,s=Math.sin(camYaw),c=Math.cos(camYaw);return Math.atan2(-c*ix+s*-iy,s*ix+c*-iy)}
+ if(md.m>.2)return Math.atan2(md.x,md.z);
+ const t=bowPick()||nearestZombie(22,P.yaw,Math.PI);return t?Math.atan2(t.x-P.x,t.z-P.z):P.yaw}
+function spAimStep(W,md){const A=P.spAim;A.t+=DT;A.d=spAimDir(md);P.yaw=P.heading=turnTo(P.yaw,A.d,18*DT);
+ if(P.dead||P.grap||state!=='play'||W.special!=='recoil'){P.spAim=null;return}
+ if(!held.dash||A.t>4){P.spAim=null;P.spAimDir=A.d;P.yaw=A.d;doSpecial(W,md);specUsed();P.spAimDir=null}}
 function muzzle(d,big){const m=toW(P,P.yaw,[0,1.35,1.3]);smoke(m,big?6:3);sparks(m,[Math.sin(d),0,Math.cos(d)],big?14:6,[1,.75,.35]);sfx('blunt');sfx('whoosh');shake=Math.max(shake,big?.22:.08);P.vx-=Math.sin(d)*(big?5:2.5);P.vz-=Math.cos(d)*(big?5:2.5)}
 function bowPick(){const t=P.bowTgt&&P.bowTgt.alive?P.bowTgt:null;return t}
-function bowUpdTarget(){const W=weapon();if(W.tap!=='arrow'||P.dead){P.bowTgt=null;return}const rg=(SM.rng||1)*20;let best=null,bd=1e9;
+function bowUpdTarget(){const W=weapon();if((W.tap!=='arrow'&&W.tap!=='bullet')||P.dead){P.bowTgt=null;return}const rg=(SM.rng||1)*(W.tap==='bullet'?22:20);let best=null,bd=1e9;
  for(const z of zs){if(!z.alive||z.iaiT>0)continue;const dx=z.x-P.x,dz=z.z-P.z,d=Math.hypot(dx,dz);if(d>rg)continue;const s=d+(P.bowTgt===z?-2.5:0)+(z.kind?-1.5:0);if(s<bd){bd=s;best=z}}P.bowTgt=best}
 function bowShoot(t,d,o){const rg=SM.rng||1;let vy=0;if(t){const dy=(t.y+(t.h||1.8)*.55)-(P.y+1.3),dh=Math.hypot(t.x-P.x,t.z-P.z)||1;vy=dy/dh*o.v}shot('arrow',d,Object.assign({vy},o))}
 function shootTap(W,md){
  if(P.shotCd>0)return;let sc=(W.shotCd||.4)/(SM.spd||1),rg=SM.rng||1;P.atk=null;
- if(W.tap==='bullet'){const d=aimDir(md,22*rg,.6);shot('bullet',d,{v:48,life:.5*rg,pierce:5,dmg:3,R:.45});if(KS.ham&&KS.ham.sandan){for(const a of[-.14,.14])shot('bullet',d+a,{v:48,life:.5*rg,pierce:5,dmg:3,R:.45});sc*=1.4}muzzle(d);P.shotT=.25}
+ if(W.tap==='bullet'){const bt=bowPick();let d;if(bt){d=Math.atan2(bt.x-P.x,bt.z-P.z);P.yaw=P.heading=d}else d=aimDir(md,22*rg,.6);// autoapuntado: siempre al marcado
+ shot('bullet',d,{v:48,life:.5*rg,pierce:5,dmg:3,R:.45});if(KS.ham&&KS.ham.sandan){for(const a of[-.14,.14])shot('bullet',d+a,{v:48,life:.5*rg,pierce:5,dmg:3,R:.45});sc*=1.4}muzzle(d);P.shotT=.25}
  else if(W.tap==='arrow'){const t=bowPick();let d;if(t){d=Math.atan2(t.x-P.x,t.z-P.z);P.bowFace=.4}else d=md.m>.2?Math.atan2(md.x,md.z):P.yaw;P.yaw=d;bowShoot(t,d,{v:42,life:.6*rg,pierce:1,dmg:1.2,R:.45,home:1});P.shotT=.14;sfx('swish');
   // ráfaga de 3 flechas seguidas, una detrás de otra en la misma línea (1 de daño cada una)
   for(const dl of[.09,.18])DELAY.push({t:dl,fn:()=>{if(P.dead||weapon().tap!=='arrow'||state!=='play')return;const t2=bowPick();let d2=P.yaw;if(t2){d2=Math.atan2(t2.x-P.x,t2.z-P.z);P.yaw=d2;P.bowFace=.4}bowShoot(t2,d2,{v:42,life:.6*rg,pierce:1,dmg:1.2,R:.45,home:1});P.shotT=.14;sfx('swish')}});if(!P.sky&&!P.onGround&&!P.wall&&!P.grap)P.sky={ph:'float',t:0,ft:0,n:0,sp:SM.spc||1};if(P.sky&&P.sky.ph==='float'){P.sky.n++;P.sky.ft=0;if(P.sky.n>=3)P.sky.dropT=.18}}
@@ -3707,7 +3750,9 @@ function doSpecial(W,md){
   case'lunge':startDash(fdir,23,.3*sp,'cut');sfx('swish');P.dashCd=.9*cdm;break;
   case'grapple':{kusaSpecial(md);break}
   case'glide':{startDash(fdir,13,.34,'gust',1);P.vy=3.5;P.floatT=.6;for(let i=0;i<14;i++)addP({k:'s',x:P.x+rand(-.5,.5),y:P.y+rand(.3,1.6),z:P.z+rand(-.5,.5),vx:-Math.sin(fdir)*6,vy:rand(0,1),vz:-Math.cos(fdir)*6,life:.4,max:.4,size:.07,c:[.9,.95,1]});sfx('whoosh');P.dashCd=.9*cdm;break}
-  case'recoil':{const d=aimDir(md,22,.8);for(let i=0;i<5;i++)shot('bullet',d+(i/4-.5)*.6,{v:46,life:.45,pierce:4,dmg:2.5,R:.45});muzzle(d,1);startDash(d+Math.PI,15,.22,'none');P.yaw=d;P.shotT=.3;banner('¡DESCARGA!');P.dashCd=2*cdm;break}
+  case'recoil':{const S=GUN.sp,bt=bowPick(),d=P.spAimDir!=null?P.spAimDir:(bt?Math.atan2(bt.x-P.x,bt.z-P.z):aimDir(md,22,.8));for(let i=0;i<S.n;i++)shot('bullet',d+(i/(S.n-1)-.5)*S.spread,{v:50,life:.5,pierce:6,dmg:S.dmg,R:.5});
+   for(const z of zs){if(!z.alive)continue;const dx=z.x-P.x,dz=z.z-P.z,dd=Math.hypot(dx,dz);if(dd>S.cone||Math.abs(angDiff(d,Math.atan2(dx,dz)))>S.coneA||Math.abs(z.y-P.y)>2)continue;procKill(z,[Math.sin(d)*12,5,Math.cos(d)*12],true,true,S.coneDmg)}
+   muzzle(d,1);ring(toW(P,d,[0,0,1.6]),2.2,.3);hitstop=Math.max(hitstop,.06);shake=Math.max(shake,.38);startDash(d+Math.PI,S.back,S.backT,'none');P.vy=Math.max(P.vy,S.hop);P.onGround=false;P.inv=Math.max(P.inv,S.backT+.15);P.yaw=d;P.shotT=.3;banner('¡DESCARGA!');P.dashCd=2*cdm;break}
   case'backflip':{P.atk=null;const c=[P.x,P.y,P.z],R=3*sp;smoke(c,16);ring(c,R,.4);dust(c,12,2.5,true);sfx('blunt');sfx('whoosh');shake=Math.max(shake,.18);
    for(const z of zs){if(!z.alive)continue;const dx=z.x-c[0],dz=z.z-c[2],d=Math.hypot(dx,dz)||1;if(d>R+(z.r||.3)||Math.abs(z.y-c[1])>2)continue;if(z.mini||z.spider)procKill(z,[dx/d*5,5,dz/d*5],true,true,1.5);else if(z.kind){z.atkCd=Math.max(z.atkCd,2);yokaiHit(z,{vel:[dx/d*4,3,dz/d*4]},1.5)}else{z.parried=1.8;z.atkCd=Math.max(z.atkCd,1.8);z.x+=dx/d*.8;z.z+=dz/d*.8}}
    const t=bowPick(),tc=t?[t.x,t.y,t.z]:[P.x+Math.sin(fdir)*6,P.y,P.z+Math.cos(fdir)*6];
@@ -3865,7 +3910,7 @@ function draw(){
  }
  drawSpiders();drawYokai();drawRocks();drawFly();drawDism(zmOn);drawArsenal();kgDrawFx();if(zmOn)ZM.end();
  for(const g of ghostsArr)for(const[a,b]of BONES)ghost(g.J[a],g.J[b],.05*g.life/.25+.01);
- const W=weapon();marker.visible=false;pin.visible=false;ribM.visible=false;for(const t in WT){WT[t].g.visible=false;if(WT[t].g2)WT[t].g2.visible=false}
+ const W=weapon();marker.visible=false;pin.visible=false;ribM.visible=false;spGuide.visible=!!(P&&P.spAim&&!P.dead);if(spGuide.visible){spGuide.position.set(P.x,groundAt(P.x,P.y+.1,P.z)+.04,P.z);spGuide.rotation.y=P.spAim.d;spGuide.children[1].material.opacity=.65+.25*Math.sin(time*12)}for(const t in WT){WT[t].g.visible=false;if(WT[t].g2)WT[t].g2.visible=false}
  if(!P.dead){
   const blink=P.inv>0&&P.dashT<=0&&!(P.atk&&P.atk.type==='iai')&&((P.inv*24)|0)%2===0;
   const J=kgScaleJ(P.Jdraw.map(l=>toW(P,P.ryaw,l)));
