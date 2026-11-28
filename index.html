@@ -87,6 +87,7 @@ canvas{display:block;touch-action:none}
 @keyframes fjTerr{0%{filter:none}30%{filter:hue-rotate(-40deg) saturate(2) brightness(.7);transform:scale(1.04) rotate(-1deg)}100%{filter:none}}
 @keyframes fjGrey{0%,100%{filter:none}40%{filter:grayscale(1) brightness(.6)}}
 .fjname{position:relative;font:900 22px system-ui;margin-top:2px}.fjname span{display:block;font:800 13px system-ui;color:var(--rc)}
+.fjrs{position:relative;display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:-4px 0 8px}.fjrs span{font:800 11px system-ui;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--rc) 25%,#0d0a0e);color:#fff;border:1px solid var(--rc)}
 .fjline{position:relative;font:700 13px system-ui;opacity:.9;margin:4px 0 8px}
 .fjbar{position:relative;height:22px;border-radius:999px;background:#0d0a0e;border:2px solid #4a434f;overflow:hidden}
 .fjbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--rc),#fff8);border-radius:999px;transition:width .7s cubic-bezier(.2,1.2,.4,1)}
@@ -2743,7 +2744,8 @@ function updateWaves(){
  if(waveQueue>0&&waveSpawnT<=0&&bigs<Math.min(maxAlive(wave),ALIVE_CAP())&&zs.length<zCap()){const burst=waveQueue>60?4:waveQueue>20?2:1;for(let i=0;i<burst&&waveQueue>0;i++){spawnZombie();waveQueue--}waveSpawnT=waveQueue>40?rand(.05,.15):rand(.3,.9)}
  for(let i=delayedMinis.length-1;i>=0;i--){const d=delayedMinis[i];d.t-=DT;if(d.t<=0){delayedMinis.splice(i,1);queueMini(d.sp)}}
  flushMiniQueue();
- if(waveQueue===0&&!zs.some(z=>!z.spider||z.alive&&(z.raid||z.kind==='ooni'||z.kind==='karura'))&&!miniQueue.length&&!delayedMinis.length&&!rags.some(r=>r.convert&&!r.dead)&&!CORPSES.some(C=>C.convert)){waveBreak=2.8;banner('¡OLEADA '+wave+' SUPERADA!');P.hp=Math.min(P.hpMax||100,P.hp+(kgNoHeal()?0:(KS.on?KG.waveHeal:25)));if(KS.on){hitstop=Math.max(hitstop,.12);slowT=Math.max(slowT,.35);kgVib([40,60,80],true)}clearWaveLeftovers()}
+ if(waveQueue===0&&!zs.some(z=>!z.spider||z.alive&&(z.raid||z.kind==='ooni'||z.kind==='karura'))&&!miniQueue.length&&!delayedMinis.length&&!rags.some(r=>r.convert&&!r.dead)&&!CORPSES.some(C=>C.convert)){waveBreak=3.4;banner('¡OLEADA '+wave+' SUPERADA!');if(kgOn()&&!TRAIN&&!horde300){const a=Math.random()*6.283;fjDropWeapon({x:P.x+Math.sin(a)*1.4,y:P.y,z:P.z+Math.cos(a)*1.4});sfx('ready')} // botín de oleada: siempre un arma junto a ti
+ P.hp=Math.min(P.hpMax||100,P.hp+(kgNoHeal()?0:(KS.on?KG.waveHeal:25)));if(KS.on){hitstop=Math.max(hitstop,.12);slowT=Math.max(slowT,.35);kgVib([40,60,80],true)}clearWaveLeftovers()}
 }
 
 /* ================= ARMAS, BOTÍN Y EFECTOS DE KAMON (las mejoras son las bendiciones Kago) ================= */
@@ -3694,7 +3696,7 @@ function kgEndQueue(){const G=RUN.kg,d=G.done,w=wave;
   if(w%5===0){G.rr++;if(G.boons.omiki){const L=kgBlessList().filter(b=>(b.c.lv||1)<4);if(L.length){const b=pick(L);b.c.lv++;banner('🍶 Omiki del pacto: '+b.n)}}}refreshSM()}
  saveRun();
  if(d.cards!==w)return kgOfferScreen('wave');
- if(d.afi!==w&&(fjStonesN()>0||(RUN.kg.steel||0)>0))return fjForge();
+ if(d.afi!==w&&RUN.wpn.some(Boolean))return fjForge(); // menú de las armas: cada oleada
  if(w%5===0&&!TRAIN){if(d.ham!==w&&G.ham.length<2&&(w===5||w===10))return kgTsuchi();if(d.oni!==w&&!G.hurtBoss)return kgOni();if(d.shop!==w)return kgShop()}
  kgHide();refreshSM();closeForge();if(!TRAIN||SIEGE.on)kgWaveStart();kgResumeFX()}
 function kgCloseStart(){state='play';hudShow(true);refreshSM();updWUI();P.inv=Math.max(P.inv,1);kgWaveStart();kgResumeFX()}
@@ -3729,7 +3731,7 @@ function kgCodex(){const kami=KAMI_IDS.map(k=>{const K=KAMI[k];return`<div class
  const hg=Object.keys(HENGE).map(s=>`<div class="cx" style="--kc:${HENGE[s].c}"><b>${HENGE[s].k} ${HENGE[s].n}</b><span>${HENGE[s].d}</span><small>${KAMON_IDS.filter(k=>KAMON[k].set===s).map(k=>KAMON[k].ico+' '+KAMON[k].n).join(' · ')}</small></div>`).join('');
  const ta=Object.keys(TATARI).map(t=>`<div class="cx" style="--kc:${TATARI[t].c}"><b>${TATARI[t].k} ${t==='o'?'Ō':t[0].toUpperCase()+t.slice(1)}</b><span>${TATARI[t].d}</span></div>`).join('');
  const ar=Object.keys(TYPE_N).map(t=>`<div class="cx"><b>${TYPE_N[t]} · ${KAI[t].sk}</b><span>会心 ×${String(KAI[t].m).replace('.',',')}: ${KAI[t].d}</span><small>⚒ ${TSUCHI[t].map(h=>h[1]+': '+h[2]).join(' · ')}<br>流 ${RYU[t][1]}: ${RYU[t][2]}</small></div>`).join('');
- const fj=`<div class="cx"><b>等級 Rareza</b><span>${FJ.rarN.map((n,i)=>`<b style="color:${FJ.rarC[i]}">${n}</b> ×${String(FJ.rarM[i]).replace('.',',')}`).join(' · ')}</span><small>Recoge un arma igual (mismo tipo y rareza) y se fusiona en la siguiente. Las sueltan minijefes, onis y jefes.</small></div>`+`<div class="cx"><b>研 Afilado</b><span>${FJ.afi.map(a=>(a.k?a.k+' ':'')+a.n).join(' · ')}</span><small>Terrorífica: una estadística +60 % y otra −30 %. Divina: +50 % de daño y +20 % a todo.</small></div>`+Object.keys(FJ.st).map(k=>`<div class="cx" style="--kc:${FJ.st[k].c}"><b>${FJ.st[k].k} ${FJ.st[k].n}</b><span>${FJ.st[k].d}</span></div>`).join('')+`<div class="cx"><b>⛏ Menas</b><span>Al empezar cada oleada aparecen rocas con vetas: 3 golpes y sueltan una piedra. También las dan los minijefes.</span></div>`;
+ const fj=`<div class="cx"><b>等級 Rareza</b><span>${FJ.rarN.map((n,i)=>`<b style="color:${FJ.rarC[i]}">${n}</b> ×${String(FJ.rarM[i]).replace('.',',')}`).join(' · ')}</span><small>La rareza sube el daño y además la velocidad de ataque, la carga y la recarga del especial (+6/12/20 %). Las armas iguales llenan la barra de fusión; las de otro tipo se cambian, se venden o se funden en acero. Las sueltan zombis, arañas, yokai, minijefes, onis y jefes.</small></div>`+`<div class="cx"><b>研 Afilado</b><span>${FJ.afi.map(a=>(a.k?a.k+' ':'')+a.n).join(' · ')}</span><small>Terrorífica: una estadística +60 % y otra −30 %. Divina: +50 % de daño y +20 % a todo.</small></div>`+Object.keys(FJ.st).map(k=>`<div class="cx" style="--kc:${FJ.st[k].c}"><b>${FJ.st[k].k} ${FJ.st[k].n}</b><span>${FJ.st[k].d}</span></div>`).join('')+`<div class="cx"><b>⛏ Menas</b><span>Al empezar cada oleada aparecen rocas con vetas: 3 golpes y sueltan una piedra. También las dan los minijefes.</span></div>`;
  return`<h3>⛩ Los 8 kami</h3>${kami}<h3>結 Musubi (dúos)</h3>${duo}<h3>変 Henge</h3>${hg}<h3>祟 Campeones</h3>${ta}<h3>⚔ Armas</h3>${ar}<h3>鍛 Forja</h3>${fj}`}
 
 function kgShowCodex(){let d=$('kgCodex');if(!d){d=document.createElement('div');d.id='kgCodex';document.body.appendChild(d);d.addEventListener('click',e=>{if(e.target.closest('button'))d.style.display='none'})}d.innerHTML='<button>✖ Cerrar códice</button>'+kgCodex();d.style.display='block';d.scrollTop=0}
@@ -3749,7 +3751,8 @@ const FJ={
  terr:{up:.6,down:.3,stats:[['dmg','daño'],['spd','velocidad'],['rng','alcance'],['cd','recarga del especial'],['chg','carga'],['mov','movimiento']]},
  odd:{vamp:{n:'Vampírica',g:1,d:'cada golpe cura 1 (1 cada 0,25 s)'},ligera:{n:'Ligera',g:1,d:'+15 % de velocidad de ataque'},fragil:{n:'Frágil',g:0,d:'recibes +20 % de daño'},pesada:{n:'Pesada',g:0,d:'−12 % de movimiento'}},
  fuse:[1,.5,.25,.12], // progreso hacia la siguiente rareza según cuántas rarezas por debajo está el arma que recoges
- drop:{stoneMini:.3,wMini:.15,wOni:.3,wYokai:.2,wZombie:.01,own:.4,maxOnFloor:6},mena:{n:[2,3],hits:3},
+ drop:{stoneMini:.3,wMini:.25,wOni:.4,wYokai:.3,wZombie:.03,wSpider:.15,own:.4,maxOnFloor:6},
+ rarS:[0,.06,.12,.2], // la rareza también sube velocidad de ataque, carga y recarga del especialmena:{n:[2,3],hits:3},
  merge:[['arenisca',4,'toishi'],['toishi',2,'kami']], // juntar piedras: 4 areniscas = 1 tradicional; 2 tradicionales = 1 de los kami
  sell:r=>4+6*r,steelOf:r=>1+r, // vender: tama; fundir: acero
  steelGain:(r,w)=>.22/((1+r)*(1+.1*Math.max(0,w-1)))}; // acero: poco progreso de rareza, y menos cuanto más rara el arma y más avanzada la partida
@@ -3758,7 +3761,7 @@ let FJX={};
 function fjBar(f){const n=Math.round(clamp(f||0,0,1)*5);return'▰'.repeat(n)+'▱'.repeat(5-n)}
 function fjTag(it){if(!it||!kgOn())return'';const a=FJ.afi[it.afi??1];return(it.rar?' '+'★'.repeat(it.rar):'')+(a.k?' '+a.k:'')}
 function fjApply(){FJX={};const it=RUN&&RUN.wpn&&RUN.wpn[wIdx],b=typeof $==='function'&&$('wbtn');if(b)b.style.color=it&&kgOn()?FJ.rarC[it.rar||0]:'';if(!it||!kgOn())return;
- const a=it.afi??1;SM.dmg*=FJ.rarM[it.rar||0]*(1+FJ.afi[a].d);
+ const a=it.afi??1,rs=FJ.rarS[it.rar||0];SM.dmg*=FJ.rarM[it.rar||0]*(1+FJ.afi[a].d);if(rs){SM.spd*=1+rs;SM.chg*=1+rs;SM.cd*=1+rs}
  if(a===5&&it.tx){SM[it.tx.up]*=1+FJ.terr.up;SM[it.tx.dn]*=1-FJ.terr.down}
  if(a===6)for(const k of['spd','rng','chg','cd','spc','mov'])SM[k]*=1.2;
  if(it.odd){FJX[it.odd]=1;if(it.odd==='ligera')SM.spd*=1.15;if(it.odd==='pesada')SM.mov*=.88;if(it.odd==='fragil')SM.def*=1.2}}
@@ -3772,6 +3775,7 @@ function fjOnKill(e){if(!kgOn()||TRAIN&&TRAIN.siege)return;const D=FJ.drop,gy=gr
  if(e.kind==='ooni'||e.kind==='karura'){fjDropWeapon(e,1);fjDropStone(e.x+.8,gy,e.z,'toishi');return}
  if(e.kind&&e.var&&!e.raid){if(Math.random()<D.stoneMini)fjDropStone(e.x,gy,e.z);if(Math.random()<D.wMini)fjDropWeapon(e)}
  else if(e.kind==='oni'){if(Math.random()<D.wOni)fjDropWeapon(e)}
+ else if(e.spider&&!e.kind){if(Math.random()<D.wSpider)fjDropWeapon(e)}
  else if(e.kind&&!e.spider&&e.kind!=='amanojaku'){if(Math.random()<D.wYokai)fjDropWeapon(e)}
  else if(!e.kind&&!e.spider&&!e.mini&&Math.random()<D.wZombie)fjDropWeapon(e)}
 function fjPickWeapon(item){const i=RUN.wpn.findIndex((w,j)=>w&&w.type===item.type&&j===wIdx)>=0?wIdx:RUN.wpn.findIndex(w=>w&&w.type===item.type);
@@ -3807,7 +3811,7 @@ function fjNear(L){if(L&&L===FJNskip)return;if(L===FJN)return;FJN=L;let u=docume
  if(!u){u=document.createElement('div');u.id='fjPick';document.body.appendChild(u);u.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-fp]');if(!b)return;e.stopPropagation();e.preventDefault();b.classList.add('hit');kgVib(20);setTimeout(()=>fjPickAct(b.dataset.fp),90)})}
  if(!L){const card=u.querySelector('.fjp');if(card&&u.style.display!=='none'){card.classList.add('out');setTimeout(()=>{if(!FJN)u.style.display='none'},220)}else u.style.display='none';return}const it=L.item,c=FJ.rarC[it.rar||0],r=it.rar||0;
  const cur=RUN.wpn[wIdx],mN=FJ.rarM[r]*(1+FJ.afi[(it.w&&it.w.afi)??1].d),mC=cur?fjMul(cur):1,better=mN>mC+1e-6;
- u.innerHTML=`<div class="fjp r${r}" style="--rc:${c}"><div class="fjpshine"></div><button data-fp="x" class="fjpx">✖</button><div class="fjpw"><div class="fjpi">${wIcon(it.type,c,56)}</div><div><b>${TYPE_N[it.type]}</b><span>${'★'.repeat(r)} ${FJ.rarN[r]}</span><small class="${better?'up':'dn'}">${better?'▲':'▼'} daño ×${mN.toFixed(2)} <i>(tu ${cur?TYPE_N[cur.type]:''} ×${mC.toFixed(2)})</i></small></div></div><div class="fjpb"><button data-fp="eq" class="eq" style="--d:.05s"><b>⇄</b><small>Cambiar</small></button><button data-fp="sell" class="sell" style="--d:.1s"><b>魂</b><small>+${FJ.sell(r)}</small></button><button data-fp="steel" class="steel" style="--d:.15s"><b>⛓</b><small>+${FJ.steelOf(r)} acero</small></button></div></div>`;
+ u.innerHTML=`<div class="fjp r${r}" style="--rc:${c}"><div class="fjpshine"></div><button data-fp="x" class="fjpx">✖</button><div class="fjpw"><div class="fjpi">${wIcon(it.type,c,56)}</div><div><b>${TYPE_N[it.type]}</b><span>${'★'.repeat(r)} ${FJ.rarN[r]}</span><small class="${better?'up':'dn'}">${better?'▲':'▼'} daño ×${mN.toFixed(2)} <i>(tu ${cur?TYPE_N[cur.type]:''} ×${mC.toFixed(2)})</i></small>${FJ.rarS[r]?`<small>⚡ vel., carga y recarga +${Math.round(FJ.rarS[r]*100)} %</small>`:''}</div></div><div class="fjpb"><button data-fp="eq" class="eq" style="--d:.05s"><b>⇄</b><small>Cambiar</small></button><button data-fp="sell" class="sell" style="--d:.1s"><b>魂</b><small>+${FJ.sell(r)}</small></button><button data-fp="steel" class="steel" style="--d:.15s"><b>⛓</b><small>+${FJ.steelOf(r)} acero</small></button></div></div>`;
  u.style.display='block';sfx('ready')}
 function fjPickAct(a){const L=FJN;if(!L||!LOOT.includes(L)){fjNear(null);return}const it=L.item,r=it.rar||0;
  if(a==='x'){FJNskip=L;fjNear(null);return}
@@ -3830,14 +3834,14 @@ function fjAnvil(it,i){const a=FJ.afi[it.afi??1],r=it.rar||0,C=FJ.rarC[r],A=FJAN
   <div class="fjblade">${wIcon(it.type,C,132)}<div class="fjwhet"></div><div class="fjspk">${sparks}</div></div>
   ${a.k?`<div class="fjstamp">${a.k}</div>`:''}
   <div class="fjname">${TYPE_N[it.type]}<span>${'★'.repeat(r)} ${FJ.rarN[r]}</span></div>
-  <div class="fjline"><b>${a.n}</b> · daño <b>×${fjMul(it).toFixed(2)}</b></div>
+  <div class="fjline"><b>${a.n}</b> · daño <b>×${fjMul(it).toFixed(2)}</b></div>${FJ.rarS[r]?`<div class="fjrs"><span>⚡ Vel. +${Math.round(FJ.rarS[r]*100)} %</span><span>溜 Carga +${Math.round(FJ.rarS[r]*100)} %</span><span>技 Recarga +${Math.round(FJ.rarS[r]*100)} %</span></div>`:''}
   ${r<3?`<div class="fjbar"><i style="width:${fp}%"></i><em>合 ${fp} % → ${FJ.rarN[r+1]}</em></div>`:`<div class="fjbar max"><i style="width:100%"></i><em>★★★ Legendaria</em></div>`}
   ${ex}</div>`}
 function fjRender(anim){const S=RUN.kg.stones||{},it=RUN.wpn[FJW],st=RUN.kg.steel||0,r=it?it.rar||0:3;
- KGO.innerHTML=`<div class="krays" style="--kc:${it?FJ.rarC[r]:'#9fc1e0'}"></div><div class="kwrap fjwrap${anim?' anim':''}">${kgHead('研 AFILAR','Entre oleadas')}
+ KGO.innerHTML=`<div class="krays" style="--kc:${it?FJ.rarC[r]:'#9fc1e0'}"></div><div class="kwrap fjwrap${anim?' anim':''}">${kgHead('鍛 FORJA','Tus armas · entre oleadas')}
  <div class="fjtabs">${RUN.wpn.map((w,i)=>w?`<button class="fjtab${i===FJW?' on':''}" data-k="fjTab" data-i="${i}" style="--rc:${FJ.rarC[w.rar||0]}">${wIcon(w.type,FJ.rarC[w.rar||0],30)}<span>${TYPE_N[w.type]}</span></button>`:'').join('')}</div>
  <div class="fjmain">${it?fjAnvil(it,FJW):''}
-  <div class="fjside"><div class="fjmsg${FJMSG?' on':''}">${FJMSG||(FJSEL?FJ.st[FJSEL].n+': toca o arrastra a la hoja':'Arrastra una piedra a la hoja')}</div>
+  <div class="fjside"><div class="fjmsg${FJMSG?' on':''}">${FJMSG||(FJSEL?FJ.st[FJSEL].n+': toca o arrastra a la hoja':fjStonesN()||(RUN.kg.steel||0)?'Arrastra una piedra a la hoja':'Sin piedras: rompe menas ⛏ y vence minijefes')}</div>
   <div class="fjtray">${Object.keys(FJ.st).map((k,n)=>{const T=FJ.st[k],c=S[k]||0;return`<button class="fjstone${FJSEL===k?' sel':''}${c?'':' off'}${FJGOT===k?' got':''}" data-k="fjSt" data-s="${k}" style="--sc:${T.c};--d:${(n*.06+.15).toFixed(2)}s"><span class="fjrock">${T.k}</span><em>${c}</em><small>${T.n}</small></button>`}).join('')}
    <button class="fjstone steel${st&&r<3?'':' off'}" data-k="fjT" data-i="${FJW}" style="--sc:#9fb3c8;--d:.4s"><span class="fjrock">⛓</span><em>${st}</em><small>Templar ${r<3?'+'+Math.max(1,Math.round(FJ.steelGain(r,wave)*100))+' %':''}</small></button></div>
   ${FJ.merge.filter(([a,n])=>(S[a]||0)>=n).map(([a,n,b])=>`<button class="fjmg" data-k="fjMg" data-a="${a}" style="--sa:${FJ.st[a].c};--sb:${FJ.st[b].c}"><span>${Array.from({length:n},(_,q)=>`<i style="--q:${q}">${FJ.st[a].k}</i>`).join('')}</span><b>→</b><span class="to"><i>${FJ.st[b].k}</i></span><small>Juntar ${n} ${FJ.st[a].n.toLowerCase()} → 1 ${FJ.st[b].n.toLowerCase()}</small></button>`).join('')}
