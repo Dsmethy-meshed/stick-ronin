@@ -2336,6 +2336,10 @@ function ykOnDeath(S){if(S.kind==='kurage'){const gy=groundAt(S.x,S.y+1,S.z);psP
 function oniRaid(n){for(let i=0;i<n;i++){const S=spawnYokai('oni',i/n*Math.PI*2+rand(-.2,.2));S.raid=true;S.spawnT=0}banner('👹 ¡INCURSIÓN ONI! ×'+n);sfx('charge');shake=Math.max(shake,.4)}
 const YK_NAME={nureonna:'濡れ女 ¡NURE-ONNA! · escupe veneno',kurage:'海月火 ¡KURAGE-HI! · medusas venenosas',amanojaku:'天邪鬼 ¡AMANOJAKU!',oni:'鬼 ¡ONI!',kappa:'河童 ¡KAPPA!',kasa:'唐傘 ¡KASA-OBAKE!',rokuro:'ろくろ首 ¡ROKUROKUBI!',tengu:'天狗 ¡TENGU!',ooni:'大鬼 ¡Ō-ONI!',karura:'迦楼羅 ¡KARURA!'};
 let yokaiT=12,raidT=10,raidW=0;
+// director de eventos: entre dos eventos grandes (incursión, Amanojaku, yokai) pasan al menos EV.gap s, y ninguno sale con el jefe vivo
+const EV={gap:14,last:-99,start:10,raidAt:[25,45],raidP:w=>Math.min(.7,.25+.05*w)};
+function evBoss(){return zs.some(z=>z.alive&&(z.kind==='ooni'||z.kind==='karura'))}
+function evReady(){return time-EV.last>=EV.gap&&!evBoss()}
 // jefes en el modo normal: cada 5 oleadas (5 Ō-oni, 10 Karura, 15 Ō-oni…)
 function spBoss(){const kk=(wave/5)%2===1?'ooni':'karura',S=spawnYokai(kk);if(kk==='karura')Object.assign(S,{gustCd:KAR.gustCd,diveCd:KAR.diveCd,snCd:KAR.snCd,pitch:0,ph:0,flees:0});banner(kk==='ooni'?'👹 JEFE · 大鬼 Ō-ONI':'🦅 JEFE · 迦楼羅 KARURA');shake=Math.max(shake,.5)}
 function spawnYokai(kind,ang,opt){
@@ -2650,9 +2654,9 @@ function banner(t){const b=$('banner');b.textContent=t;bannerT=2.2}
 function updateWaves(){
  if(TRAIN)return;
  if(waveBreak>0){waveBreak-=DT;if(waveBreak<=0){if(horde300){wave++;waveQueue=waveCount(wave);waveSpawnT=.5;banner('OLEADA '+wave)}else openForge()}return}
- if(wave>=3&&!P.dead){yokaiT-=DT;if(yokaiT<=0){yokaiT=rand(14,26);if(zs.filter(z=>z.kind).length<3)ykWaveSpawn()}}
+ if(wave>=3&&!P.dead){yokaiT-=DT;if(yokaiT<=0){if(!evReady())yokaiT=2;else{yokaiT=rand(16,28);if(zs.filter(z=>z.kind).length<3){ykWaveSpawn();EV.last=time}}}}
  // incursión oni: desde la oleada 4 puede caer de golpe un grupo de onis de colores (hasta 10)
- if(!horde300&&wave>=4&&!P.dead&&wave!==raidW){raidT-=DT;if(raidT<=0){raidW=wave;if(Math.random()<Math.min(.85,.3+.07*wave))oniRaid(Math.min(10,2+Math.floor(wave*.7)))}}
+ if(!horde300&&wave>=4&&wave%5!==0&&!P.dead&&wave!==raidW){raidT-=DT;if(raidT<=0&&!evReady())raidT=2;else if(raidT<=0){raidW=wave;if(Math.random()<EV.raidP(wave)&&(EV.last=time))oniRaid(Math.min(10,2+Math.floor(wave*.7)))}}
  if(wave>=2&&!P.dead){spiderT-=DT;if(spiderT<=0){spiderT=rand(25,45);if(zs.filter(z=>z.spider).length<2)spawnSpider()}}
  waveSpawnT-=DT;const bigs=zs.filter(z=>!z.mini&&!z.spider).length;
  if(waveQueue>0&&waveSpawnT<=0&&bigs<Math.min(maxAlive(wave),ALIVE_CAP())&&zs.length<zCap()){const burst=waveQueue>60?4:waveQueue>20?2:1;for(let i=0;i<burst&&waveQueue>0;i++){spawnZombie();waveQueue--}waveSpawnT=waveQueue>40?rand(.05,.15):rand(.3,.9)}
@@ -2773,7 +2777,7 @@ function drawArsenal(){
 }
 // ---- fin de oleada: bendiciones de los kami (modo normal, dojo y asedio) ----
 function openForge(){if(!kgOn())return;if(SIEGE.on){mpPickUI(null);siegeUI(false);for(const b of SIEGE.bots)if(b.tag)b.tag.style.display='none'}try{submitScore(true)}catch(e){}state='forge';hudShow(false);if(TRAIN)RUN.kg.done={};refreshSM();kgEndQueue()}
-function closeForge(){hudShow(true);refreshSM();state='play';P.inv=Math.max(P.inv,1.5);P.trap=null;if(TRAIN){if(SIEGE.on)SIEGE.breakT=2;updWUI();return}wave++;waveQueue=waveCount(wave);waveSpawnT=.5;raidT=rand(8,20);banner('OLEADA '+wave);if(wave%5===0){waveQueue=Math.round(waveQueue*.5);DELAY.push({t:2,fn:()=>{if(state==='play'&&!P.dead)spBoss()}})}
+function closeForge(){hudShow(true);refreshSM();state='play';P.inv=Math.max(P.inv,1.5);P.trap=null;if(TRAIN){if(SIEGE.on)SIEGE.breakT=2;updWUI();return}wave++;waveQueue=waveCount(wave);waveSpawnT=.5;raidT=rand(...EV.raidAt);EV.last=time-EV.gap+EV.start;banner('OLEADA '+wave);if(wave%5===0){waveQueue=Math.round(waveQueue*.5);DELAY.push({t:2,fn:()=>{if(state==='play'&&!P.dead)spBoss()}})}
  updWUI()}
 // ---- habilidad especial: todas las armas la tienen ----
 const SPEC_CD={throw:5,charge:4.5,twin:4,odive:6,vault:4.5,lunge:4,grapple:5,glide:4,blink:4.5,recoil:6,backflip:6,smoke:5};
@@ -3532,7 +3536,8 @@ function kgPickOni(i,c){const o=KONI[i],G=RUN.kg;if(!o)return;G.done.oni=wave;
 // tienda del tanuki (tras cada jefe)
 const KGH={};
 // ---------- 天邪鬼 Amanojaku: tirador de azoteas que huye con su gancho (tu gancho lo derriba) ----------
-const AMJ={from:3,max:w=>Math.min(3,1+Math.floor((w-3)/4)),every:[9,16],shotCd:[1.9,2.8],aim:.45,spd:17,dmg:8,flee:6.5,zipT:.55,zipCd:2.6,roofMin:2.4};
+const AMJ={from:3,max:w=>1,every:[5,8],p:t=>clamp((t-25)/100,0,.45),high:1.8, // raro: 1 por oleada; su probabilidad sube con el tiempo que pasas abajo (G.lowT) y baja en las azoteas
+ shotCd:[1.9,2.8],aim:.45,spd:17,dmg:8,flee:6.5,zipT:.55,zipCd:2.6,roofMin:2.4};
 // línea de visión ignorando el tejado en el que está el Amanojaku (si no, el propio borde lo tapa)
 function losIgn(a,b,ign){for(let i=1;i<12;i++){const t=i/12,x=lerp(a[0],b[0],t),y=lerp(a[1],b[1],t),z=lerp(a[2],b[2],t);for(const B of BOXES){if(B===ign)continue;if(x>B.x0&&x<B.x1&&y>B.y0&&y<B.y1&&z>B.z0&&z<B.z1)return false}}return true}
 // ---------- veneno 毒: estado del jugador, charcos tóxicos y escupitajos ----------
@@ -3562,8 +3567,11 @@ function amjRoofs(){return BOXES.filter(b=>b.y1>=AMJ.roofMin&&b.y1<12&&(b.x1-b.x
 function amjSpot(far,not){const R=amjRoofs();let best=null,bs=-1e9;for(let i=0;i<16&&R.length;i++){const b=pick(R);if(b===not)continue;const x=rand(b.x0+.35,b.x1-.35),z=rand(b.z0+.35,b.z1-.35),d=Math.hypot(x-P.x,z-P.z);if(d<6||d>21)continue;
   const s=(far?d:-Math.abs(d-12))+(losIgn([x,b.y1+1.2,z],[P.x,P.y+1.2,P.z],b)?100:0);if(s>bs){bs=s;best={x,z,y:b.y1,b}}}return best}
 function spawnAmanojaku(){const p=amjSpot(false);if(!p)return null;const S=spawnYokai('amanojaku',0,{quiet:true});S.x=p.x;S.z=p.z;S.y=p.y;S.roof=p.b;S.st='aim';S.atkCd=rand(1.2,2);S.zipCd=1;dust([S.x,S.y,S.z],6,1.5);return S}
-function amjTick(){if(!KS.on||TRAIN||SIEGE.on||wave<AMJ.from||state!=='play')return;const G=RUN.kg;G.amjT=(G.amjT??rand(4,8))-DT;if(G.amjT>0)return;G.amjT=rand(...AMJ.every);
- if(zs.filter(z=>z.alive&&z.kind==='amanojaku').length<AMJ.max(wave))spawnAmanojaku()}
+function amjTick(){if(!KS.on||TRAIN||SIEGE.on||wave<AMJ.from||state!=='play')return;const G=RUN.kg;
+ G.lowT=P.y>AMJ.high?Math.max(0,(G.lowT||0)-4*DT):(G.lowT||0)+DT;
+ G.amjT=(G.amjT??rand(4,8))-DT;if(G.amjT>0)return;G.amjT=rand(...AMJ.every);
+ if((G.amjW!=null&&wave-G.amjW<2)||!evReady()||zs.some(z=>z.alive&&z.kind==='amanojaku')||Math.random()>=AMJ.p(G.lowT))return;
+ if(spawnAmanojaku()){G.amjW=wave;EV.last=time;G.lowT*=.3}}
 // tu gancho lo alcanza: lo derribas de un tirón
 function amjHooked(S){P.grap=null;if(!S.alive)return;S.zip=null;S.hurtT=0;kgArc([P.x,P.y+1.3,P.z],[S.x,S.y+1,S.z],kcol('#e8e0d0'),.3,.05);
  yokaiHit(S,{vel:[(P.x-S.x)*1.4,4,(P.z-S.z)*1.4],kgAbs:999,blunt:1},999);hitstop=Math.max(hitstop,.1);shake=Math.max(shake,.3);banner('¡DERRIBADO!');kgVib([30,40,60],true)}
