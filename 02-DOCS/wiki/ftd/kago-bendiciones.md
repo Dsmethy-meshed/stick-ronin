@@ -57,6 +57,7 @@ Modo normal, dojo y asedio (desde el 27 nov 2026 también el asedio). La Cacerí
 - [x] Addon de Blender Mixamo → 11 palos (`models/tools/stickronin_mixamo.py`): clip del editor desde cualquier animación de Mixamo. **Prueba:** combo de katana de `player_ronin.glb` → 97 claves, brazos 0,3+0,3 y piernas 0,47+0,47 exactos, pies a 0–7 cm del suelo; importado en `editor.html` sin errores (capturas a 6 tiempos); panel, «Copiar», «Ver palos» (12 vértices, 11 palos, 66 claves de forma) y desregistro probados en Blender 5.2; render del personaje junto a los palos en 4 fotogramas.
 - [x] LOD2 del zombi bajado a 500 triángulos (Tripo dio 568). **Prueba:** 499 triángulos, RJ y raíces = `zombie_rig.json`.
 - [x] Oni con modelo 3D (`ZMO`, `oni.glb` 1500 + LOD 800/500 desde la Malla inteligente de 1360 caras, pesos del zombi, 0 créditos). **Prueba:** Playwright con un enganche temporal: 5 onis (aka, ao, ki, midori, kuro) con LOD0/1/2 forzados, sin errores; comparado con el remesh de 500 y la malla completa (peores). Falta enganchar `YK.oni.draw` en `index.html` (sesión de armas).
+- [x] Ragdoll del oni con su modelo (`ZMO`, escala del oni; antes usaba el del zombi a escala 1). **Prueba:** Playwright: 3 onis muertos → 3 ragdolls con `r.oni`=1,45, `ZMO.n`=3 sin onis vivos, captura `oni_ragdoll.png`, sin errores.
 - [ ] Probarlo Daniel en el móvil (enlace de dev).
 
 ## Evidencia
