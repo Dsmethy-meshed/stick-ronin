@@ -625,24 +625,26 @@ function writeParts(){
 }
 
 /* ================= ESTELA DEL ARMA ================= */
-const TRM=90,trPos=new Float32Array(TRM*6*3),trA=new Float32Array(TRM*6);
+const TRM=90,trPos=new Float32Array(TRM*6*3),trA=new Float32Array(TRM*6),trV=new Float32Array(TRM*6*2);
 const trGeo=new THREE.BufferGeometry();
 trGeo.setAttribute('position',new THREE.BufferAttribute(trPos,3).setUsage(THREE.DynamicDrawUsage));
 trGeo.setAttribute('alpha',new THREE.BufferAttribute(trA,1).setUsage(THREE.DynamicDrawUsage));
-const trMat=new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color(1,1,1)}},transparent:true,depthWrite:false,side:THREE.DoubleSide,
- vertexShader:'attribute float alpha;varying float vA;void main(){vA=alpha;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
- fragmentShader:'uniform vec3 uC;varying float vA;void main(){gl_FragColor=vec4(uC,vA);}'});
+trGeo.setAttribute('trv',new THREE.BufferAttribute(trV,2).setUsage(THREE.DynamicDrawUsage)); // x: 0 mano → 1 filo; y: a lo largo del corte
+// estela de pincel 墨 (28 nov 2026): cuerpo de tinta con fibras que se seca y rompe al envejecer + filo de color (rojo, o el del kami de 斬)
+const trMat=new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color(1,1,1)},uE:{value:new THREE.Color(1,1,1)},uBl:{value:0}},transparent:true,depthWrite:false,side:THREE.DoubleSide,
+ vertexShader:'attribute float alpha;attribute vec2 trv;varying float vA;varying vec2 vT;void main(){vA=alpha;vT=trv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',
+ fragmentShader:'uniform vec3 uC;uniform vec3 uE;uniform float uBl;varying float vA;varying vec2 vT;float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(h(i),h(i+vec2(1.0,0.0)),f.x),mix(h(i+vec2(0.0,1.0)),h(i+vec2(1.0,1.0)),f.x),f.y);}void main(){float age=pow(1.0-clamp(vA/0.85,0.0,1.0),1.7);float fib=n(vec2(vT.x*mix(34.0,14.0,uBl),vT.y*0.7));float brk=n(vec2(vT.x*5.0+3.1,vT.y*2.6));float dry=smoothstep(age*1.05-0.12,age*1.05+0.1,fib*0.65+brk*0.35);float body=smoothstep(0.0,0.3,vT.x)*(0.75+0.25*fib);float edge=smoothstep(mix(0.8,0.7,uBl),0.97,vT.x)*(1.0-smoothstep(0.985,1.0,vT.x)*0.5);float a=min(1.0,vA*1.35)*body*dry;a=max(a,edge*min(1.0,vA*1.25)*smoothstep(age-0.2,age+0.25,fib));vec3 col=mix(uC,uE,edge);gl_FragColor=vec4(col,clamp(a,0.0,1.0));}'});
 const trMesh=new THREE.Mesh(trGeo,trMat);trMesh.frustumCulled=false;scene.add(trMesh);
-let trail=[],trailId=0;const TR_LIFE=.17;
+let trail=[],trailId=0;const TR_LIFE=.21;
 function writeTrail(){
  trail=trail.filter(s=>time-s.t<TR_LIFE);let v=0;
  for(let i=1;i<trail.length&&v<TRM*6;i++){
   const s0=trail[i-1],s1=trail[i];if(s0.id!==s1.id)continue;
   const a0=1-(time-s0.t)/TR_LIFE,a1=1-(time-s1.t)/TR_LIFE,w=s0.w;
-  const quad=[[s0.a,a0*.05*w],[s0.b,a0*.85*w],[s1.b,a1*.85*w],[s0.a,a0*.05*w],[s1.b,a1*.85*w],[s1.a,a1*.05*w]];
-  for(const[p,al]of quad){trPos[v*3]=p[0];trPos[v*3+1]=p[1];trPos[v*3+2]=p[2];trA[v]=al;v++}
+  const quad=[[s0.a,a0*.85*w,0,i-1],[s0.b,a0*.85*w,1,i-1],[s1.b,a1*.85*w,1,i],[s0.a,a0*.85*w,0,i-1],[s1.b,a1*.85*w,1,i],[s1.a,a1*.85*w,0,i]];
+  for(const[p,al,tx,ty]of quad){trPos[v*3]=p[0];trPos[v*3+1]=p[1];trPos[v*3+2]=p[2];trA[v]=al;trV[v*2]=tx;trV[v*2+1]=ty+s0.id*7.3;v++}
  }
- trGeo.setDrawRange(0,v);trGeo.attributes.position.needsUpdate=true;trGeo.attributes.alpha.needsUpdate=true;
+ trGeo.setDrawRange(0,v);trGeo.attributes.position.needsUpdate=true;trGeo.attributes.alpha.needsUpdate=true;trGeo.attributes.trv.needsUpdate=true;
 }
 /* anillos e iaido */
 const rings=[];for(let i=0;i<5;i++){const m=new THREE.Mesh(new THREE.RingGeometry(.85,1,48),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,side:THREE.DoubleSide}));m.rotation.x=-Math.PI/2;m.visible=false;scene.add(m);rings.push({m,t:0,max:1,r:1})}
@@ -4226,7 +4228,7 @@ function draw(){
  // indicador del gancho
  if(state==='play'&&hookTarget&&!P.grap&&!P.dead){const g=hookTarget;hookInd.visible=true;hookInd.position.set(g.x,g.y+.45,g.z);hookInd.lookAt(camera.position);const s=1+Math.sin(time*6)*.1;hookInd.scale.setScalar(s*Math.max(.8,Math.hypot(g.x-camera.position.x,g.z-camera.position.z)/9))}else hookInd.visible=false;
  if(zmpOn)ZMP.end();poolEnd();flushDecals();
- trMat.uniforms.uC.value.set(W.blunt?0xffd2a8:0xffffff);writeTrail();writeParts();
+ {const U=trMat.uniforms,ink=!!KGFX.ink,sk=KS.slot&&KS.slot.kiri;U.uC.value.set(ink?(W.blunt?0x2a221c:0x111015):(W.blunt?0xffd2a8:0xf4f1ea));U.uE.value.set(sk?KAMI[sk.ka].c:ink?0xc8102e:(W.blunt?0xffb060:0x9fe3ff));U.uBl.value=W.blunt?1:0}writeTrail();writeParts();
 }
 /* HUD */
 const hpI=$('hp').firstElementChild,killsEl=$('kills'),comboEl=$('combo'),waveEl=$('wave'),banEl=$('banner'),hookB=$('bHook');

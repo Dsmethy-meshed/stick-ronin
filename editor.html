@@ -577,9 +577,10 @@ const flashM=new THREE.Mesh(new THREE.BoxGeometry(1,.03,.03),new THREE.MeshBasic
 function flashFx(a,b){const l=Math.hypot(b[0]-a[0],b[1]-a[1],b[2]-a[2]);flashM.position.set((a[0]+b[0])/2,(a[1]+b[1])/2,(a[2]+b[2])/2);flashM.scale.set(l,1,1);tv.set(b[0]-a[0],b[1]-a[1],b[2]-a[2]).normalize();flashM.quaternion.setFromUnitVectors(new THREE.Vector3(1,0,0),tv);flashT=.25;flashM.visible=true}
 const waveM=new THREE.Mesh(new THREE.RingGeometry(1.4,2,40,1,Math.PI*.12,Math.PI*.76),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));waveM.rotation.order='YXZ';scene.add(waveM);waveM.visible=false;let waveS=null;
 // estela de vista previa
-const TRM=60,trPos=new Float32Array(TRM*6*3),trA=new Float32Array(TRM*6),trGeo=new THREE.BufferGeometry();
-trGeo.setAttribute('position',new THREE.BufferAttribute(trPos,3));trGeo.setAttribute('alpha',new THREE.BufferAttribute(trA,1));
-const trMesh=new THREE.Mesh(trGeo,new THREE.ShaderMaterial({transparent:true,depthWrite:false,side:THREE.DoubleSide,vertexShader:'attribute float alpha;varying float vA;void main(){vA=alpha;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'varying float vA;void main(){gl_FragColor=vec4(1.0,1.0,1.0,vA);}'}));trMesh.frustumCulled=false;scene.add(trMesh);
+const TRM=60,trPos=new Float32Array(TRM*6*3),trA=new Float32Array(TRM*6),trV=new Float32Array(TRM*6*2),trGeo=new THREE.BufferGeometry();
+trGeo.setAttribute('position',new THREE.BufferAttribute(trPos,3));trGeo.setAttribute('alpha',new THREE.BufferAttribute(trA,1));trGeo.setAttribute('trv',new THREE.BufferAttribute(trV,2));
+// estela de pincel (igual que en el juego)
+const trMesh=new THREE.Mesh(trGeo,new THREE.ShaderMaterial({uniforms:{uC:{value:new THREE.Color(0xf4f1ea)},uE:{value:new THREE.Color(0xc8102e)},uBl:{value:0}},transparent:true,depthWrite:false,side:THREE.DoubleSide,vertexShader:'attribute float alpha;attribute vec2 trv;varying float vA;varying vec2 vT;void main(){vA=alpha;vT=trv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}',fragmentShader:'uniform vec3 uC;uniform vec3 uE;uniform float uBl;varying float vA;varying vec2 vT;float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.0-2.0*f);return mix(mix(h(i),h(i+vec2(1.0,0.0)),f.x),mix(h(i+vec2(0.0,1.0)),h(i+vec2(1.0,1.0)),f.x),f.y);}void main(){float age=pow(1.0-clamp(vA/0.85,0.0,1.0),1.7);float fib=n(vec2(vT.x*mix(34.0,14.0,uBl),vT.y*0.7));float brk=n(vec2(vT.x*5.0+3.1,vT.y*2.6));float dry=smoothstep(age*1.05-0.12,age*1.05+0.1,fib*0.65+brk*0.35);float body=smoothstep(0.0,0.3,vT.x)*(0.75+0.25*fib);float edge=smoothstep(mix(0.8,0.7,uBl),0.97,vT.x)*(1.0-smoothstep(0.985,1.0,vT.x)*0.5);float a=min(1.0,vA*1.35)*body*dry;a=max(a,edge*min(1.0,vA*1.25)*smoothstep(age-0.2,age+0.25,fib));vec3 col=mix(uC,uE,edge);gl_FragColor=vec4(col,clamp(a,0.0,1.0));}'}));trMesh.frustumCulled=false;scene.add(trMesh);
 let trail=[],shakeV=0,holdT=0,slowT=0,clock=0;
 function fxPoint(fr,Jw,j){const hand=Jw[7],bd=dirToW(fr,fr.blade);if(j==='tip')return add3(hand,mul3(bd,1.0));if(j==='root')return[fr.root[0],0,fr.root[2]];const ji={head:0,pel:3,hL:5,hR:7,fL:9,fR:11}[j];return Jw[ji??7]}
 function fireFx(e){
@@ -610,8 +611,8 @@ function fxStep(dt){
  // estela
  const a=SB.on?SB.curA:A(),TT=SB.on?SB.curT:T;if(a&&(playing||SB.on)&&a.fx.some(e=>e.type==='trail'&&TT>=e.t&&TT<=e.t+(e.dur||.1))){const fr=SB.on&&SB.fr?SB.fr:frameData(a,T),Jw=fr.J.map(l=>toW(fr,l)),bd=dirToW(fr,fr.blade);{const wp=wPos(fr,Jw[7],bd),ku=(a.weapon||'')==='kusarigama';trail.push({a:add3(wp,mul3(bd,ku?-.45:.15)),b:add3(wp,mul3(bd,ku?.35:1.0)),t:clock})}}
  trail=trail.filter(q=>clock-q.t<.18);let v=0;
- for(let i=1;i<trail.length&&v<TRM*6;i++){const s0=trail[i-1],s1=trail[i],a0=1-(clock-s0.t)/.18,a1=1-(clock-s1.t)/.18;for(const[p,al]of[[s0.a,a0*.05],[s0.b,a0*.85],[s1.b,a1*.85],[s0.a,a0*.05],[s1.b,a1*.85],[s1.a,a1*.05]]){trPos.set(p,v*3);trA[v]=al;v++}}
- trGeo.setDrawRange(0,v);trGeo.attributes.position.needsUpdate=true;trGeo.attributes.alpha.needsUpdate=true;
+ for(let i=1;i<trail.length&&v<TRM*6;i++){const s0=trail[i-1],s1=trail[i],a0=1-(clock-s0.t)/.18,a1=1-(clock-s1.t)/.18;for(const[p,al,tx,ty]of[[s0.a,a0*.85,0,i-1],[s0.b,a0*.85,1,i-1],[s1.b,a1*.85,1,i],[s0.a,a0*.85,0,i-1],[s1.b,a1*.85,1,i],[s1.a,a1*.85,0,i]]){trPos.set(p,v*3);trA[v]=al;trV[v*2]=tx;trV[v*2+1]=ty;v++}}
+ trGeo.setDrawRange(0,v);trGeo.attributes.position.needsUpdate=true;trGeo.attributes.alpha.needsUpdate=true;trGeo.attributes.trv.needsUpdate=true;
 }
 function fireBetween(t0,t1){for(const e of A().fx){if(t1>=t0?(e.t>t0&&e.t<=t1):(e.t>t0||e.t<=t1))fireFx(e)}}
 
