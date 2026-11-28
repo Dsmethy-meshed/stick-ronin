@@ -96,6 +96,8 @@ Servicios externos que usa el juego:
 - **Armas `WT`** (12): katana, maza (kanabō), nito, odachi, naginata, yari, kusarigama, tessen, kama, tanegashima, yumi y shuriken.
   - Cada una tiene `special` y, algunas, `tap`.
   - Nombres de los especiales en `SPN`.
+- **Equilibrio de armas (28 nov 2026, `02-DOCS/wiki/ftd/armas-equilibrio.md`):** daño base `WBASE` katana 1,2, kanabō 2,4, nitō 0,75, tessen 1, kama 0,95. Katana: radio de golpe 0,3 y corte de viento en el 3.er golpe (clips `BUILTIN_V` u2). Kama `c4` y tessen `t3` son giros (`spin`; editor `GEN_V` g7). Shuriken 1,3 y abanico de 5; tanegashima recarga 0,75 s y bala que estalla (`boomR` 1,3, `boomD` 1); flechas del yumi 1,2.
+- Puntería: sin joystick y sin nadie en el cono, `aimDir` y `startAttack` apuntan al más cercano en cualquier dirección. Los proyectiles dan a los minis (altura mínima 1,3 m) y no pasan por el filtro de 0,09 s de `kgZHit`.
 
 ### Enemigos
 - Todos viven en `zs`.

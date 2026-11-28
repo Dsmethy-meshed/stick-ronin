@@ -63,3 +63,6 @@ Pruebas con Playwright y Chrome (viewport 412×915) en el scratchpad de la sesi�
 
 ## Siguiente
 Daniel lo prueba en el móvil desde `dev` y ajustamos los números en `KG`.
+
+## Cambio 28 nov 2026 (sesión de armas)
+- Ranura 斬: Kagutsuchi, Yuki-onna y Tsukuyomi suman +50 % al golpe (como Hachiman y Benzaiten); Yuki-onna pone 2 pilas de escarcha por golpe. Motivo y medidas en `armas-equilibrio.md`.
