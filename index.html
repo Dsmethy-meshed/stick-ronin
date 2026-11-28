@@ -37,9 +37,80 @@ canvas{display:block;touch-action:none}
 #mpPick .pkt{right:18px;bottom:220px;width:90px;height:66px;border-radius:16px;background:#1e1a21;border:3px solid var(--rc);flex-direction:column;gap:0}
 #mpPick .pkt svg{width:40px;height:40px}#mpPick .pkt i{font-style:normal;position:absolute;top:-9px;left:-9px;width:24px;height:24px;border-radius:50%;background:#2e9b45;display:flex;align-items:center;justify-content:center;font-size:14px}
 #mpPick .pkt small{font:700 10px system-ui;color:var(--rc);line-height:1}
-#fjPick{position:fixed;inset:0;z-index:7;display:none;pointer-events:none}#fjPick button{pointer-events:auto;position:absolute;border:0;color:#fff;font:800 13px system-ui;display:flex;align-items:center;justify-content:center;gap:4px;box-shadow:0 4px 14px #0009;animation:fxpop .25s cubic-bezier(.2,1.7,.4,1) both;touch-action:none}
-#fjPick .pkt{right:18px;bottom:220px;width:90px;height:66px;border-radius:16px;background:#1e1a21;border:3px solid var(--rc);flex-direction:column;gap:0}#fjPick .pkt svg{width:40px;height:40px}#fjPick .pkt i{font-style:normal;position:absolute;top:-9px;left:-9px;width:24px;height:24px;border-radius:50%;background:#2e9b45;display:flex;align-items:center;justify-content:center;font-size:14px}#fjPick .pkt small{font:700 10px system-ui;color:var(--rc);line-height:1}
-#fjPick .pks{right:116px;bottom:252px;width:70px;height:34px;border-radius:12px;background:#1e1a21;border:2px solid var(--rc);color:var(--rc)}#fjPick .pks.st{bottom:212px;animation-delay:.04s}#fjPick .pkd{right:41px;bottom:296px;width:44px;height:44px;border-radius:50%;background:#5a4a50;font-size:18px;animation-delay:.08s}
+#fjPick{position:fixed;inset:0;z-index:7;display:none;pointer-events:none}
+.fjp{pointer-events:auto;position:absolute;left:50%;bottom:16px;width:min(330px,calc(100vw - 32px));transform:translateX(-50%);background:linear-gradient(160deg,#241e27,#141015 70%);border:3px solid var(--rc);border-radius:20px;padding:10px 10px 10px;box-shadow:0 0 0 2px #000,0 8px 30px #000c,0 0 26px color-mix(in srgb,var(--rc) 45%,transparent);color:#f3ece2;font:800 14px system-ui;overflow:hidden;animation:fjpIn .38s cubic-bezier(.2,1.6,.35,1) both,fjpGlow 1.6s ease-in-out .4s infinite alternate;touch-action:none}
+.fjp.out{animation:fjpOut .2s ease-in forwards}
+@media (orientation:portrait){.fjp{bottom:auto;top:190px}} /* en vertical los botones de ataque están abajo: la tarjeta va arriba */
+@keyframes fjpIn{0%{transform:translate(-50%,140%) scale(.7) rotate(-4deg);opacity:0}100%{transform:translate(-50%,0) scale(1);opacity:1}}
+@keyframes fjpOut{to{transform:translate(-50%,40%) scale(.85);opacity:0}}
+@keyframes fjpGlow{from{box-shadow:0 0 0 2px #000,0 8px 30px #000c,0 0 14px color-mix(in srgb,var(--rc) 35%,transparent)}to{box-shadow:0 0 0 2px #000,0 8px 30px #000c,0 0 34px color-mix(in srgb,var(--rc) 70%,transparent)}}
+.fjpshine{position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 30%,#fff3 45%,transparent 60%);transform:translateX(-120%);animation:fjShine 2.4s ease-in-out .5s infinite}
+.fjp.r0 .fjpshine,.fjp.r1 .fjpshine{display:none}
+@keyframes fjShine{0%{transform:translateX(-120%)}55%,100%{transform:translateX(120%)}}
+.fjpw{display:flex;gap:10px;align-items:center;margin-bottom:8px}.fjpi{width:62px;height:62px;flex:none;border-radius:14px;background:#0d0a0e;border:2px solid var(--rc);display:flex;align-items:center;justify-content:center;animation:fjBob 1.4s ease-in-out infinite alternate}
+@keyframes fjBob{from{transform:translateY(-2px) rotate(-6deg)}to{transform:translateY(2px) rotate(6deg)}}
+.fjpw b{display:block;font:900 17px system-ui}.fjpw span{display:block;color:var(--rc);font:800 12px system-ui}.fjpw small{display:block;font:700 11px system-ui;margin-top:2px}.fjpw small.up{color:#7ddc8a}.fjpw small.dn{color:#e88}.fjpw small i{font-style:normal;opacity:.6}
+.fjpb{display:flex;gap:8px}.fjpb button{flex:1;min-height:58px;border:0;border-radius:14px;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;animation:fxpop .3s var(--d) cubic-bezier(.2,1.7,.4,1) both;transition:transform .08s}
+.fjpb button b{font:900 22px system-ui;line-height:1}.fjpb button small{font:800 11px system-ui;opacity:.9}
+.fjpb .eq{background:linear-gradient(#2e9b45,#1f6e31);box-shadow:0 3px 0 #134a20}.fjpb .sell{background:linear-gradient(#b8892a,#7d5c16);box-shadow:0 3px 0 #4e3a0d}.fjpb .steel{background:linear-gradient(#55606c,#363d45);box-shadow:0 3px 0 #1f2328}
+.fjpb button:active,.fjpb button.hit{transform:translateY(3px) scale(.95);box-shadow:none}
+.fjpx{position:absolute;top:6px;right:6px;width:34px;height:34px;border:0;border-radius:50%;background:#3a3036;color:#fff;font:900 15px system-ui;z-index:2}
+.fjpx.hit{transform:scale(.85)}
+#kgo.fjo .fjwrap{max-width:820px;width:100%;padding:0 16px;box-sizing:border-box}
+.fjtabs{display:flex;gap:8px;justify-content:center;margin:4px 0 8px}.fjtab{display:flex;align-items:center;gap:6px;padding:6px 12px 6px 8px;border-radius:999px;border:2px solid #4a434f;background:#1e1a21;color:#cfc6b8;font:800 13px system-ui;transition:transform .15s,border-color .15s}
+.fjtab.on{border-color:var(--rc);color:#fff;transform:scale(1.06);box-shadow:0 0 14px color-mix(in srgb,var(--rc) 50%,transparent)}
+.fjmain{display:flex;gap:14px;align-items:stretch;justify-content:center;flex-wrap:wrap}
+.fjanvil{position:relative;flex:1 1 300px;max-width:400px;min-height:300px;border-radius:22px;background:radial-gradient(ellipse at 50% 30%,#2c2530,#141015 70%);border:3px solid var(--rc);padding:14px 14px 12px;box-sizing:border-box;overflow:hidden;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.fjwrap.anim .fjanvil{animation:kin .5s .05s cubic-bezier(.2,1.5,.4,1) both}
+.fjanvil.drop{box-shadow:0 0 0 3px #fff3}.fjanvil.hot{transform:scale(1.04);box-shadow:0 0 34px var(--sc),0 0 0 3px var(--sc)}
+.fjglow{position:absolute;left:50%;top:38%;width:240px;height:240px;margin:-120px;border-radius:50%;background:radial-gradient(circle,color-mix(in srgb,var(--rc) 45%,transparent),transparent 65%);animation:fjPulse 2.2s ease-in-out infinite alternate;pointer-events:none}
+.fjanvil.r0 .fjglow{opacity:.35}
+@keyframes fjPulse{from{transform:scale(.85);opacity:.6}to{transform:scale(1.1);opacity:1}}
+.fjbgk{position:absolute;right:-8px;bottom:-30px;font:900 150px serif;color:#ffffff0d;pointer-events:none;line-height:1}
+.fjblade{position:relative;height:150px;display:flex;align-items:center;justify-content:center;animation:fjBob 2s ease-in-out infinite alternate}
+.fjblade svg{width:132px;height:132px;filter:drop-shadow(0 6px 10px #000a)}
+.fjwhet{position:absolute;left:50%;top:50%;width:44px;height:20px;margin:-10px -22px;border-radius:6px;background:var(--sc);box-shadow:inset 0 -4px 0 #0004,0 2px 6px #000a;opacity:0;pointer-events:none}
+.fjspk{position:absolute;left:50%;top:50%;pointer-events:none}.fjspk i{position:absolute;width:6px;height:6px;border-radius:50%;background:#ffd88a;box-shadow:0 0 8px #ffb020;opacity:0}
+.fjanvil[class*=" a-"] .fjwhet{animation:fjWhet .42s ease-in-out 2 alternate}
+.fjanvil[class*=" a-"] .fjspk i{animation:fjSpk .55s var(--dl) ease-out}
+@keyframes fjWhet{0%{transform:translate(-60px,30px) rotate(-35deg);opacity:1}100%{transform:translate(60px,-30px) rotate(-35deg);opacity:1}}
+@keyframes fjSpk{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(.2);opacity:0}}
+.fjanvil.a-steel .fjwhet{width:30px;height:46px;margin:-60px -15px;background:linear-gradient(#77818c,#3a4149);border-radius:4px;animation:fjHammer .32s ease-in 2}
+@keyframes fjHammer{0%{transform:translate(20px,-40px) rotate(40deg);opacity:1}80%{transform:translate(0,0) rotate(-10deg);opacity:1}100%{transform:translate(0,0) rotate(-10deg);opacity:0}}
+.fjstamp{position:absolute;left:12px;top:10px;min-width:44px;height:44px;padding:0 6px;border-radius:10px;border:3px solid #c8102e;color:#c8102e;font:900 24px serif;display:flex;align-items:center;justify-content:center;background:#f3efe6;transform:rotate(-8deg);box-shadow:0 3px 8px #000a}
+.fjanvil[class*=" a-"] .fjstamp{animation:fjStamp .45s .85s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes fjStamp{0%{transform:scale(3.2) rotate(-25deg);opacity:0}60%{transform:scale(.9) rotate(-6deg);opacity:1}100%{transform:scale(1) rotate(-8deg)}}
+.fjanvil.a-up{animation:fjShake .35s .8s}.fjanvil.a-div{animation:fjDiv 1.2s .8s}.fjanvil.a-terr{animation:fjTerr 1s .8s}.fjanvil.a-down,.fjanvil.a-fail{animation:fjShake .3s .8s,fjGrey .9s .8s}
+.fjanvil.a-rar{animation:fjDiv 1s .55s}
+@keyframes fjShake{0%,100%{transform:none}25%{transform:translateX(-6px) rotate(-1deg)}75%{transform:translateX(6px) rotate(1deg)}}
+@keyframes fjDiv{0%{box-shadow:0 0 0 0 #ffd23a}30%{box-shadow:0 0 60px 20px #ffd23a;transform:scale(1.05)}100%{box-shadow:0 0 0 0 #ffd23a00;transform:none}}
+@keyframes fjTerr{0%{filter:none}30%{filter:hue-rotate(-40deg) saturate(2) brightness(.7);transform:scale(1.04) rotate(-1deg)}100%{filter:none}}
+@keyframes fjGrey{0%,100%{filter:none}40%{filter:grayscale(1) brightness(.6)}}
+.fjname{position:relative;font:900 22px system-ui;margin-top:2px}.fjname span{display:block;font:800 13px system-ui;color:var(--rc)}
+.fjline{position:relative;font:700 13px system-ui;opacity:.9;margin:4px 0 8px}
+.fjbar{position:relative;height:22px;border-radius:999px;background:#0d0a0e;border:2px solid #4a434f;overflow:hidden}
+.fjbar i{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--rc),#fff8);border-radius:999px;transition:width .7s cubic-bezier(.2,1.2,.4,1)}
+.fjbar em{position:relative;font:800 11px/18px system-ui;font-style:normal;text-shadow:0 1px 2px #000}
+.fjx{position:relative;margin-top:6px;font:700 12px system-ui;padding:4px 8px;border-radius:8px}.fjx.good{background:#1f3a24;color:#9fe0a8}.fjx.bad{background:#3a1f22;color:#f0a0a0}
+.fjside{flex:1 1 260px;max-width:400px;display:flex;flex-direction:column;gap:10px;justify-content:center}
+.fjmsg{min-height:40px;border-radius:12px;background:#1e1a21;border:2px dashed #4a434f;display:flex;align-items:center;justify-content:center;padding:6px 10px;font:800 14px system-ui;color:#cfc6b8;text-align:center}
+.fjmsg.on{border-style:solid;border-color:#ffd23a;color:#ffd23a;animation:fxpop .3s cubic-bezier(.2,1.7,.4,1) both}
+.fjtray{display:grid;grid-template-columns:repeat(auto-fill,minmax(74px,1fr));gap:8px}
+.fjstone{position:relative;min-height:92px;border-radius:16px;border:2px solid #4a434f;background:#1e1a21;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 4px;transition:transform .12s,border-color .12s;touch-action:none}
+.fjwrap.anim .fjstone{animation:fxpop .35s var(--d) cubic-bezier(.2,1.7,.4,1) both}
+.fjrock{width:46px;height:34px;border-radius:40% 55% 45% 50%;background:radial-gradient(circle at 35% 30%,#fff6,transparent 45%),var(--sc);color:#111;font:900 15px serif;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 -5px 0 #0003,0 3px 6px #000a}
+.fjstone em{position:absolute;top:4px;right:6px;font:900 13px system-ui;font-style:normal;background:#c8102e;border-radius:999px;min-width:20px;height:20px;line-height:20px}
+.fjstone small{font:700 10px/1.1 system-ui;opacity:.85;text-align:center}
+.fjstone.sel{border-color:var(--sc);transform:translateY(-6px) scale(1.05);box-shadow:0 0 18px var(--sc)}.fjstone.sel .fjrock{animation:fjBob .5s ease-in-out infinite alternate}
+.fjstone.off{opacity:.35;filter:grayscale(.8)}.fjstone:active:not(.off){transform:scale(.94)}
+.fjstone.steel .fjrock{border-radius:8px;color:#fff;font-size:18px}
+.fjghost{position:fixed;z-index:95;pointer-events:none;width:54px;height:40px;margin:-20px -27px;border-radius:40% 55% 45% 50%;background:radial-gradient(circle at 35% 30%,#fff6,transparent 45%),var(--sc);color:#111;font:900 17px serif;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px #000c;transform:rotate(-12deg) scale(1.1)}
+.fjgo{width:100%;min-height:50px;font-size:16px!important;background:linear-gradient(#c8102e,#8a0b20)!important;border:0!important;box-shadow:0 4px 0 #4e0612}
+@media (max-height:520px) and (orientation:landscape){#kgo.fjo .kslots{display:none}#kgo.fjo .ktitle{font-size:18px;margin:2px 0}#kgo.fjo .fjtabs{margin:0 0 6px}.fjanvil{min-height:0;padding:8px 10px;flex-basis:260px}.fjblade{height:70px}.fjblade svg{width:66px!important;height:66px!important}.fjstamp{min-width:34px;height:34px;font-size:18px}.fjstone{min-height:64px;padding:4px}.fjrock{width:38px;height:28px}.fjname{font-size:16px}.fjline{margin:2px 0 4px}.fjmsg{min-height:32px}.fjgo{min-height:42px}.fjside{gap:6px}.fjtray{grid-template-columns:repeat(5,1fr)}}
+@media (prefers-reduced-motion:reduce){.fjp,.fjpshine,.fjpi,.fjblade,.fjglow{animation:none!important}}
+
+
+
 #mpPick .pkd{right:41px;bottom:296px;width:44px;height:44px;border-radius:50%;background:#5a4a50;font-size:18px;animation-delay:.05s}
 .vtag{font:600 12px system-ui;opacity:.6;margin:6px 0}.vtag b{color:#ffd04a;opacity:1;cursor:pointer;text-decoration:underline}
 #verBar{position:fixed;left:50%;top:10px;transform:translateX(-50%);z-index:90;display:none;flex-wrap:wrap;align-items:center;gap:8px;max-width:92vw;background:#2a1d12;border:2px solid #ffd04a;color:#fff;border-radius:14px;padding:8px 12px;font:14px system-ui;box-shadow:0 6px 20px #000a}
@@ -3723,10 +3794,10 @@ function menaStep(){if(!MENAS.length)return;const a=P.atk;
 // arma de otro tipo en el suelo: ⇄ cambiar por la de tu mano · 魂 vender · ⛓ fundir en acero · ✖ dejar
 let FJN=null,FJNskip=null;
 function fjNear(L){if(L&&L===FJNskip)return;if(L===FJN)return;FJN=L;let u=document.getElementById('fjPick');
- if(!u){u=document.createElement('div');u.id='fjPick';document.body.appendChild(u);u.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-fp]');if(!b)return;e.stopPropagation();e.preventDefault();fjPickAct(b.dataset.fp)})}
- if(!L){u.style.display='none';return}const it=L.item,c=FJ.rarC[it.rar||0],r=it.rar||0;
- u.innerHTML=`<button data-fp="eq" class="pkt" style="--rc:${c}"><i>⇄</i>${wIcon(it.type,c,40)}<small>${TYPE_N[it.type]} ${'★'.repeat(r)}</small></button>`
-  +`<button data-fp="sell" class="pks" style="--rc:#ffd04a">魂 +${FJ.sell(r)}</button><button data-fp="steel" class="pks st" style="--rc:#9fb3c8">⛓ +${FJ.steelOf(r)}</button><button data-fp="x" class="pkd">✖</button>`;
+ if(!u){u=document.createElement('div');u.id='fjPick';document.body.appendChild(u);u.addEventListener('pointerdown',e=>{const b=e.target.closest('[data-fp]');if(!b)return;e.stopPropagation();e.preventDefault();b.classList.add('hit');kgVib(20);setTimeout(()=>fjPickAct(b.dataset.fp),90)})}
+ if(!L){const card=u.querySelector('.fjp');if(card&&u.style.display!=='none'){card.classList.add('out');setTimeout(()=>{if(!FJN)u.style.display='none'},220)}else u.style.display='none';return}const it=L.item,c=FJ.rarC[it.rar||0],r=it.rar||0;
+ const cur=RUN.wpn[wIdx],mN=FJ.rarM[r]*(1+FJ.afi[(it.w&&it.w.afi)??1].d),mC=cur?fjMul(cur):1,better=mN>mC+1e-6;
+ u.innerHTML=`<div class="fjp r${r}" style="--rc:${c}"><div class="fjpshine"></div><button data-fp="x" class="fjpx">✖</button><div class="fjpw"><div class="fjpi">${wIcon(it.type,c,56)}</div><div><b>${TYPE_N[it.type]}</b><span>${'★'.repeat(r)} ${FJ.rarN[r]}</span><small class="${better?'up':'dn'}">${better?'▲':'▼'} daño ×${mN.toFixed(2)} <i>(tu ${cur?TYPE_N[cur.type]:''} ×${mC.toFixed(2)})</i></small></div></div><div class="fjpb"><button data-fp="eq" class="eq" style="--d:.05s"><b>⇄</b><small>Cambiar</small></button><button data-fp="sell" class="sell" style="--d:.1s"><b>魂</b><small>+${FJ.sell(r)}</small></button><button data-fp="steel" class="steel" style="--d:.15s"><b>⛓</b><small>+${FJ.steelOf(r)} acero</small></button></div></div>`;
  u.style.display='block';sfx('ready')}
 function fjPickAct(a){const L=FJN;if(!L||!LOOT.includes(L)){fjNear(null);return}const it=L.item,r=it.rar||0;
  if(a==='x'){FJNskip=L;fjNear(null);return}
@@ -3738,17 +3809,38 @@ function fjPickAct(a){const L=FJN;if(!L||!LOOT.includes(L)){fjNear(null);return}
   FJNskip=LOOT[LOOT.length-1];refreshSM();updWUI();banner('⇄ '+TYPE_N[nw.type].toUpperCase()+' '+FJ.rarN[nw.rar||0]);sfx('parry');ring([P.x,P.y,P.z],1.6,.3)}
  fjNear(null)}
 // pantalla 研 AFILAR (entre oleadas, si tienes piedras o acero)
-let FJSEL=null,FJMSG='';
-function fjForge(){FJSEL=null;FJMSG='';kgOverlay('cards').dataset.mode='afi';fjRender(true)}
-function fjCard(it,i){const a=FJ.afi[it.afi??1],C=FJ.rarC[it.rar||0];const ex=(it.afi===5&&it.tx?`<div class="kdesc">⬆ ${FJ.terr.stats.find(x=>x[0]===it.tx.up)[1]} +60 % · ⬇ ${FJ.terr.stats.find(x=>x[0]===it.tx.dn)[1]} −30 %</div>`:'')+(it.odd?`<div class="kdesc">${FJ.odd[it.odd].g?'✨':'☠'} ${FJ.odd[it.odd].n}: ${FJ.odd[it.odd].d}</div>`:'');
- return`<div class="kcard shine" data-k="fjW" data-i="${i}" style="--kc:${C};--rc:${C};--d:${(i*.08+.1).toFixed(2)}s"><div class="kin"><div class="kbg">${a.k||'刃'}</div><div class="ktop"><span class="kico">${wIcon(it.type,C,40)}</span><span class="ktag" style="color:${C}">${FJ.rarN[it.rar||0]} ${'★'.repeat(it.rar||0)}</span></div><div class="kname">${TYPE_N[it.type]}</div><div class="kdesc">Afilado: <b>${a.k} ${a.n}</b> · daño ×${(FJ.rarM[it.rar||0]*(1+a.d)).toFixed(2)}</div>${(it.rar||0)<3?`<div class="kdesc">合 Fusión ${fjBar(it.fp)} ${Math.round((it.fp||0)*100)} % → ${FJ.rarN[(it.rar||0)+1]}</div>${(RUN.kg.steel||0)>0?`<button class="kb" data-k="fjT" data-i="${i}" style="margin-top:6px">⛓ Templar (1 acero) +${Math.max(1,Math.round(FJ.steelGain(it.rar||0,wave)*100))} %</button>`:''}`:''}${ex}</div></div>`}
-function fjRender(anim){const S=RUN.kg.stones||{};
- KGO.innerHTML=`<div class="krays" style="--kc:#9fc1e0"></div><div class="kwrap${anim?' anim':''}">${kgHead('研 AFILAR','Elige una piedra y toca un arma')}
- <div class="kgod" style="--kc:#9fb3c8">⛓ Acero: ${RUN.kg.steel||0}</div>
- <div class="krow">${Object.keys(FJ.st).map(k=>{const T=FJ.st[k],n=S[k]||0;return`<button class="kb" data-k="fjSt" data-s="${k}" ${n?'':'disabled'} style="border-color:${FJSEL===k?T.c:'#555'};box-shadow:${FJSEL===k?'0 0 14px '+T.c:'none'};min-width:96px"><span style="color:${T.c};font-size:18px">${T.k}</span><br>${T.n} ×${n}<br><small style="opacity:.7">${T.d}</small></button>`}).join('')}</div>
- ${FJMSG?`<div class="kgod" style="--kc:#ffd23a">${FJMSG}</div>`:''}
- <div class="krow">${RUN.wpn.map((w,i)=>w?fjCard(w,i):'').join('')}</div>
- <div class="kfoot"><button class="kb" data-k="fjGo">Seguir ▶</button><span class="khelp">La piedra puede salvarse (25 %) · si falla, la siguiente vez es más fácil</span></div></div>`}
+let FJSEL=null,FJMSG='',FJW=0,FJANIM=null,FJDRAG=null,FJNOCLICK=0;
+function fjForge(){FJSEL=null;FJMSG='';FJANIM=null;FJW=RUN.wpn[wIdx]?wIdx:0;kgOverlay('cards fjo').dataset.mode='afi';fjRender(true)}
+function fjMul(it){return FJ.rarM[it.rar||0]*(1+FJ.afi[it.afi??1].d)}
+function fjAnvil(it,i){const a=FJ.afi[it.afi??1],r=it.rar||0,C=FJ.rarC[r],A=FJANIM,an=A?' a-'+A.t:'',sc=A&&A.st?FJ.st[A.st]?FJ.st[A.st].c:'#9fb3c8':'#9fb3c8';
+ const ex=(it.afi===5&&it.tx?`<div class="fjx bad">魔 ⬆ ${FJ.terr.stats.find(x=>x[0]===it.tx.up)[1]} +60 % · ⬇ ${FJ.terr.stats.find(x=>x[0]===it.tx.dn)[1]} −30 %</div>`:'')+(it.odd?`<div class="fjx ${FJ.odd[it.odd].g?'good':'bad'}">${FJ.odd[it.odd].g?'✨':'☠'} ${FJ.odd[it.odd].n}: ${FJ.odd[it.odd].d}</div>`:'');
+ const fp=Math.round((it.fp||0)*100),sparks=A?Array.from({length:16},(_,k)=>{const ang=-Math.PI*(.15+.7*Math.random()),d=60+Math.random()*90;return`<i style="--x:${(Math.cos(ang)*d).toFixed(0)}px;--y:${(Math.sin(ang)*d).toFixed(0)}px;--dl:${(.18+k*.02).toFixed(2)}s"></i>`}).join(''):'';
+ return`<div class="fjanvil r${r}${an}" data-k="fjW" data-i="${i}" style="--rc:${C};--sc:${sc}">
+  <div class="fjglow"></div><div class="fjbgk">${a.k||'刃'}</div>
+  <div class="fjblade">${wIcon(it.type,C,132)}<div class="fjwhet"></div><div class="fjspk">${sparks}</div></div>
+  ${a.k?`<div class="fjstamp">${a.k}</div>`:''}
+  <div class="fjname">${TYPE_N[it.type]}<span>${'★'.repeat(r)} ${FJ.rarN[r]}</span></div>
+  <div class="fjline"><b>${a.n}</b> · daño <b>×${fjMul(it).toFixed(2)}</b></div>
+  ${r<3?`<div class="fjbar"><i style="width:${fp}%"></i><em>合 ${fp} % → ${FJ.rarN[r+1]}</em></div>`:`<div class="fjbar max"><i style="width:100%"></i><em>★★★ Legendaria</em></div>`}
+  ${ex}</div>`}
+function fjRender(anim){const S=RUN.kg.stones||{},it=RUN.wpn[FJW],st=RUN.kg.steel||0,r=it?it.rar||0:3;
+ KGO.innerHTML=`<div class="krays" style="--kc:${it?FJ.rarC[r]:'#9fc1e0'}"></div><div class="kwrap fjwrap${anim?' anim':''}">${kgHead('研 AFILAR','Entre oleadas')}
+ <div class="fjtabs">${RUN.wpn.map((w,i)=>w?`<button class="fjtab${i===FJW?' on':''}" data-k="fjTab" data-i="${i}" style="--rc:${FJ.rarC[w.rar||0]}">${wIcon(w.type,FJ.rarC[w.rar||0],30)}<span>${TYPE_N[w.type]}</span></button>`:'').join('')}</div>
+ <div class="fjmain">${it?fjAnvil(it,FJW):''}
+  <div class="fjside"><div class="fjmsg${FJMSG?' on':''}">${FJMSG||(FJSEL?FJ.st[FJSEL].n+': toca o arrastra a la hoja':'Arrastra una piedra a la hoja')}</div>
+  <div class="fjtray">${Object.keys(FJ.st).map((k,n)=>{const T=FJ.st[k],c=S[k]||0;return`<button class="fjstone${FJSEL===k?' sel':''}${c?'':' off'}" data-k="fjSt" data-s="${k}" style="--sc:${T.c};--d:${(n*.06+.15).toFixed(2)}s"><span class="fjrock">${T.k}</span><em>${c}</em><small>${T.n}</small></button>`}).join('')}
+   <button class="fjstone steel${st&&r<3?'':' off'}" data-k="fjT" data-i="${FJW}" style="--sc:#9fb3c8;--d:.4s"><span class="fjrock">⛓</span><em>${st}</em><small>Templar ${r<3?'+'+Math.max(1,Math.round(FJ.steelGain(r,wave)*100))+' %':''}</small></button></div>
+  <div class="kfoot"><button class="kb fjgo" data-k="fjGo">Seguir ▶</button></div></div></div></div>`;
+ fjBindDrag()}
+function fjDo(st){const it=RUN.wpn[FJW];if(!it||!(RUN.kg.stones[st]>0))return;const b=it.afi??1;FJMSG=fjSharpen(st,it);const a=it.afi??1;
+ FJANIM={t:a===6&&b!==6?'div':a===5&&b!==5?'terr':a>b||(b===5&&a!==5)?'up':a<b?'down':'fail',st,k:Date.now()};
+ if(!(RUN.kg.stones[st]>0))FJSEL=null;fjRender(false);kgVib(FJANIM.t==='div'?[40,40,90]:FJANIM.t==='up'?35:15);setTimeout(()=>{if(KGO&&KGO.dataset.mode==='afi'){FJANIM=null}},1400)}
+function fjBindDrag(){const tray=KGO&&KGO.querySelector('.fjtray');if(!tray)return;
+ tray.querySelectorAll('.fjstone:not(.steel):not(.off)').forEach(b=>{b.addEventListener('pointerdown',e=>{FJDRAG={k:b.dataset.s,x0:e.clientX,y0:e.clientY,g:null,id:e.pointerId};try{b.setPointerCapture(e.pointerId)}catch(_){}});
+  b.addEventListener('pointermove',e=>{const D=FJDRAG;if(!D||D.id!==e.pointerId)return;if(!D.g&&Math.hypot(e.clientX-D.x0,e.clientY-D.y0)>12){D.g=document.createElement('div');D.g.className='fjghost';D.g.style.setProperty('--sc',FJ.st[D.k].c);D.g.textContent=FJ.st[D.k].k;document.body.appendChild(D.g);const an=KGO.querySelector('.fjanvil');if(an)an.classList.add('drop')}
+   if(D.g){D.g.style.left=e.clientX+'px';D.g.style.top=e.clientY+'px';const an=KGO.querySelector('.fjanvil');if(an){const R=an.getBoundingClientRect();an.classList.toggle('hot',e.clientX>R.left&&e.clientX<R.right&&e.clientY>R.top&&e.clientY<R.bottom)}}});
+  const end=e=>{const D=FJDRAG;if(!D||D.id!==e.pointerId)return;FJDRAG=null;if(!D.g)return;FJNOCLICK=Date.now();D.g.remove();const an=KGO.querySelector('.fjanvil');let hit=false;if(an){const R=an.getBoundingClientRect();hit=e.clientX>R.left&&e.clientX<R.right&&e.clientY>R.top&&e.clientY<R.bottom;an.classList.remove('drop','hot')}if(hit){FJSEL=D.k;fjDo(D.k)}};
+  b.addEventListener('pointerup',end);b.addEventListener('pointercancel',end)})}
 function fjSharpen(st,it){const T=FJ.st[st],a=it.afi??1;let msg,ok=true;
  if(st==='kami'){// escalera sin Terrorífica: Mala, Normal, Buena, Afilada, Letal, Divina (Terrorífica cuenta como Afilada)
   const L=[0,1,2,3,4,6],cur=a===5?3:a,i=L.indexOf(cur);
@@ -3764,12 +3856,13 @@ function fjSharpen(st,it){const T=FJ.st[st],a=it.afi??1;let msg,ok=true;
   else{it.pity=(it.pity||0)+FJ.pity;ok=false;msg='✖ Falla… la próxima es más fácil'}}
  const S=RUN.kg.stones;if(Math.random()<FJ.save)msg+=' · ¡la piedra aguanta!';else S[st]--;
  sfx(ok?'parry':'block');kgVib(ok?40:15);refreshSM();updWUI();return msg}
-KGH.fjSt=b=>{const k=b.dataset.s;if(!(RUN.kg.stones||{})[k])return;FJSEL=FJSEL===k?null:k;FJMSG=FJSEL?FJ.st[k].n+': toca el arma':'';fjRender(false)};
-KGH.fjW=b=>{const it=RUN.wpn[+b.dataset.i];if(!it)return;if(!FJSEL){FJMSG='Primero elige una piedra';fjRender(false);return}if(!(RUN.kg.stones[FJSEL]>0)){FJSEL=null;fjRender(false);return}
- FJMSG=fjSharpen(FJSEL,it);if(!(RUN.kg.stones[FJSEL]>0))FJSEL=null;fjRender(false);const c=KGO.querySelector(`[data-k="fjW"][data-i="${b.dataset.i}"]`);if(c)kgBurst(c,FJ.rarC[it.rar||0])};
-KGH.fjT=b=>{const it=RUN.wpn[+b.dataset.i];if(!it||!(RUN.kg.steel>0)||(it.rar||0)>=3)return;RUN.kg.steel--;const g=FJ.steelGain(it.rar||0,wave);it.fp=(it.fp||0)+g;
- if(it.fp>=1-1e-6){it.fp=0;it.rar++;FJMSG='🔥 ¡'+TYPE_N[it.type]+' '+FJ.rarN[it.rar]+'!';sfx('parry')}else{FJMSG='⛓ +'+Math.round(g*100)+' % de fusión';sfx('blunt')}refreshSM();updWUI();fjRender(false)};
-KGH.fjGo=()=>{RUN.kg.done.afi=wave;kgEndQueue()};
+KGH.fjSt=b=>{if(Date.now()-FJNOCLICK<350)return;const k=b.dataset.s;if(!(RUN.kg.stones||{})[k])return;FJSEL=FJSEL===k?null:k;FJMSG='';FJANIM=null;fjRender(false);sfx('swish')};
+KGH.fjW=b=>{if(Date.now()-FJNOCLICK<350)return;if(!FJSEL){FJMSG='Primero elige una piedra (o arrástrala)';FJANIM=null;fjRender(false);return}fjDo(FJSEL)};
+KGH.fjTab=b=>{FJW=+b.dataset.i;FJANIM=null;FJMSG='';fjRender(false);sfx('swish')};
+KGH.fjT=b=>{const it=RUN.wpn[FJW];if(!it||!(RUN.kg.steel>0)||(it.rar||0)>=3)return;RUN.kg.steel--;const g=FJ.steelGain(it.rar||0,wave),r0=it.rar||0;it.fp=(it.fp||0)+g;
+ if(it.fp>=1-1e-6){it.fp=0;it.rar=r0+1;FJMSG='🔥 ¡'+TYPE_N[it.type]+' '+FJ.rarN[it.rar]+'!';sfx('parry');FJANIM={t:'rar',k:Date.now()}}else{FJMSG='⛓ +'+Math.round(g*100)+' % de fusión';sfx('blunt');FJANIM={t:'steel',k:Date.now()}}
+ kgVib(FJANIM.t==='rar'?[40,40,90]:25);refreshSM();updWUI();fjRender(false)};
+KGH.fjGo=()=>{RUN.kg.done.afi=wave;FJANIM=null;kgEndQueue()};
 // ===== TEKKŌ: agarre y lanzamiento =====
 const GRAB={hold:.28,v:15,vy:2.5,hitR:1.4,hitDmg:3,boomR:2.2,boomDmg:2};let THROWN=[];
 function grabStart(z){P.grabZ={z,t:0};P.atk=null;P.charge=null;z.stun=9;z.atkWind=0;sfx('parry');shake=Math.max(shake,.12);kgVib(20)}
