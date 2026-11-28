@@ -141,7 +141,11 @@ En cada fase: medir con la simulación de daño, capturas para Daniel, y actuali
 
 ---
 
-## 8. Decisiones que tiene que tomar Daniel
+## 8. Decisiones de Daniel
+- **28 nov 2026:** la **kama se queda** (le gusta) y el **tessen se va**. Para que la kama no se juegue igual que el nitō, su verbo será **asesina**: SOMBRA te pone a la espalda, el crítico por la espalda (Kaishin ×3) es su seña y sus hoces lanzadas vuelven. El nitō se queda con el torbellino sin fin.
+- Pendiente: qué arma nueva sustituye al tessen (Ofuda, Tekkō u otra).
+
+## 8b. Decisiones que siguen abiertas
 1. ¿Kama y tessen se van? ¿O prefieres quitar otras dos?
 2. ¿Tekkō (puños) y Ofuda (talismanes) te gustan como sustitutas?
 3. Katana: ¿camino A (Mixamo, descargas tú las animaciones) o B (a mano)?
