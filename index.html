@@ -2755,12 +2755,13 @@ function quake(fall,force){const r=EF.terremoto;if(!force&&(!r||fall<2))return;c
 // ---- botín en el suelo ----
 function updateLoot(){
  for(const L of LOOT){L.t+=DT;if(P.dead)continue;if(Math.hypot(L.x-P.x,L.z-P.z)<1.15&&Math.abs(L.y-P.y)<1.6){L.got=true;
-  if(L.item.kid)kgAddKamon(L.item.kid);sfx('ready');sparks([L.x,L.y+1,L.z],[0,1,0],10,[1,.9,.5])}}
+  if(L.item.kind==='orb'){if(state==='play'){kgOrbOpen(L.item.ka)}else{L.got=false;continue}}else if(L.item.kid)kgAddKamon(L.item.kid);sfx('ready');sparks([L.x,L.y+1,L.z],[0,1,0],10,[1,.9,.5])}}
  LOOT=LOOT.filter(L=>!L.got&&L.t<60);
 }
+const ORBC={};
 function drawArsenal(){
  for(const L of LOOT){const c=AR_RC[2],b=Math.sin(L.t*3)*.08;limb([L.x,L.y,L.z],[L.x,L.y+2.4,L.z],.025+.01*Math.sin(L.t*6),c);
-  const y=L.y+.75+b,a=L.t*2;if(L.item.kind==='kamon')head([L.x,y,L.z],.16,c);else{const d=[Math.cos(a)*.45,.25,Math.sin(a)*.45];limb([L.x-d[0],y-d[1],L.z-d[2]],[L.x+d[0],y+d[1],L.z+d[2]],L.item.type==='maza'?.06:.03,c)}}
+  const y=L.y+.75+b,a=L.t*2;if(L.item.kind==='orb'){const oc=ORBC[L.item.ka]||(ORBC[L.item.ka]=new THREE.Color(KAMI[L.item.ka].c));head([L.x,y+.15,L.z],.26+.03*Math.sin(L.t*8),oc);limb([L.x,L.y,L.z],[L.x,L.y+3.2,L.z],.05,oc)}else if(L.item.kind==='kamon')head([L.x,y,L.z],.16,c);else{const d=[Math.cos(a)*.45,.25,Math.sin(a)*.45];limb([L.x-d[0],y-d[1],L.z-d[2]],[L.x+d[0],y+d[1],L.z+d[2]],L.item.type==='maza'?.06:.03,c)}}
  for(const p of PROJ){if(p.k==='ofuda'){const l=Math.hypot(p.vx,p.vz)||1,ux=p.vx/l*.13,uz=p.vz/l*.13,w=Math.sin(time*22+p.x)*.05;limb([p.x-ux,p.y+w,p.z-uz],[p.x+ux,p.y-w,p.z+uz],.045,OFU_W);limb([p.x-ux*.3,p.y,p.z-uz*.3],[p.x+ux*.3,p.y,p.z+uz*.3],.05,OFU_R)}
   if(p.k==='shur'){const a=time*30,s=.16;limb([p.x-Math.cos(a)*s,p.y,p.z-Math.sin(a)*s],[p.x+Math.cos(a)*s,p.y,p.z+Math.sin(a)*s],.025,AR_RC[0]);limb([p.x-Math.sin(a)*s,p.y,p.z+Math.cos(a)*s],[p.x+Math.sin(a)*s,p.y,p.z-Math.cos(a)*s],.025,AR_RC[0])}
   else if(p.k==='fire'){head([p.x,p.y,p.z],.17,AR_RC[1]);head([p.x,p.y,p.z],.08,AR_RC[0])}
@@ -2790,6 +2791,7 @@ function updWUI(){lastSpecLbl='';const b=$('wbtn');b.textContent='⇄ '+weapon()
 const KG={
  pdWin:.35,pdCd:1.5,pdMul:2, // esquiva perfecta: ventana desde que empiezas el dash (s), recarga y daño del golpe siguiente
  siegeHp:3,botHits:4, // asedio: zombis con ×3 de vida; un bot los mata en 4 golpes (sus golpes no usan tus bendiciones)
+ orb:{p:.08,n:2}, // orbe del kami: lo suelta un minijefe con variante (8 %), como mucho 1 por oleada; abre 2 cartas de ese kami
  kiriSwap:.06,                           // peso de las cartas que cambian tu bendición de ataque (斬) ya puesta: muy raras (las demás ranuras ocupadas: .9, libres: 1.2)
  base:1.3,                               // valor de toda bendición (sin rarezas); el {n} de los textos ya va ×base
  lvmul:[1,1.3,1.55,1.75],                // Omiki: +30 %, +25 %, +20 % del valor base
@@ -3261,11 +3263,15 @@ function kgOnKill(e,hit){if(!KS.on)return;const G=RUN.kg,c=[e.x,(e.y||0)+1,e.z];
  if(e.champ)kgChampDeath(e);
  if(e.zt==='tanuki'){kgDropKamon(e);kgTama(10);banner('🦝 ¡Tanuki atrapado!')}
  if((e.kind==='oni'&&Math.random()<.5)||(e.kind&&e.kind!=='oni'&&e.kind!=='ooni'&&e.kind!=='karura'&&Math.random()<.22))kgDropKamon(e);
+ if(e.kind&&e.var&&!e.raid&&e.kind!=='ooni'&&e.kind!=='karura'&&RUN.kg.orbW!==wave&&Math.random()<KG.orb.p)kgDropOrb(e);
  if((e.kind==='ooni'||e.kind==='karura')){kgDropKamon(e);ryuUnlock(weapon().id);kgVib([40,60,80],true)}
  const sty=RUN.sty&&RUN.sty[weapon().id];if(sty&&!(hit&&hit.proc))ryuKill(sty)}
 function kgBreath(){const F=[Math.sin(P.yaw),Math.cos(P.yaw)];banner('🐉 ¡ALIENTO DE DRAGÓN!');sfx('boom');shake=Math.max(shake,.3);
  for(let i=0;i<22;i++){const a=P.yaw+rand(-.45,.45),sp=rand(10,16);addP({k:'s',x:P.x+F[0]*.6,y:P.y+1.4,z:P.z+F[1]*.6,vx:Math.sin(a)*sp,vy:rand(-.5,1),vz:Math.cos(a)*sp,life:.45,max:.45,size:.16,c:[1,rand(.3,.7),.1]})}
  for(const e of zs){if(!e.alive)continue;const dx=e.x-P.x,dz=e.z-P.z,d=Math.hypot(dx,dz);if(d<6&&(dx*F[0]+dz*F[1])/(d||1)>.55){kgDeal(e,2*SM.dmg,{col:'#ff7a2a'});kgBurn(e,2,1.5)}}}
+function kgDropOrb(e){RUN.kg.orbW=wave;const ka=pick(KAMI_IDS);LOOT.push({x:e.x,y:groundAt(e.x,e.y+1,e.z),z:e.z,item:{uid:UID++,kind:'orb',ka},t:0});banner(KAMI[ka].ico+' ¡Orbe de '+KAMI[ka].n+'!');sfx('ready')}
+function kgOrbOpen(ka){KORB=ka;state='forge';hudShow(false);P.atk=null;P.charge=null;KOFF=null;kgOfferScreen('orb')}
+let KORB=null;
 function kgDropKamon(e){if(LOOT.length>=14)return;const id=pick(KAMON_IDS);LOOT.push({x:e.x,y:groundAt(e.x,e.y+1,e.z),z:e.z,item:{uid:UID++,kind:'kamon',kid:id},t:0})}
 function kgAddKamon(id){const G=RUN.kg,before=Object.assign({},KS.hg);G.kam[id]=(G.kam[id]||0)+1;refreshSM();const k=KAMON[id],n=KS.sets[k.set]||0;
  banner(k.ico+' '+k.n+' · '+HENGE[k.set].k+' '+Math.min(3,n)+'/3');kgHudUpd();
@@ -3418,7 +3424,7 @@ function kgBlessList(){const G=RUN.kg,L=[];for(const[s]of KSLOT){const c=G.slots
 const kgId=o=>o.t+':'+(o.ka||o.id||'')+':'+(o.s||'');
 function kgPool(kind){const G=RUN.kg,out=[];
  if(kind==='start'){for(const ka of KAMI_IDS.filter(k=>k!=='inari'))out.push({t:'slot',ka,s:'kiri',w:1});return out}
- const ka=(G.hok&&G.hok[G.hokSel]&&G.hok[G.hokSel].ka)||pick(KAMI_IDS);
+ const ka=kind==='orb'&&KORB?KORB:(G.hok&&G.hok[G.hokSel]&&G.hok[G.hokSel].ka)||pick(KAMI_IDS);
  for(const[s]of KSLOT){const cur=G.slots[s];if(cur&&cur.ka===ka)continue;const w=cur?(s==='kiri'?KG.kiriSwap:.9):1.2;out.push({t:'slot',ka,s,w})}// no ofrecer la que ya tienes en esa ranura (cogerla te bajaba a nivel 1)
  const K=KAMI[ka];if(!G.pas[ka]&&(K.st?Object.values(G.slots).some(c=>c.ka===ka):Object.values(G.slots).some(c=>c.ka==='inari')))out.push({t:'pas',ka,w:1.3});
  for(const id in DUO){const D=DUO[id];if(G.duo[id]||(D.a!==ka&&D.b!==ka))continue;const o=D.a===ka?D.b:D.a;if(kgHas(o)&&kgHas(ka))out.push({t:'duo',id,w:3})}
@@ -3426,7 +3432,7 @@ function kgPool(kind){const G=RUN.kg,out=[];
  const L=kgBlessList().filter(b=>(b.c.lv||1)<4);if(L.length)out.push({t:'omiki',ref:pick(L),w:.3});
  return out.filter(o=>!G.banned.includes(kgId(o)))}
 function kgDraw(pool,n,ex){const out=[],P2=pool.slice();while(out.length<n&&P2.length){const s=P2.reduce((a,o)=>a+(o.w||1),0);let r=Math.random()*s,i=0;for(;i<P2.length-1;i++){r-=P2[i].w||1;if(r<=0)break}const o=P2.splice(i,1)[0];if(ex&&ex.some(x=>kgId(x)===kgId(o)))continue;out.push(o)}return out}
-function kgMakeOffer(kind){const G=RUN.kg,n=(kind!=='start'&&G.boons.card4)?4:3;let o=kgDraw(kgPool(kind),n);
+function kgMakeOffer(kind){const G=RUN.kg,n=kind==='orb'?KG.orb.n:(kind!=='start'&&G.boons.card4)?4:3;let o=kgDraw(kgPool(kind),n);
 
  if(kind==='wave'&&o.some(x=>x.t==='sp'))G.nijiSp=0;
  if(kind==='wave'&&wave>=KG.pact.from&&!(G.pact&&G.pact.left>0)&&Math.random()<KG.pact.p){const c=pick(Object.keys(CURSE)),b=pick(Object.keys(BOON).filter(x=>!G.boons[x]));if(b)o.push({t:'pact',c,b})}
@@ -3458,9 +3464,9 @@ function kgSlotsBar(){const G=RUN.kg;return`<div class="kslots">${KSLOT.map(([s,
 function kgHead(title,sub){const G=RUN.kg;return`<div class="khead"><div class="kbar"><span class="ktama">魂 ${RUN.tama}</span><span class="kwave">${sub||''}</span><span class="kbtns">${KGO&&KGO.dataset.mode==='cards'?`<button data-k="rr" class="kb">🎲 ${G.rr>0?'gratis':KG.reroll(G.rrN)+' 魂'}</button><button data-k="ban" class="kb${KGO.dataset.ban==='1'?' act':''}">🚫 ${G.ban}</button>`:''}</span></div>${kgSlotsBar()}<div class="ktitle">${title}</div></div>`}
 let KOFF=null,KOFFK='wave';
 function kgOfferScreen(kind){KOFFK=kind;const G=RUN.kg;if(!KOFF||KOFF.kind!==kind||KOFF.w!==wave)KOFF={kind,w:wave,o:kgMakeOffer(kind)};kgOverlay('cards').dataset.mode='cards';KGO.dataset.ban='0';kgRenderOffer(true);sfx('ready');kgVib(30)}
-function kgRenderOffer(anim){const G=RUN.kg,hk=G.hok&&G.hok[G.hokSel];const kami=KOFFK==='start'?null:hk&&KAMI[hk.ka];
- const title=KOFFK==='start'?'ELIGE TU PRIMERA BENDICIÓN':'ELIGE UNA BENDICIÓN';
- KGO.innerHTML=`<div class="krays" style="--kc:${kami?kami.c:'#ffd23a'}"></div><div class="kwrap${anim?' anim':''}">${kgHead(title,KOFFK==='start'?'Para el botón de ataque':`OLEADA ${wave} ✔`)}${kami?`<div class="kgod" style="--kc:${kami.c}">⛩ ${kami.k} ${kami.n.toUpperCase()}<small>${kami.st?kami.st+': '+kgTxt(kami.sd,1):kami.sd}</small></div>`:''}
+function kgRenderOffer(anim){const G=RUN.kg,hk=G.hok&&G.hok[G.hokSel];const kami=KOFFK==='start'?null:KOFFK==='orb'&&KORB?KAMI[KORB]:hk&&KAMI[hk.ka];
+ const title=KOFFK==='start'?'ELIGE TU PRIMERA BENDICIÓN':KOFFK==='orb'?'ORBE DEL KAMI':'ELIGE UNA BENDICIÓN';
+ KGO.innerHTML=`<div class="krays" style="--kc:${kami?kami.c:'#ffd23a'}"></div><div class="kwrap${anim?' anim':''}">${kgHead(title,KOFFK==='start'?'Para el botón de ataque':KOFFK==='orb'?'Regalo de un minijefe':`OLEADA ${wave} ✔`)}${kami?`<div class="kgod" style="--kc:${kami.c}">⛩ ${kami.k} ${kami.n.toUpperCase()}<small>${kami.st?kami.st+': '+kgTxt(kami.sd,1):kami.sd}</small></div>`:''}
  <div class="krow">${KOFF.o.map((o,i)=>kgCardHTML(o,i)).join('')}</div>
  <div class="kfoot">${KOFFK==='wave'&&P.hp<P.hpMax&&G.done.heal!==wave?`<button data-k="heal" class="kb" ${RUN.tama<KG.shop.hokora?'disabled':''}>⛩ Curar +30 · ${KG.shop.hokora} 魂</button>`:''}<span class="khelp">Toca para elegir · mantén para ver detalles</span></div></div>`;
  if(anim){KGO.classList.add('lock');setTimeout(()=>KGO&&KGO.classList.remove('lock'),650)}
@@ -3496,7 +3502,7 @@ function kgPick(i,c){const o=KOFF.o[i];if(!o)return;KGO.dataset.done='1';const p
  KGO.querySelectorAll('.kcard').forEach((x,j)=>x.classList.add(j===i?'pick':'gone'));KGO.classList.add('picked');sfx(o.t==='sp'||o.t==='duo'?'ready':'parry');kgVib(o.t==='duo'||o.t==='sp'?[30,40,80]:40,true);
  kgBurst(c,I.col);const big=o.t==='duo'||o.t==='sp'||o.t==='pact';
  setTimeout(()=>{if(big)kgSynFX(I)},450);
- setTimeout(()=>{KGO.dataset.done='0';KGO.classList.remove('picked');if(KOFFK==='start'){kgHide();kgCloseStart()}else{RUN.kg.done.cards=wave;KOFF=null;kgEndQueue()}},big?2000:950)}
+ setTimeout(()=>{KGO.dataset.done='0';KGO.classList.remove('picked');if(KOFFK==='start'){kgHide();kgCloseStart()}else if(KOFFK==='orb'){KOFF=null;KORB=null;kgHide();state='play';hudShow(true);refreshSM();kgResumeFX()}else{RUN.kg.done.cards=wave;KOFF=null;kgEndQueue()}},big?2000:950)}
 function kgBurst(el,col){try{const r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,d=document.createElement('div');d.className='kburst';d.style.left=cx+'px';d.style.top=cy+'px';
  d.innerHTML=Array.from({length:22},()=>{const a=Math.random()*6.283,rr=80+Math.random()*140;return`<i style="--x:${(Math.cos(a)*rr).toFixed(0)}px;--y:${(Math.sin(a)*rr).toFixed(0)}px;background:${col}"></i>`}).join('')+`<u style="border-color:${col}"></u>`;document.body.appendChild(d);setTimeout(()=>d.remove(),900)}catch(_){}}
 function kgSynFX(I){const f=document.createElement('div');f.className='ksyn';f.style.setProperty('--kc',I.col);f.style.setProperty('--kc2',I.col2||I.col);
