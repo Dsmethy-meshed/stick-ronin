@@ -84,3 +84,7 @@ Decisiones: piedras de minijefes y de **menas** que aparecen al empezar cada ole
 - [x] Códice ℹ Info con el apartado 鍛 Forja.
 - [ ] Probar en el móvil y ajustar probabilidades; hoja de equilibrio sin actualizar.
 - [ ] Brillo del arma según afilado (ahora solo se ve en el botón y en la pantalla de afilar).
+- [x] Cambio pedido por Daniel: fusión como la antigua, por progreso según lo parecidas que sean las rarezas (`FJ.fuse` 1 / 0,5 / 0,25 / 0,12, barra ▰▱ en el aviso y en la pantalla de afilar). **Prueba:** común+común → rara; rara+rara → épica; 3 comunes sobre épica → 75 %; épica+épica → legendaria.
+- [x] Piedra de los kami 神砥 (pedida por Daniel): 50 % sube, 50 % baja, nunca Terrorífica (escalera Mala, Normal, Buena, Afilada, Letal, Divina; Terrorífica cuenta como Afilada). Sale en menas, minijefes y tienda (peso 1,5 de 11,5). **Prueba:** 58 cambios, 31 suben y 27 bajan, ninguno a Terrorífica; en Divina no hace nada ni se gasta.
+- [ ] Vigilar: con la piedra de los kami, desde Letal hay un 50 % de llegar a Divina (con el toishi es un 2 %).
+
