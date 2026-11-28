@@ -2435,7 +2435,7 @@ function yokaiHit(S,hit,dmg){
   if(S.kind==='oni'&&(S.st==='wind'||S.st==='throw')&&dmg>=1){if(S.st==='throw'&&S.grab){const z=addZombie(S.x+1,S.y,S.z,S.grab.mini);S.grab=null}S.st='rec';S.stT=.5}return}
  S.alive=false;kills++;combo++;comboT=2.4;comboPop=1;onKill(S,hit);
  spray(c,v,30,7,.9);sparks(c,v,10,[1,.6,.4]);debris(c,10);sfx(hit&&hit.blunt?'blunt':'slice');hitstop=Math.max(hitstop,.08);shake=Math.max(shake,.2);
- if(S.J&&rags.length<MAX_RAGS+4){const r=makeRag(S.J,[v[0]*.6,Math.max(3,v[1]),v[2]*.6],YK_BODY(S));r.hr=.15*S.s;rags.push(r)}
+ if(S.J&&rags.length<MAX_RAGS+4){const r=makeRag(S.J,[v[0]*.6,Math.max(3,v[1]),v[2]*.6],YK_BODY(S));r.hr=.15*S.s;if(S.kind==='oni'){r.oni=S.s;r.yaw=S.yaw}rags.push(r)}
  else smoke(c,4);
  ykOnDeath(S);
  banner(S.kind==='karura'?'🦅 ¡KARURA DERROTADO!':S.kind==='ooni'?'👹 ¡Ō-ONI DERROTADO!':S.kind==='oni'?'¡ONI ABATIDO!':'');
@@ -4145,8 +4145,8 @@ function draw(){
  for(const r of rags){
   const ak=r.ash?ashK(r.life):1,k=(r.keep||r.convert?1:clamp(1-(r.life-7)/1,0,1))*ak;if(k<=.02)continue;const rc=ashCol(r.col,ak);
   const rad=r.hr<.15?.035:.05;
-  let zI=false;const pr=r.keep&&!r.bot&&!r.zombie,M_=pr?(zmpOn&&ZMP.ready?ZMP:null):(zmOn&&ZM.ready?ZM:null); // el ragdoll del jugador usa su modelo
-  if(M_&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:pr?P.ryaw:zmYaw(J,0);zI=M_.add(J,r.yaw,pr?1:(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),pr?null:inkTone(r.col),r.ash?1-ak:0)}
+  let zI=false;const pr=r.keep&&!r.bot&&!r.zombie,M_=pr?(zmpOn&&ZMP.ready?ZMP:null):r.oni?(ZMO_ON?ZMO:null):(zmOn&&ZM.ready?ZM:null); // el ragdoll del jugador usa su modelo; el del oni, el del oni (ZMO)
+  if(M_&&r.sticks.length){const J=r.pts.map(q=>[q.x,q.y,q.z]);if(r.yaw==null)r.yaw=r.zombie?r.zombie.yaw:pr?P.ryaw:zmYaw(J,0);zI=M_.add(J,r.yaw,pr?1:r.oni?r.oni:(r.hr<.15?.55:1)*(r.zombie?r.zombie.s/(r.zombie.mini?.55:1):1),zmVis(r.sticks),pr?null:r.oni?ONI_TC.set(rc):inkTone(r.col),r.ash?1-ak:0)}
   if(!zI)for(const s of r.sticks){const A=r.pts[s.a],B=r.pts[s.b];bSeg(ZB_SEG,[A.x,A.y,A.z],[B.x,B.y,B.z],rad*k,rc)}
   const h=r.pts[0];if(!zI)bSph(ZB_SPH,[h.x,h.y,h.z],r.hr*k,rc);
   for(let i=1;i<r.pts.length;i++){const p=r.pts[i];if(p.stump)bSph(ZB_SPH,[p.x,p.y,p.z],(r.hr<.15?.04:.058)*k,REDC)}
