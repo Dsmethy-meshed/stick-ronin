@@ -9,7 +9,7 @@
    y su propia lista de filas (zmBody por instancia), color y ceniza. ZM.add elige la parte por la distancia horizontal del cuerpo al punto que
    marca ZM.lodAt(x,z,k) (el foco de la cámara): < lodD[0] (5 m) → LOD0, < lodD[1] (9 m) → LOD1, si no LOD2. La distancia se divide por la escala
    (los pequeños bajan antes) y por k (en calidad 0 el juego pasa k=0,5: los LOD entran a la mitad de distancia).
-   Hay un objeto por modelo: window.ZM (zombis, 120 cuerpos, color por cuerpo) y window.ZMP (protagonista, 8 cuerpos, con su textura
+   Hay un objeto por modelo: window.ZM (zombis, 120 cuerpos, color por cuerpo), window.ZMO (onis, 24 cuerpos, color por cuerpo) y window.ZMP (protagonista, 8 cuerpos, con su textura
    pasada a tinta aguada en el estilo tinta). Los ajustes del estilo (contorno, aguada, ceniza) vienen de window.INKS (models/inkstyle.js). */
 (function(){
 // el orden importa: es el que guarda prep_tripo.py en el color de cada vértice
@@ -28,7 +28,7 @@ const IU=()=>window.INKS?INKS.u:(IU.d||(IU.d={on:{value:0},wModel:{value:.028},o
    primero las del dispositivo (localStorage 'stickronin_mfix_<nombre>'), si no, models/<nombre>_fix.json (si el _rig.json dice hasFix) */
 const FIXKEY=n=>'stickronin_mfix_'+n;
 // versión de los archivos de modelos: SÚBELA (aquí y en el ?v= de las etiquetas <script> de las páginas) cada vez que cambien los modelos o este archivo
-const AV='20261128f',vq=u=>u+'?v='+AV;
+const AV='20261128g',vq=u=>u+'?v='+AV;
 async function loadFix(name,url,rig){let f=null;try{f=JSON.parse(localStorage.getItem(FIXKEY(name))||'null')}catch(_){}
  if(!f&&rig.hasFix){try{const r=await fetch(vq(url.replace(/\.glb$/,'_fix.json')));if(r.ok)f=await r.json()}catch(_){}}return f}
 function mk(cfg){
@@ -144,5 +144,6 @@ function segRot(out,ra,rb,ja,jb){_a.subVectors(rb,ra).applyQuaternion(_qy);const
  out.setFromUnitVectors(_a,_b).multiply(_qy)}
 window.ZM=mk({cap:120,glow:.12});
 window.ZMP=mk({cap:8,glow:0,wash:true});
+window.ZMO=mk({cap:24,glow:.12}); // onis (oni.glb, LOD oni_lod1/oni_lod2): ZMO.load('models/oni.glb',scene,['models/oni_lod1.glb','models/oni_lod2.glb'])
 window.mkZM=mk;
 })();
