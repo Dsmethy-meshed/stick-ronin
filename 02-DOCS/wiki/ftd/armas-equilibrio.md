@@ -1,0 +1,52 @@
+---
+estado: hecho (primera pasada)
+fecha: 2026-11-28
+rama: claude/armas-combos-a6cb49 → dev
+---
+
+# Armas flojas y bendiciones de ataque (oleada 5)
+
+## Intención
+Daniel nota que la oleada 5 se atraganta con algunas armas y que, salvo Raijin, las bendiciones de ataque apenas suben el daño. Objetivo: que ninguna arma se quede muy por debajo del resto contra un grupo, cambiando sus ataques cuando haga falta y no solo los números.
+
+## Cómo se midió
+Simulación con Playwright (fuera del repo): el jugador machaca atacar 20 s rodeado de 10 zombis quietos de la oleada N, en un claro del dojo (−2,5; 12,5). Se mide el daño útil por segundo (en pantalla, sin contar lo que sobra al matar). Sin carga, especial ni dash. Ruido de ±20-40 % en el cuerpo a cuerpo: vale para comparar, no como dato exacto.
+
+## Fallos encontrados (afectaban a la partida real)
+- [x] **Los proyectiles no daban a los minis** (miden ~1 m y los tiros vuelan a 1,3 m). `updateProj`: altura mínima de impacto 1,3 m y radio mínimo 0,25. **Prueba:** shuriken 7 → 36 solo con esto.
+- [x] **El abanico de shuriken y la ráfaga del yumi perdían golpes**: `kgZHit` ignoraba un segundo golpe al mismo zombi en 0,09 s. Los proyectiles (`KGPJ`) ya no pasan por ese filtro.
+- [x] **Rodeado y sin joystick, disparabas o golpeabas al vacío**: solo se apuntaba en un cono delante. Ahora, si no hay nadie en el cono y no mueves el joystick, se apunta al más cercano (a distancia ≤ 8 m o ≤ 3 m en el cuerpo a cuerpo): `aimDir` y `startAttack`.
+
+## Cambios por arma
+- [x] **Katana:** hoja más ancha (radio de golpe 0,12 → 0,3 en sus 3 clips) y el 3.er golpe (giro) lanza un corte de viento (`fx wave`, 0,35). Daño 1 → 1,2. Clips integrados `BUILTIN_V` u2 en juego y editor.
+- [x] **Kama:** el 4.º golpe pasa a ser un torbellino (`c4` con `spin`). Daño 0,7 → 0,95.
+- [x] **Tessen:** el 3.er golpe pasa a ser un giro que aparta (`t3` con `spin`, empuje 10). Daño 0,7 → 1.
+- [x] **Shuriken:** 1 → 1,3 por estrella; el 3.er lanzamiento es un abanico de 5 (antes 3).
+- [x] **Tanegashima:** recarga 1 → 0,75 s; cada bala estalla al impactar (1,3 m, 10 de daño alrededor; `boomR`/`boomD`).
+- [x] **Yumi:** flechas de la ráfaga 1 → 1,2.
+- [x] **Kanabō:** 2 → 2,4 (tumba de un golpe en la oleada 5). **Nitō:** 0,6 → 0,75.
+- [x] Editor: `GEN_ATK` con los nuevos `c4` y `t3` (`GEN_V` g7) y clips de katana iguales que en el juego.
+
+## Bendiciones de ataque (ranura 斬)
+- [x] Kagutsuchi, Yuki-onna y Tsukuyomi suman +50 % de daño al golpe (×1,3 → +65 % en pantalla), como Hachiman y Benzaiten. Yuki-onna pone 2 pilas de escarcha por golpe. Textos actualizados.
+- [ ] Pendiente de hablar con Daniel: Raijin sigue muy por encima porque reparte daño en área; los % fijos se notan poco por los umbrales de golpes (p. ej. katana 12 × 1,65 = 19,8 < 21 en la oleada 5).
+
+## Evidencia (daño por segundo en pantalla, sin bendición)
+| Arma | Oleada 5 antes → después | Oleada 10 antes → después |
+|---|---|---|
+| Katana | 17 → 109 | 34 → 110 |
+| Shuriken | 9 → 71 | 13 → 79 |
+| Tanegashima | 9 → 42 | 17 → 93 |
+| Yumi | 37 → 75 | 58 → 96 |
+| Kama | 14 → 34 | 24 → 43 |
+| Tessen | 19 → 25 | 34 → 49 |
+| Nitō | 29 → 32* | 50 → 93 |
+| Kanabō | 40 → 41* | 104 → 96* |
+| Kusarigama (referencia) | 242 → 233 | 282 → 242 |
+
+\* antes de su subida de daño o dentro del ruido. Sintaxis: `node --check` del script principal de `index.html` y `editor.html`. Capturas: katana, kama, tanegashima y shuriken en el dojo.
+
+## Siguiente
+- Nitō, kama y tessen siguen en la parte baja en la oleada 5: revisar por qué fallan golpes (alcance, avance) y probar en el móvil.
+- Chispas del estallido del arcabuz en tinta (ahora azules, heredadas de Ōzutsu).
+- Hoja de equilibrio: pestaña Armas (daño base) y Kami (textos de 斬) sin actualizar todavía.
