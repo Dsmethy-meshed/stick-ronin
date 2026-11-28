@@ -23,7 +23,7 @@ const IU=()=>window.INKS?INKS.u:(IU.d||(IU.d={on:{value:0},wModel:{value:.028},o
    primero las del dispositivo (localStorage 'stickronin_mfix_<nombre>'), si no, models/<nombre>_fix.json (si el _rig.json dice hasFix) */
 const FIXKEY=n=>'stickronin_mfix_'+n;
 // versión de los archivos de modelos: SÚBELA (aquí y en el ?v= de las etiquetas <script> de las páginas) cada vez que cambien los modelos o este archivo
-const AV='20261128c',vq=u=>u+'?v='+AV;
+const AV='20261128d',vq=u=>u+'?v='+AV;
 async function loadFix(name,url,rig){let f=null;try{f=JSON.parse(localStorage.getItem(FIXKEY(name))||'null')}catch(_){}
  if(!f&&rig.hasFix){try{const r=await fetch(vq(url.replace(/\.glb$/,'_fix.json')));if(r.ok)f=await r.json()}catch(_){}}return f}
 function mk(cfg){
