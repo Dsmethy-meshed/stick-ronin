@@ -35,6 +35,15 @@ Simulación con Playwright (fuera del repo): el jugador machaca atacar 20 s rode
 - [ ] Probar en el móvil el arrastre sobre el botón (en el PC solo se simuló).
 - [ ] El disparo hacia el suelo es una pose fija, no un clip del editor (igual que los demás disparos).
 
+## Yari y tessen fuera; entran Tekkō y Ofuda (decisión de Daniel, 28 nov 2026)
+- [x] Tablas: `WT`, `ATK`, `WBASE`, `KAI`, `kaiOK`, `TSUCHI`, `RYU`, `TYPE_N`, `TYPE_I`, `WICON`, `WDESC`, `SPN`, mallas; efectos de martillos/estilos viejos quitados y nuevos programados. **Prueba:** `grep yari|tessen` solo deja la tabla de conversión `WMIG`; `node --check` correcto.
+- [x] Tekkō: combo de 4 con uppercut que lanza, cargado al suelo y AGARRE. **Prueba:** en el dojo el 4.º golpe deja enemigos en el aire; el agarre levanta y lanza (golpea al que cruza y estalla al caer). Simulación oleada 5: 35 de daño por segundo (como kama y nitō).
+- [x] Ofuda: talismanes que buscan y estallan, sello cargado y GRULLA. **Prueba:** el sello hizo 50 en área; simulación oleada 5: 58.
+- [x] Partidas guardadas con yari/tessen se convierten (`WMIG`).
+- [x] Editor: `W_N`, mallas y `GEN_ATK` con la Tekkō (`GEN_V` g8). **Prueba:** el editor carga sin errores y genera 8 clips `tekko:*` y la tira muestra Tekkō y Ofuda.
+- [ ] Probar en el móvil; la maestría Ryū ganada con yari/tessen no pasa a las nuevas.
+- [ ] Hoja de equilibrio (pestaña Armas) sin actualizar.
+
 ## Bendiciones de ataque (ranura 斬)
 - [x] Kagutsuchi, Yuki-onna y Tsukuyomi suman +50 % de daño al golpe (×1,3 → +65 % en pantalla), como Hachiman y Benzaiten. Yuki-onna pone 2 pilas de escarcha por golpe. Textos actualizados.
 - [ ] Pendiente de hablar con Daniel: Raijin sigue muy por encima porque reparte daño en área; los % fijos se notan poco por los umbrales de golpes (p. ej. katana 12 × 1,65 = 19,8 < 21 en la oleada 5).
