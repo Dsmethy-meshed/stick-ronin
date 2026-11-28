@@ -88,3 +88,6 @@ Ahora mismo (para comparar): niebla y cielo `FOG = #d4b199` (arena), luz hemisf�
 - Seguimos en **r128**. Sirve todo lo de `examples/js` de r128: `EffectComposer`, `ShaderPass`, `UnrealBloomPass`, `OutlinePass`, `GLTFLoader`; y `MeshToonMaterial`.
 - Fuera mientras sigamos en r128: three.quarks, `postprocessing` de pmndrs (versión actual) y TSL. Se usan como inspiración y se reproduce la idea a mano.
 - Si algún día hace falta Three.js moderno: dividir `index.html` en archivos `.js` normales y cargar Three.js con un módulo pequeño que lo deje en `window.THREE`. Habría que reajustar colores y luces (gestión de color desde r152) y los shaders inyectados.
+
+## Estelas de las armas (28 nov 2026)
+Pincelada de tinta (sumi-e): fibras del pincel a lo largo del corte, se seca y se rompe al desvanecerse, filo rojo (o del color del kami de ataque). Kanabō y tekkō dejan manchas anchas. Código: `trMat` en `index.html` y la estela de `editor.html`.
