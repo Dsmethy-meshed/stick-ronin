@@ -29,7 +29,7 @@ Arcade y legible en un móvil: siluetas negras muy claras sobre fondo claro, y e
 
 Ahora mismo (para comparar): niebla y cielo `FOG = #d4b199` (arena), luz hemisférica `0xfff0dc / 0x5e4038`, direccional `0xffe2c4`, rojo `REDC ≈ #c40f1f`, sangre `BLOOD ≈ #9e0812`. Materiales: 21 Basic, 16 Lambert y 4 Standard.
 
-**Decidido con Daniel (27 nov 2026):** los colores de los kami (Raijin amarillo, Yuki-onna azul…) se quedan **solo en los brillos** (rayos, llamas, escarcha); el resto del cuerpo y la interfaz siguen en blanco, negro y rojo.
+**Pendiente de decidir con Daniel:** los colores de los kami (Raijin amarillo, Yuki-onna azul…). Propuesta: se quedan **solo en los brillos** (rayos, llamas, escarcha) y el resto del cuerpo y la interfaz siguen en blanco, negro y rojo.
 
 ## Técnicas, de más barata a más cara (todas funcionan en r128)
 
@@ -50,13 +50,6 @@ Ahora mismo (para comparar): niebla y cielo `FOG = #d4b199` (arena), luz hemisf�
 | 13 | **Bloom real** (`UnrealBloomPass`) | Varias pasadas a pantalla completa | Muy alto | Evitar en móvil |
 
 **Presupuesto móvil:** como mucho **una** pasada a pantalla completa, y solo en calidad 2. Todo lo demás, en los materiales y en los lotes. Referencia de rendimiento actual: ~46 fps con CPU ×4 en la oleada 6 (prueba t26).
-
-## Estado (27 nov 2026)
-Hechos los pasos 1-4 y la parte «enemigos en tinta» (interruptor «🖌 Estilo tinta», código en el bloque «ESTILO TINTA» de `index.html` y `ZM.outline` en `models/zmodel.js`). Paleta aplicada: niebla `#e8e1d4`, suelo `#d9d0c0`, laterales `#2e2a28`, techos `#77706a`, pagodas `#a59d92`, sol `#c8102e`. Pruebas: t35/t36 (capturas antes/después), t38 (43,7 fps con tinta frente a 46,2 sin ella). Siguen pendientes los pasos 5 (sangre como salpicadura) a 10.
-
-## Editor de shaders y protagonista (28 nov 2026)
-- Todos los números del estilo viven en `models/inkstyle.js` y se ajustan en `shaders.html` (escena de prueba como la del juego); el juego del mismo sitio los usa al momento. Los pesos y el esqueleto de los modelos se ajustan en `modelo.html`.
-- Protagonista 3D en **tinta aguada** (inspirado en el guerrero de Grease Pencil de 80.lv): papel y tinta según la luminosidad de su textura, grano de pincel, borde de silueta a pincel seco y el rojo del fajín conservado.
 
 ## Cómo lo probaríamos
 1. Interruptor «🖌 Estilo tinta» en la armería (`KGFX.ink`), para comparar con el aspecto actual.
