@@ -22,7 +22,8 @@ Daniel usa el editor en el móvil (sobre todo en horizontal). Con la captura del
 - **A4 Navegación común.** Las cuatro páginas (Animación, Shaders, Modelo y pesos, Jugar) comparten la misma barra de pestañas, siempre visible, que marca dónde estás; un toque cambia de herramienta.
 - **A5 Sin perder trabajo.** Si en Modelo y pesos hay cambios sin guardar, avisa antes de salir.
 - **A6 Del juego a las herramientas.** Desde el menú del juego hay un acceso a las herramientas, solo en las versiones de pruebas (`dev`, local); en la web oficial (`github.io`) no se ve.
-- **A7 Nada se pierde.** Todas las funciones del editor siguen funcionando (prueba t48: 23 comprobaciones) y no vuelve ningún menú desplegable.
+- **A7 Nada se pierde.** Todas las funciones del editor siguen funcionando (prueba t48: 23 comprobaciones).
+- **A8 Un solo desplegable.** Aclarado por Daniel el 28 nov 2026 («Algún menú desplegable está bien pero 1, no todos que sean así»): el editor tiene **un único** menú desplegable, «⋯ Más», con lo que se usa poco; lo que se usa mucho está siempre a la vista.
 
 ## Fuera de alcance
 - Cambiar cómo se animan, se pintan pesos o se ajustan shaders.
