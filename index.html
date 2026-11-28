@@ -102,9 +102,15 @@ canvas{display:block;touch-action:none}
 .fjstone em{position:absolute;top:4px;right:6px;font:900 13px system-ui;font-style:normal;background:#c8102e;border-radius:999px;min-width:20px;height:20px;line-height:20px}
 .fjstone small{font:700 10px/1.1 system-ui;opacity:.85;text-align:center}
 .fjstone.sel{border-color:var(--sc);transform:translateY(-6px) scale(1.05);box-shadow:0 0 18px var(--sc)}.fjstone.sel .fjrock{animation:fjBob .5s ease-in-out infinite alternate}
-.fjstone.off{opacity:.35;filter:grayscale(.8)}.fjstone:active:not(.off){transform:scale(.94)}
+.fjstone.off{filter:grayscale(.8)}.fjstone.off>*{opacity:.35}.fjstone:active:not(.off){transform:scale(.94)}
 .fjstone.steel .fjrock{border-radius:8px;color:#fff;font-size:18px}
 .fjghost{position:fixed;z-index:95;pointer-events:none;width:54px;height:40px;margin:-20px -27px;border-radius:40% 55% 45% 50%;background:radial-gradient(circle at 35% 30%,#fff6,transparent 45%),var(--sc);color:#111;font:900 17px serif;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 20px #000c;transform:rotate(-12deg) scale(1.1)}
+.fjmg{position:relative;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;min-height:54px;border-radius:14px;border:2px solid var(--sb);background:linear-gradient(90deg,color-mix(in srgb,var(--sa) 18%,#1e1a21),color-mix(in srgb,var(--sb) 22%,#1e1a21));color:#fff;padding:6px 10px;animation:fjMgGlow 1.2s ease-in-out infinite alternate;overflow:hidden}
+.fjmg span{display:flex}.fjmg span i{font-style:normal;width:30px;height:24px;margin-left:-8px;border-radius:40% 55% 45% 50%;background:var(--sa);color:#111;font:900 10px/24px serif;box-shadow:0 2px 4px #000a;transition:transform .45s cubic-bezier(.5,0,.6,1),opacity .45s}.fjmg span i:first-child{margin-left:0}
+.fjmg span.to i{background:var(--sb);width:36px;height:28px;font-size:12px;line-height:28px}.fjmg b{font:900 18px system-ui;color:var(--sb)}.fjmg small{width:100%;text-align:center;font:700 11px system-ui;opacity:.85}
+.fjmg.go span:not(.to) i{transform:translateX(calc(60px - var(--q)*14px)) scale(.4) rotate(160deg);opacity:0}.fjmg.go span.to i{animation:fjMgPop .5s .3s cubic-bezier(.2,1.8,.4,1) both}.fjmg.go{box-shadow:0 0 30px var(--sb)}
+@keyframes fjMgGlow{from{box-shadow:0 0 0 #0000}to{box-shadow:0 0 16px color-mix(in srgb,var(--sb) 60%,transparent)}}@keyframes fjMgPop{0%{transform:scale(1)}50%{transform:scale(1.8) rotate(-12deg)}100%{transform:scale(1.15)}}
+.fjstone.got{animation:fjGot .7s cubic-bezier(.2,1.8,.4,1) both;border-color:var(--sc);box-shadow:0 0 22px var(--sc)}@keyframes fjGot{0%{transform:scale(.4) translateY(30px)}60%{transform:scale(1.2)}100%{transform:scale(1)}}
 .fjgo{width:100%;min-height:50px;font-size:16px!important;background:linear-gradient(#c8102e,#8a0b20)!important;border:0!important;box-shadow:0 4px 0 #4e0612}
 @media (max-height:520px) and (orientation:landscape){#kgo.fjo .kslots{display:none}#kgo.fjo .ktitle{font-size:18px;margin:2px 0}#kgo.fjo .fjtabs{margin:0 0 6px}.fjanvil{min-height:0;padding:8px 10px;flex-basis:260px}.fjblade{height:70px}.fjblade svg{width:66px!important;height:66px!important}.fjstamp{min-width:34px;height:34px;font-size:18px}.fjstone{min-height:64px;padding:4px}.fjrock{width:38px;height:28px}.fjname{font-size:16px}.fjline{margin:2px 0 4px}.fjmsg{min-height:32px}.fjgo{min-height:42px}.fjside{gap:6px}.fjtray{grid-template-columns:repeat(5,1fr)}}
 @media (prefers-reduced-motion:reduce){.fjp,.fjpshine,.fjpi,.fjblade,.fjglow{animation:none!important}}
@@ -3744,6 +3750,7 @@ const FJ={
  odd:{vamp:{n:'Vampírica',g:1,d:'cada golpe cura 1 (1 cada 0,25 s)'},ligera:{n:'Ligera',g:1,d:'+15 % de velocidad de ataque'},fragil:{n:'Frágil',g:0,d:'recibes +20 % de daño'},pesada:{n:'Pesada',g:0,d:'−12 % de movimiento'}},
  fuse:[1,.5,.25,.12], // progreso hacia la siguiente rareza según cuántas rarezas por debajo está el arma que recoges
  drop:{stoneMini:.3,wMini:.15,wOni:.3,wYokai:.2,wZombie:.01,own:.4,maxOnFloor:6},mena:{n:[2,3],hits:3},
+ merge:[['arenisca',4,'toishi'],['toishi',2,'kami']], // juntar piedras: 4 areniscas = 1 tradicional; 2 tradicionales = 1 de los kami
  sell:r=>4+6*r,steelOf:r=>1+r, // vender: tama; fundir: acero
  steelGain:(r,w)=>.22/((1+r)*(1+.1*Math.max(0,w-1)))}; // acero: poco progreso de rareza, y menos cuanto más rara el arma y más avanzada la partida
 const FJC={};for(const k in FJ.st)FJC[k]=new THREE.Color(FJ.st[k].c);
@@ -3812,7 +3819,7 @@ function fjPickAct(a){const L=FJN;if(!L||!LOOT.includes(L)){fjNear(null);return}
   FJNskip=LOOT[LOOT.length-1];refreshSM();updWUI();banner('⇄ '+TYPE_N[nw.type].toUpperCase()+' '+FJ.rarN[nw.rar||0]);sfx('parry');ring([P.x,P.y,P.z],1.6,.3)}
  fjNear(null)}
 // pantalla 研 AFILAR (entre oleadas, si tienes piedras o acero)
-let FJSEL=null,FJMSG='',FJW=0,FJANIM=null,FJDRAG=null,FJNOCLICK=0;
+let FJGOT=null,FJSEL=null,FJMSG='',FJW=0,FJANIM=null,FJDRAG=null,FJNOCLICK=0;
 function fjForge(){FJSEL=null;FJMSG='';FJANIM=null;FJW=RUN.wpn[wIdx]?wIdx:0;kgOverlay('cards fjo').dataset.mode='afi';fjRender(true)}
 function fjMul(it){return FJ.rarM[it.rar||0]*(1+FJ.afi[it.afi??1].d)}
 function fjAnvil(it,i){const a=FJ.afi[it.afi??1],r=it.rar||0,C=FJ.rarC[r],A=FJANIM,an=A?' a-'+A.t:'',sc=A&&A.st?FJ.st[A.st]?FJ.st[A.st].c:'#9fb3c8':'#9fb3c8';
@@ -3831,8 +3838,9 @@ function fjRender(anim){const S=RUN.kg.stones||{},it=RUN.wpn[FJW],st=RUN.kg.stee
  <div class="fjtabs">${RUN.wpn.map((w,i)=>w?`<button class="fjtab${i===FJW?' on':''}" data-k="fjTab" data-i="${i}" style="--rc:${FJ.rarC[w.rar||0]}">${wIcon(w.type,FJ.rarC[w.rar||0],30)}<span>${TYPE_N[w.type]}</span></button>`:'').join('')}</div>
  <div class="fjmain">${it?fjAnvil(it,FJW):''}
   <div class="fjside"><div class="fjmsg${FJMSG?' on':''}">${FJMSG||(FJSEL?FJ.st[FJSEL].n+': toca o arrastra a la hoja':'Arrastra una piedra a la hoja')}</div>
-  <div class="fjtray">${Object.keys(FJ.st).map((k,n)=>{const T=FJ.st[k],c=S[k]||0;return`<button class="fjstone${FJSEL===k?' sel':''}${c?'':' off'}" data-k="fjSt" data-s="${k}" style="--sc:${T.c};--d:${(n*.06+.15).toFixed(2)}s"><span class="fjrock">${T.k}</span><em>${c}</em><small>${T.n}</small></button>`}).join('')}
+  <div class="fjtray">${Object.keys(FJ.st).map((k,n)=>{const T=FJ.st[k],c=S[k]||0;return`<button class="fjstone${FJSEL===k?' sel':''}${c?'':' off'}${FJGOT===k?' got':''}" data-k="fjSt" data-s="${k}" style="--sc:${T.c};--d:${(n*.06+.15).toFixed(2)}s"><span class="fjrock">${T.k}</span><em>${c}</em><small>${T.n}</small></button>`}).join('')}
    <button class="fjstone steel${st&&r<3?'':' off'}" data-k="fjT" data-i="${FJW}" style="--sc:#9fb3c8;--d:.4s"><span class="fjrock">⛓</span><em>${st}</em><small>Templar ${r<3?'+'+Math.max(1,Math.round(FJ.steelGain(r,wave)*100))+' %':''}</small></button></div>
+  ${FJ.merge.filter(([a,n])=>(S[a]||0)>=n).map(([a,n,b])=>`<button class="fjmg" data-k="fjMg" data-a="${a}" style="--sa:${FJ.st[a].c};--sb:${FJ.st[b].c}"><span>${Array.from({length:n},(_,q)=>`<i style="--q:${q}">${FJ.st[a].k}</i>`).join('')}</span><b>→</b><span class="to"><i>${FJ.st[b].k}</i></span><small>Juntar ${n} ${FJ.st[a].n.toLowerCase()} → 1 ${FJ.st[b].n.toLowerCase()}</small></button>`).join('')}
   <div class="kfoot"><button class="kb fjgo" data-k="fjGo">Seguir ▶</button></div></div></div></div>`;
  fjBindDrag()}
 function fjDo(st){const it=RUN.wpn[FJW];if(!it||!(RUN.kg.stones[st]>0))return;const b=it.afi??1;FJMSG=fjSharpen(st,it);const a=it.afi??1;
@@ -3861,6 +3869,8 @@ function fjSharpen(st,it){const T=FJ.st[st],a=it.afi??1;let msg,ok=true;
  sfx(ok?'parry':'block');kgVib(ok?40:15);refreshSM();updWUI();return msg}
 KGH.fjSt=b=>{if(Date.now()-FJNOCLICK<350)return;const k=b.dataset.s;if(!(RUN.kg.stones||{})[k])return;FJSEL=FJSEL===k?null:k;FJMSG='';FJANIM=null;fjRender(false);sfx('swish')};
 KGH.fjW=b=>{if(Date.now()-FJNOCLICK<350)return;if(!FJSEL){FJMSG='Primero elige una piedra (o arrástrala)';FJANIM=null;fjRender(false);return}fjDo(FJSEL)};
+KGH.fjMg=b=>{const M=FJ.merge.find(m=>m[0]===b.dataset.a),S=RUN.kg.stones;if(!M||(S[M[0]]||0)<M[1])return;b.classList.add('go');sfx('swish');kgVib([15,30,15]);
+ setTimeout(()=>{S[M[0]]-=M[1];S[M[2]]=(S[M[2]]||0)+1;if(FJSEL===M[0]&&!S[M[0]])FJSEL=null;FJGOT=M[2];FJANIM=null;FJMSG='✨ ¡'+FJ.st[M[2]].n+'!';sfx('parry');kgVib(40);fjRender(false);const t=KGO.querySelector(`.fjstone[data-s="${M[2]}"]`);if(t)kgBurst(t,FJ.st[M[2]].c);setTimeout(()=>{FJGOT=null},900)},520)};
 KGH.fjTab=b=>{FJW=+b.dataset.i;FJANIM=null;FJMSG='';fjRender(false);sfx('swish')};
 KGH.fjT=b=>{const it=RUN.wpn[FJW];if(!it||!(RUN.kg.steel>0)||(it.rar||0)>=3)return;RUN.kg.steel--;const g=FJ.steelGain(it.rar||0,wave),r0=it.rar||0;it.fp=(it.fp||0)+g;
  if(it.fp>=1-1e-6){it.fp=0;it.rar=r0+1;FJMSG='🔥 ¡'+TYPE_N[it.type]+' '+FJ.rarN[it.rar]+'!';sfx('parry');FJANIM={t:'rar',k:Date.now()}}else{FJMSG='⛓ +'+Math.round(g*100)+' % de fusión';sfx('blunt');FJANIM={t:'steel',k:Date.now()}}
