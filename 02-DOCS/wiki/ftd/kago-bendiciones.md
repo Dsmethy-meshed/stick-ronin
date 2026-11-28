@@ -66,3 +66,4 @@ Daniel lo prueba en el móvil desde `dev` y ajustamos los números en `KG`.
 
 ## Cambio 28 nov 2026 (sesión de armas)
 - Ranura 斬: Kagutsuchi, Yuki-onna y Tsukuyomi suman +50 % al golpe (como Hachiman y Benzaiten); Yuki-onna pone 2 pilas de escarcha por golpe. Motivo y medidas en `armas-equilibrio.md`.
+- Arreglo (28 nov 2026): las cartas ya no ofrecen la bendición que ya ocupa esa ranura (se veía «Golpe vendaval → reemplaza: Golpe vendaval» y cogerla la bajaba a nivel 1). **Prueba:** 300 ofertas de Fūjin con Golpe vendaval puesto: 0 repetidas de 900 cartas.
