@@ -23,7 +23,7 @@ const IU=()=>window.INKS?INKS.u:(IU.d||(IU.d={on:{value:0},wModel:{value:.028},o
    primero las del dispositivo (localStorage 'stickronin_mfix_<nombre>'), si no, models/<nombre>_fix.json (si el _rig.json dice hasFix) */
 const FIXKEY=n=>'stickronin_mfix_'+n;
 // versión de los archivos de modelos: SÚBELA (aquí y en el ?v= de las etiquetas <script> de las páginas) cada vez que cambien los modelos o este archivo
-const AV='20261128b',vq=u=>u+'?v='+AV;
+const AV='20261128c',vq=u=>u+'?v='+AV;
 async function loadFix(name,url,rig){let f=null;try{f=JSON.parse(localStorage.getItem(FIXKEY(name))||'null')}catch(_){}
  if(!f&&rig.hasFix){try{const r=await fetch(vq(url.replace(/\.glb$/,'_fix.json')));if(r.ok)f=await r.json()}catch(_){}}return f}
 function mk(cfg){
@@ -39,6 +39,7 @@ ZM.load=async function(url,scene){
   const C=g.getAttribute('color'),n=C.count,seg=new Float32Array(n*3),A=C.array,nd=!C.normalized?1:A instanceof Uint16Array?65535:A instanceof Uint8Array?255:1;
   for(let i=0;i<n;i++){seg[i*3]=Math.round(C.getX(i)/nd*10);seg[i*3+1]=Math.round(C.getY(i)/nd*10);seg[i*3+2]=C.getZ(i)/nd}
   ZM.name=url.split('/').pop().replace(/\.glb$/,'');const fix=await loadFix(ZM.name,url,rig);ZM.fix=fix;
+  if(fix&&fix.w&&fix.n&&fix.n!==n){console.warn('[zmodel] el modelo cambió: se ignoran los pesos pintados a mano de',url);fix.w=null}
   if(fix&&fix.w)for(const k in fix.w){const i=+k,v=fix.w[k];if(i<n){seg[i*3]=v[0];seg[i*3+1]=v[1];seg[i*3+2]=v[2]}}
   if(fix){if(fix.K)ZM.K=fix.K;if(fix.smin)ZM.smin=fix.smin;if(fix.smax)ZM.smax=fix.smax}
   g.deleteAttribute('color');g.setAttribute('zmSeg',new THREE.BufferAttribute(seg,3));ZM.seg=seg;ZM.geo=g;ZM.rig=rig;

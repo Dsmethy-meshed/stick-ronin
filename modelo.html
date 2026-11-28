@@ -62,8 +62,8 @@ textarea{width:100%;min-height:80px;padding:8px;font:12px/1.4 ui-monospace,monos
 </div>
 <div id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="models/inkstyle.js?v=20261128b"></script>
-<script src="models/zmodel.js?v=20261128b"></script>
+<script src="models/inkstyle.js?v=20261128c"></script>
+<script src="models/zmodel.js?v=20261128c"></script>
 <script>
 {
 'use strict';
@@ -235,7 +235,7 @@ function buildPanel(){const p=$('panel');if(!S.Z){p.innerHTML='<p class="hint">C
   $('sPaste').onclick=()=>{try{const f=JSON.parse($('sJson').value);localStorage.setItem(S.Z.FIXKEY(S.Z.name),JSON.stringify(f));delete models[S.kind];loadModel(S.kind);toast('Correcciones aplicadas')}catch(_){toast('El texto no es un JSON válido')}};
   $('sClear').onclick=()=>{if(!confirm('¿Borrar las correcciones de este modelo en este dispositivo?'))return;localStorage.removeItem(S.Z.FIXKEY(S.Z.name));delete models[S.kind];loadModel(S.kind);toast('Modelo original')}}}
 function fixJSON(){const s=S.Z.seg,w={};for(const i of S.changed)w[i]=[s[i*3],s[i*3+1],+s[i*3+2].toFixed(3)];
- return{K:S.Z.K,smin:S.Z.smin,smax:S.Z.smax,RJ:S.RJ.map(v=>v.map(x=>+x.toFixed(4))),root:Object.fromEntries(Object.entries(S.root).map(([k,v])=>[k,v.map(x=>+x.toFixed(4))])),w}}
+ return{n:S.n,K:S.Z.K,smin:S.Z.smin,smax:S.Z.smax,RJ:S.RJ.map(v=>v.map(x=>+x.toFixed(4))),root:Object.fromEntries(Object.entries(S.root).map(([k,v])=>[k,v.map(x=>+x.toFixed(4))])),w}}
 
 /* ---------- bucle ---------- */
 function resize(){const r=$('view').getBoundingClientRect();renderer.setSize(r.width,r.height,false);camera.aspect=r.width/Math.max(1,r.height);camera.updateProjectionMatrix()}

@@ -9,13 +9,15 @@
 # - Guarda en el JSON los 12 puntos de reposo y los puntos raíz de brazos y piernas (en coordenadas Y-arriba del juego).
 import bpy,bmesh,sys,json,mathutils
 a=sys.argv[sys.argv.index('--')+1:]
-src,out_glb,out_json=a[0],a[1],a[2];target=1500;keep_tex=False;apose=0;fist=0;fit=False
+src,out_glb,out_json=a[0],a[1],a[2];target=1500;keep_tex=False;apose=0;fist=0;fit=False;keep_hands=0;keep_inv=False
 for t in a[3:]:
     if t.isdigit():target=int(t)
     elif t=='tex':keep_tex=True
     elif t=='fit':fit=True
     elif t.startswith('apose='):apose=float(t[6:])
     elif t.startswith('fist='):fist=float(t[5:])
+    elif t.startswith('hands='):keep_hands=float(t[6:])  # 0..1: cuánto se protegen las manos al bajar triángulos
+    elif t=='handsinv':keep_inv=True
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 for o in list(bpy.data.objects):
@@ -72,7 +74,17 @@ for m in list(mesh.modifiers):
 tris=sum(len(p.vertices)-2 for p in mesh.data.polygons)
 bpy.context.view_layer.objects.active=mesh;mesh.select_set(True)
 d=mesh.modifiers.new('dec','DECIMATE');d.ratio=min(1,target/tris);d.use_collapse_triangulate=True
+if keep_hands:
+    # las manos (dedos) se rompen en pinchos si se les quitan triángulos: grupo 'resto' = 1 - peso de los huesos de la mano;
+    # el decimate quita triángulos sobre todo donde ese grupo pesa
+    hs=[vg.index for vg in mesh.vertex_groups if 'Hand' in vg.name or vg.name[2:7]=='Index' or vg.name[2:5] in('Mid','Rin','Pin','Thu')]
+    rest=mesh.vertex_groups.new(name='resto')
+    for v in mesh.data.vertices:
+        h=sum(g.weight for g in v.groups if g.group in hs)
+        rest.add([v.index],max(0.,1.-min(1.,h)*keep_hands),'REPLACE')
+    d.vertex_group='resto';d.invert_vertex_group=keep_inv
 bpy.ops.object.modifier_apply(modifier='dec')
+if 'resto' in mesh.vertex_groups:mesh.vertex_groups.remove(mesh.vertex_groups['resto'])  # no es un hueso: fuera antes de leer los pesos
 mesh.data.transform(mesh.matrix_world);mesh.matrix_world=mathutils.Matrix()
 # tramos de cada vértice: los dos con más peso (del rig de Tripo) y la proporción entre ellos
 ORDER=[(3,2),(2,1),(1,0),(1,4),(4,5),(1,6),(6,7),(3,8),(8,9),(3,10),(10,11)]

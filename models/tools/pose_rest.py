@@ -1,19 +1,21 @@
 # Stick Ronin · pose de reposo para modelos de Mixamo antes de prepararlos (la usa prep_tripo.py con 'apose=…' y 'fist=…')
 # - apose: baja los brazos desde la pose en T (grados). En el juego los brazos van ~55° hacia abajo: con el reposo cerca de eso
 #   la mezcla de 2 tramos no pellizca el hombro.
-# - fist: cierra los dedos (grados por falange) para que la mano agarre la katana; el pulgar se cierra menos.
+# - fist: cierra los dedos para que la mano agarre la katana. 'fist' es el giro de referencia (grados); cada falange gira
+#   distinto (la del medio más) y el pulgar se cruza por delante de los dedos, como en un puño de verdad.
 import bpy,math,mathutils
+FIST_J=(1.05,1.25,.85)   # proporción del giro de cada falange (1 = base, 2 = media, 3 = punta)
 def _rot_arm_space(arm,pb,axis_world,ang):
     M=arm.matrix_world.to_3x3();ax=(M.inverted()@mathutils.Vector(axis_world)).normalized()
     head=pb.matrix.to_translation();R=mathutils.Matrix.Rotation(ang,4,ax)
     pb.matrix=mathutils.Matrix.Translation(head)@R@mathutils.Matrix.Translation(-head)@pb.matrix
     bpy.context.view_layer.update()
 def _rot_local(arm,pb,ang,axis='X'):
-    m=pb.matrix.to_3x3();ax={'X':m.col[0],'Z':m.col[2]}[axis].normalized()
+    m=pb.matrix.to_3x3();ax={'X':m.col[0],'Y':m.col[1],'Z':m.col[2]}[axis].normalized()
     head=pb.matrix.to_translation();R=mathutils.Matrix.Rotation(ang,4,ax)
     pb.matrix=mathutils.Matrix.Translation(head)@R@mathutils.Matrix.Translation(-head)@pb.matrix
     bpy.context.view_layer.update()
-def apply_rest_pose(arm,apose=0,fist=0,fist_sign=1):
+def apply_rest_pose(arm,apose=0,fist=0,fist_sign=1,thumb_in=35,thumb_curl=.75):
     P=arm.pose.bones;mx=lambda n:'mixamorig:'+n
     if apose:
         a=math.radians(apose)
@@ -26,10 +28,13 @@ def apply_rest_pose(arm,apose=0,fist=0,fist_sign=1):
             for fin in('Index','Middle','Ring','Pinky'):
                 for j in(1,2,3):
                     n=mx(side+'Hand'+fin+str(j))
-                    if n in P:_rot_local(arm,P[n],f)
+                    if n in P:_rot_local(arm,P[n],f*FIST_J[j-1])
+            # pulgar: primero se cruza hacia la palma (gira sobre el eje Z de su hueso), después se dobla
+            t1=mx(side+'HandThumb1')
+            if t1 in P:_rot_local(arm,P[t1],math.radians(thumb_in)*fist_sign*(1 if side=='Left' else -1),'Z')
             for j in(2,3):
                 n=mx(side+'HandThumb'+str(j))
-                if n in P:_rot_local(arm,P[n],f*.6)
+                if n in P:_rot_local(arm,P[n],f*thumb_curl)
 def bake_pose(mesh):
     # deja la malla deformada por el esqueleto como forma fija (la pose pasa a ser el reposo)
     bpy.context.view_layer.objects.active=mesh;mesh.select_set(True)
