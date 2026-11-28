@@ -10,7 +10,7 @@ timestamp: 2026-11-28
 
 ## 0. Restricciones globales (literales)
 - Móvil primero: probar en **412×915** (vertical) y **915×412** (horizontal).
-- **Ningún `<select>`** ni menú desplegable.
+- **Como mucho UN menú desplegable** («⋯ Más», para lo que se usa poco); ningún `<select>` (aclaración de Daniel, spec §A8).
 - Estilo actual: botones redondeados grafito, acento rojo `--acc #d1242c`, iconos con etiqueta corta (`<small>`).
 - Tamaño mínimo de toque **44 px**; deshacer/rehacer y Mover/Rotar **≥ 48 px**.
 - Rama `feat/editor-navegacion` en `F:\STICKRONIN\.worktrees\editor-navegacion` (sale de `origin/dev`). Subir con `git fetch origin && git rebase origin/dev && git push origin HEAD:dev`; nunca forzar, nunca a `main`.
@@ -27,8 +27,10 @@ timestamp: 2026-11-28
 └───────────────────────────────────────────────────────────┘
  editor.html
  ┌ vista 3D ────────────────────────────────┐
- │ barra izq.: Cadena Codos Gizmo Fantasma  │  gizmo de ejes (más grande) ← A1
- │   Recorrido Correr Zombi Prota           │  barra der.: Centrar Paneo Pantalla
+ │ barra izq. (siempre a la vista, uso      │  gizmo de ejes (más grande) ← A1
+ │  frecuente): Cadena Fantasma Correr       │  barra der.: Centrar  [⋯ Más] ← A8
+ │                                          │   ⋯ Más: Codos · Gizmo · Recorrido · Ver zombi
+ │                                          │          · Ver prota · Paneo · Pantalla completa
  │                                          │
  │ [↶][↷] [✥ Mover|⟳ Rotar]  ← «isla» fija   │  ← A2 + A3, abajo a la izquierda
  └──────────────────────────────────────────┘
@@ -37,7 +39,8 @@ timestamp: 2026-11-28
 - **Isla de acciones** (nueva, dentro de la vista, abajo a la izquierda, a la altura del pulgar): deshacer, rehacer y el interruptor Mover/Rotar. Usa los mismos `id` (`bUndo`, `bRedo`, `bGzMode`) para no tocar su lógica; el interruptor pasa a ser dos botones (`data-gz="move|rot"`), y el viejo botón único desaparece.
 - **Barra común** `tools-nav.js`: un archivo pequeño que pinta la barra de pestañas en cualquier página que lo cargue y marca la actual. Cada página decide dónde va (en el editor, encima de las tiras de armas; en horizontal, en la columna de la derecha).
 - **Decisión clave:** barra común en un archivo compartido, no copiada en cada página. Así, añadir una herramienta nueva es tocar un solo sitio, y las cuatro páginas no se desincronizan (ya pasó con `inkstyle.js`/`zmodel.js`).
-- **Alternativa descartada:** un botón «☰ Herramientas» que abra una lista. Es más compacto, pero es justo el tipo de menú escondido que Daniel no quiere.
+- **Alternativa descartada:** un botón «☰ Herramientas» que abra una lista. Es más compacto, pero cambiar de herramienta se hace a menudo y Daniel quiere verlo.
+- **El único desplegable, «⋯ Más»** (A8): agrupa por frecuencia de uso. Fuera, siempre visibles: deshacer, rehacer, Mover/Rotar, Cadena, Fantasma, Correr y Centrar. Dentro, lo que se toca de vez en cuando: Codos y rodillas, Gizmo, Recorrido, Ver zombi, Ver protagonista, Paneo y Pantalla completa. Cada opción conserva su `id` y su lógica; el menú se cierra al tocar fuera o al elegir, y muestra con un punto rojo qué opciones están encendidas.
 
 ## 3. Contratos
 - `tools-nav.js` → `ToolsNav.mount(contenedor, actual)`: pinta 4 pestañas con su icono y nombre; la actual va marcada y no es enlace. Antes de salir pregunta a la página con `ToolsNav.canLeave()` (por defecto, sí). `modelo.html` devuelve «no» si hay cambios sin guardar y pide confirmación (A5).
@@ -58,12 +61,14 @@ timestamp: 2026-11-28
 | A5 | En Modelo, pintar un vértice y tocar «Animación» → sale el aviso; al cancelar, no se va |
 | A6 | En local se ve «🛠 Herramientas» en el menú del juego; con el nombre de host simulado `…github.io` no se ve |
 | A7 | La prueba t48 entera (23 comprobaciones) sigue pasando; 0 `<select>` |
+| A8 | Hay exactamente un menú desplegable («⋯ Más»); abre y cierra; cada opción de dentro sigue haciendo lo mismo (alternar Codos, Gizmo, Recorrido, modelos, Paneo, Pantalla) |
 | Visual | Capturas antes/después en vertical y horizontal para Daniel |
 
 ## 6. Orden
 1. `tools-nav.js` + montarla en `shaders.html` y `modelo.html` (con el aviso de cambios sin guardar). Comprobar A4 y A5.
 2. Editor: isla de acciones (deshacer, rehacer, Mover/Rotar) y quitar esos botones de las barras. Comprobar A2 y A3.
 3. Editor: quitar Frente/Lado/Arriba/3D, gizmo más grande, toque en el centro → vista libre. Comprobar A1.
+3b. Editor: menú «⋯ Más» con las opciones de poco uso; la barra izquierda se queda con Cadena, Fantasma y Correr. Comprobar A8.
 4. Editor: montar la barra común (vertical y horizontal). Comprobar A4 en el editor.
 5. Juego: botón «🛠 Herramientas» solo fuera de `github.io`. Comprobar A6.
 6. Prueba t48 completa + capturas; `CLAUDE.md` (sección del editor) y FTD; subir a `dev`. Comprobar A7.
