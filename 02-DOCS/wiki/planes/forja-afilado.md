@@ -1,6 +1,6 @@
 # Propuesta: forja sencilla 鍛 — rarezas, fusión y piedras de afilar
 
-28 nov 2026 · idea de Daniel. **Hecho y subido a `dev`** (ver «Estado» al final).
+28 nov 2026 · idea de Daniel, pendiente de que apruebe las decisiones del final. **No hay nada programado.**
 
 Objetivo: dar una **vía segura para subir el daño del arma** (ahora depende de bendiciones y críticos) sin volver a la forja vieja (bolsa, huecos, metal, temple…). Convive con las bendiciones Kago: estas cambian *cómo* pegas y la forja, *cuánto*.
 
@@ -71,22 +71,3 @@ Legendaria y Divina = ×1,5 × 1,5 = **×2,25** de daño base. Es mucho, pero cu
 2. ¿Las armas del suelo, **solo de tus 2 tipos** o de cualquiera (y la puedes cambiar)?
 3. ¿Piedras **solo en la tienda** (cada 5 oleadas) o también como botín de minijefes?
 4. ¿Algo que quites o cambies de los niveles y las piedras?
-
----
-
-## Estado (28 nov 2026)
-Decisiones: piedras de minijefes y de **menas** que aparecen al empezar cada oleada (Daniel); el orbe del kami también puede dar cosas de la tienda (Daniel); fusión con **2** armas iguales y armas del suelo **solo de tus 2 tipos** (lo propuesto; Daniel no lo cambió). La fusión es automática al recoger (sin menú).
-- [x] Rareza y afilado en el daño y las estadísticas (`fjApply`). **Prueba:** katana común + común → rara, daño ×1,15 y ★ en el botón.
-- [x] Botín de minijefes, onis y jefes (`fjOnKill`). **Prueba:** un kappa con variante soltó piedra y arma; al recogerla la katana pasó a épica.
-- [x] Menas (`menaSpawn`, `menaStep`). **Prueba:** al 3.er golpe la mena se rompe y suelta su piedra; la roca es sólida.
-- [x] Pantalla 研 AFILAR (`fjForge`). **Prueba:** arenisca → Buena; extraña → Terrorífica (alcance +60 %, carga −30 %) y la piedra aguantó.
-- [x] Piedras en la tienda; orbe con regalo de la tienda (35 %). **Prueba:** con probabilidad 1 el orbe aplicó un objeto de la tienda y siguió la partida.
-- [x] Códice ℹ Info con el apartado 鍛 Forja.
-- [ ] Probar en el móvil y ajustar probabilidades; hoja de equilibrio sin actualizar.
-- [ ] Brillo del arma según afilado (ahora solo se ve en el botón y en la pantalla de afilar).
-- [x] Cambio pedido por Daniel: fusión como la antigua, por progreso según lo parecidas que sean las rarezas (`FJ.fuse` 1 / 0,5 / 0,25 / 0,12, barra ▰▱ en el aviso y en la pantalla de afilar). **Prueba:** común+común → rara; rara+rara → épica; 3 comunes sobre épica → 75 %; épica+épica → legendaria.
-- [x] Piedra de los kami 神砥 (pedida por Daniel): 50 % sube, 50 % baja, nunca Terrorífica (escalera Mala, Normal, Buena, Afilada, Letal, Divina; Terrorífica cuenta como Afilada). Sale en menas, minijefes y tienda (peso 1,5 de 11,5). **Prueba:** 58 cambios, 31 suben y 27 bajan, ninguno a Terrorífica; en Divina no hace nada ni se gasta.
-- [ ] Vigilar: con la piedra de los kami, desde Letal hay un 50 % de llegar a Divina (con el toishi es un 2 %).
-- [x] Pedido por Daniel: los bichos vuelven a soltar armas de cualquier tipo; al pisar una de otro tipo, ⇄ cambiar / 魂 vender / ⛓ acero / ✖. El acero templa la barra de rareza poco y menos según avanza la partida. **Prueba:** cambiar deja tu katana en el suelo y te quedas la naginata épica; al volver sale el menú; vender una rara da +10 魂; acero +1; ✖ cierra y el arma se queda; templar una épica en la oleada 3 da +6 %. Arreglado: el arma recién cogida se procesaba dos veces y se fusionaba consigo misma.
-- [x] Menús de la forja rehechos para móvil (pedido por Daniel: «mejor que el anterior, más animaciones»): yunque con brillo, arrastrar piedras a la hoja, piedra que pasa por el filo, chispas, sello de tinta del resultado, martillazo del acero, barra que se llena; tarjeta del arma del suelo con rebote, comparación de daño y botones grandes. **Prueba** (412×915 y 915×412, Chrome): arrastrar la arenisca a la hoja → Buena; acero +8 %; pestañas; en horizontal cabe todo; la tarjeta del suelo no tapa los botones de combate.
-
