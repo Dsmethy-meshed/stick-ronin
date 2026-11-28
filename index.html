@@ -229,8 +229,8 @@ window.sentryOnLoad=function(){try{Sentry.init({release:'stick-ronin@'+(window.G
 </script>
 <script src="https://js-de.sentry-cdn.com/2ee0b5df1a5d131e84907b778cece4d0.min.js" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="models/inkstyle.js?v=20261128d"></script>
-<script src="models/zmodel.js?v=20261128d"></script>
+<script src="models/inkstyle.js?v=20261128e"></script>
+<script src="models/zmodel.js?v=20261128e"></script>
 <script>
 {
 'use strict';
@@ -2897,7 +2897,7 @@ let ZN=[],EP=[],CLONES=[],TUR=[],KNUM=[],KST=new Set();
 // interruptores de efectos; los números de daño vienen encendidos en pruebas (dev) y apagados por defecto en la web oficial (github.io)
 const KGFX=(()=>{let o={shake:true,flash:true,vib:true,model:true,pmodel:!/github\.io$/.test(location.hostname),ink:!/github\.io$/.test(location.hostname),num:!/github\.io$/.test(location.hostname)};try{const r=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;if(r){o.shake=false;o.flash=false}Object.assign(o,JSON.parse(localStorage.getItem('stickronin_fx')||'{}'))}catch(_){}return o})();
 // modelos 3D de los zombis (models/zombie.glb) y sus clips (reverencia, trepar)
-function zmBoot(){if(!window.ZM||ZM.ready||ZM.failed||ZM.loading)return;ZM.loading=1;ZM.load('models/zombie.glb',scene)}
+function zmBoot(){if(!window.ZM||ZM.ready||ZM.failed||ZM.loading)return;ZM.loading=1;ZM.load('models/zombie.glb',scene,['models/zombie_lod1.glb','models/zombie_lod2.glb'])} // LOD1 800 y LOD2 568 triángulos (remesh de Tripo): < 5 m del foco de la cámara LOD0, < 9 m LOD1, más lejos LOD2 (en calidad 0, a la mitad)
 function zmpBoot(){if(!window.ZMP||ZMP.ready||ZMP.failed||ZMP.loading)return;ZMP.loading=1;ZMP.load('models/player.glb',scene)}
 // hacia dónde mira un cuerpo suelto (ragdoll/trozos): por las rodillas o, si no, por los codos
 function zmYaw(J,def){const a=J[8],b=J[10],c=J[4],d=J[6];let rx=0,rz=0;if(a&&b){rx=b[0]-a[0];rz=b[2]-a[2]}else if(c&&d){rx=d[0]-c[0];rz=d[2]-c[2]}if(Math.hypot(rx,rz)<1e-3)return def||0;return Math.atan2(rz,-rx)}
@@ -3827,7 +3827,7 @@ function drawCharZ(J,col,rad,hr){for(const[a,b]of BONES)bSeg(ZB_SEG,J[a],J[b],ra
 const BLK={r:0,g:0,b:0};
 function blobShadow(x,y,z,r){const gy=y<=.06?0:groundAt(x,y+.2,z),h=Math.max(0,y-gy),k=clamp(1-h/3,.25,1);bSph(DSK,[x,gy+.02,z],r*k,BLK)}
 function draw(){
- poolBegin();const zmOn=KGFX.model&&window.ZM;const inkO=!!KGFX.ink&&quality>0;for(const m of INK_B)m.visible=inkO;if(zmOn){zmBoot();ZM.begin();ZM.ink=inkO}const zmpOn=KGFX.pmodel&&window.ZMP;if(zmpOn){zmpBoot();ZMP.begin();ZMP.ink=inkO}if(KGFX.ink&&tick%90===0)inkScan(); // contornos fuera en calidad 0
+ poolBegin();const zmOn=KGFX.model&&window.ZM;const inkO=!!KGFX.ink&&quality>0;for(const m of INK_B)m.visible=inkO;if(zmOn){zmBoot();ZM.begin();ZM.ink=inkO;if(ZM.lodAt)ZM.lodAt(camTX,camTZ,quality===0?.5:1)}const zmpOn=KGFX.pmodel&&window.ZMP;if(zmpOn){zmpBoot();ZMP.begin();ZMP.ink=inkO}if(KGFX.ink&&tick%90===0)inkScan(); // contornos fuera en calidad 0
  for(const r of rags){
   const ak=r.ash?ashK(r.life):1,k=(r.keep||r.convert?1:clamp(1-(r.life-7)/1,0,1))*ak;if(k<=.02)continue;const rc=ashCol(r.col,ak);
   const rad=r.hr<.15?.035:.05;

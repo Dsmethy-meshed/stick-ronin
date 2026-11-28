@@ -1,5 +1,8 @@
 # Stick Ronin · prepara un modelo de Tripo (con rig) como PIEZAS RÍGIDAS pegadas a los 12 puntos del juego.
-# Uso: blender -b --factory-startup --python prep_tripo.py -- entrada.glb salida.glb salida_rig.json [triangulos] [tex] [apose=50] [fist=75] [fit]
+# Uso: blender -b --factory-startup --python prep_tripo.py -- entrada.glb salida.glb salida_rig.json [triangulos] [tex] [apose=50] [fist=75] [fit] [mesh=otra.glb]
+# - mesh=otra.glb (LOD): usa la malla de otra.glb (p. ej. un remesh de Tripo, sin rig) y le pasa los pesos de entrada.glb
+#   (modificador Data Transfer, cara más cercana interpolada). Las dos deben estar en la misma escala y pose de reposo.
+#   El JSON de puntos sale igual que el del modelo con rig: el _rig.json del modelo base vale para sus LOD.
 # - apose/fist (solo Mixamo): deja el reposo con los brazos bajados y los puños cerrados (pose_rest.py); evita que se pellizquen los hombros.
 # - fit: coloca el pecho y la cabeza de referencia con las proporciones del stickman (si no, la cabeza se hunde en el pecho).
 # - Vale para rigs de Tripo (Hip, L_Upperarm…) y de Mixamo (mixamorig:Hips, LeftArm…).
@@ -9,7 +12,7 @@
 # - Guarda en el JSON los 12 puntos de reposo y los puntos raíz de brazos y piernas (en coordenadas Y-arriba del juego).
 import bpy,bmesh,sys,json,mathutils
 a=sys.argv[sys.argv.index('--')+1:]
-src,out_glb,out_json=a[0],a[1],a[2];target=1500;keep_tex=False;apose=0;fist=0;fit=False;keep_hands=0;keep_inv=False
+src,out_glb,out_json=a[0],a[1],a[2];target=1500;keep_tex=False;apose=0;fist=0;fit=False;keep_hands=0;keep_inv=False;lod_mesh=None
 for t in a[3:]:
     if t.isdigit():target=int(t)
     elif t=='tex':keep_tex=True
@@ -18,14 +21,17 @@ for t in a[3:]:
     elif t.startswith('fist='):fist=float(t[5:])
     elif t.startswith('hands='):keep_hands=float(t[6:])  # 0..1: cuánto se protegen las manos al bajar triángulos
     elif t=='handsinv':keep_inv=True
+    elif t.startswith('mesh='):lod_mesh=t[5:]
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=src)
 for o in list(bpy.data.objects):
     if o.type=='MESH' and not o.vertex_groups:bpy.data.objects.remove(o)
 arm=[o for o in bpy.data.objects if o.type=='ARMATURE'][0]
 mesh=[o for o in bpy.data.objects if o.type=='MESH'][0]
-if arm.animation_data:arm.animation_data.action=None
+# sin animación (acción y pistas NLA) y en reposo; hay que refrescar o los huesos se leen en la pose del último fotograma evaluado
+arm.animation_data_clear()
 for pb in arm.pose.bones:pb.matrix_basis=mathutils.Matrix()
+bpy.context.view_layer.update()
 B=arm.data.bones;M=arm.matrix_world
 MIX='mixamorig:Hips' in B
 def mx(n):return 'mixamorig:'+n
@@ -71,6 +77,24 @@ else:
 # menos triángulos (en reposo, sin el modificador de esqueleto)
 for m in list(mesh.modifiers):
     if m.type=='ARMATURE':mesh.modifiers.remove(m)
+if lod_mesh:
+    # LOD: otra malla (sin rig) recibe los pesos de la malla con rig, en reposo y en coordenadas de mundo
+    before=set(bpy.data.objects);bpy.ops.import_scene.gltf(filepath=lod_mesh)
+    new=[o for o in bpy.data.objects if o not in before and o.type=='MESH']
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in new:o.select_set(True)
+    bpy.context.view_layer.objects.active=new[0]
+    if len(new)>1:bpy.ops.object.join()
+    tgt=bpy.context.view_layer.objects.active;mw=tgt.matrix_world.copy();tgt.parent=None
+    tgt.data.transform(mw);tgt.matrix_world=mathutils.Matrix()
+    mw=mesh.matrix_world.copy();mesh.parent=None;mesh.data.transform(mw);mesh.matrix_world=mathutils.Matrix()
+    for vg_ in mesh.vertex_groups:tgt.vertex_groups.new(name=vg_.name)
+    dt=tgt.modifiers.new('pesos','DATA_TRANSFER');dt.object=mesh;dt.use_vert_data=True;dt.data_types_verts={'VGROUP_WEIGHTS'}
+    dt.vert_mapping='POLYINTERP_NEAREST';dt.layers_vgroup_select_src='ALL';dt.layers_vgroup_select_dst='NAME'
+    bpy.ops.object.select_all(action='DESELECT');tgt.select_set(True);bpy.context.view_layer.objects.active=tgt
+    bpy.ops.object.modifier_apply(modifier='pesos')
+    bpy.data.objects.remove(mesh);mesh=tgt
+    print('LOD: pesos pasados a',lod_mesh,'triangulos',sum(len(p.vertices)-2 for p in mesh.data.polygons))
 tris=sum(len(p.vertices)-2 for p in mesh.data.polygons)
 bpy.context.view_layer.objects.active=mesh;mesh.select_set(True)
 d=mesh.modifiers.new('dec','DECIMATE');d.ratio=min(1,target/tris);d.use_collapse_triangulate=True
